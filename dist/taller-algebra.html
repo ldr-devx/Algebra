@@ -1,0 +1,2556 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Taller de Álgebra</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&family=JetBrains+Mono:wght@500;700&family=Silkscreen:wght@400;700&display=swap">
+<style>
+/* Layout: HUD de videojuego. Cabecera con XP, pestañas de misiones y un panel de trabajo por misión (máquina, balanza o recta numérica) con registro de pasos. Una sola apariencia oscura, hecha a propósito. */
+:root{
+  --bg:#11151c; --panel:#1a202a; --panel2:#232b38; --line:#34415a;
+  --fg:#e9eef6; --muted:#9aa6bb; --lime:#b9f43a; --lime-ink:#10190a;
+  --cyan:#52d9ff; --pink:#ff5d9e; --amber:#ffc24b;
+  --f-display:'Silkscreen','Courier New',monospace;
+  --f-body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-block:20px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1020px;margin-inline:auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;letter-spacing:.03em;text-wrap:balance;margin:0}
+p{margin:0}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* cabecera */
+.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+.brand{min-width:0}
+.brand h1{font-size:clamp(26px,6vw,40px);line-height:1.05;color:var(--lime)}
+.brand p{margin-top:8px;color:var(--muted);max-width:58ch}
+.xp{width:220px;max-width:100%}
+.xp .lbl{display:flex;justify-content:space-between;font-family:var(--f-display);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bar{height:14px;margin-top:6px;background:var(--panel2);border:2px solid var(--line)}
+.bar>i{display:block;height:100%;width:0;background:var(--lime);transition:width .4s}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{font-family:var(--f-display);font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:10px 14px;
+  background:var(--panel);color:var(--fg);border:2px solid var(--line);border-radius:4px;box-shadow:0 4px 0 #0008;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--lime);color:var(--lime-ink);border-color:var(--lime)}
+
+/* piezas comunes */
+.mission{display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-family:var(--f-display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+.mhead h2{font-size:clamp(22px,4.6vw,32px);margin-top:6px}
+.lede{margin-top:10px;max-width:64ch;font-size:17px}
+.exam{margin-top:8px;color:var(--muted);font-size:14px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.card>h3{font-size:14px;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.sub{color:var(--muted);font-size:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:700 15px var(--f-body);padding:10px 16px;border:2px solid var(--line);background:var(--panel2);color:var(--fg);border-radius:4px;cursor:pointer;box-shadow:0 3px 0 #0009}
+.btn:active:not([disabled]){transform:translateY(2px);box-shadow:0 1px 0 #0009}
+.btn.primary{background:var(--lime);color:var(--lime-ink);border-color:var(--lime)}
+.btn.ghost{background:transparent;box-shadow:none}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+input[type=text],input[type=number],select{font:600 17px var(--f-mono);color:var(--fg);background:#0c1017;border:2px solid var(--line);border-radius:4px;padding:9px 10px;width:100px;min-width:0}
+select{width:auto}
+label.fld{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.msg{min-height:1.5em;font-weight:600}
+.msg.ok{color:var(--lime)} .msg.bad{color:var(--pink)} .msg.info{color:var(--amber)}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;font-size:.82em;margin-inline:2px}
+.fr i{font-style:normal;padding:0 3px}
+.fr i:first-child{border-bottom:2px solid currentColor}
+.seg{display:inline-flex;border:0;padding:0;margin:0}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.seg span{display:block;min-width:44px;text-align:center;padding:9px 12px;font:700 20px var(--f-mono);background:var(--panel2);border:2px solid var(--line);margin-left:-2px}
+.seg label:first-child span{margin-left:0;border-radius:4px 0 0 4px}
+.seg label:last-child span{border-radius:0 4px 4px 0}
+.seg input:checked+span{background:var(--lime);color:var(--lime-ink);border-color:var(--lime);position:relative;z-index:1}
+.seg input:focus-visible+span{outline:3px solid var(--cyan);outline-offset:2px;z-index:2}
+.seg.txt span{font:700 14px var(--f-body);padding:10px 12px}
+
+/* misión 1: mesa */
+.rules{display:flex;flex-wrap:wrap;gap:8px}
+.rule{font:700 16px var(--f-mono);padding:8px 12px;background:var(--panel2);color:var(--fg);border:2px solid var(--line);border-radius:4px;cursor:pointer}
+.rule[aria-pressed="true"]{border-color:var(--lime);color:var(--lime)}
+.hotbar{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.slot{position:relative;width:54px;height:54px;display:grid;place-items:center;font:700 19px var(--f-mono);background:var(--panel2);color:var(--fg);border:3px solid #080b10;outline:2px solid var(--line);outline-offset:0;cursor:pointer;border-radius:0}
+.slot.sel{outline-color:var(--lime);background:#2b3a1c}
+.slot.done::after{content:"";position:absolute;right:4px;top:4px;width:8px;height:8px;background:var(--lime)}
+.slot.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.machine{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-block:16px}
+.io{width:82px;min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0c1017;border:3px solid var(--line);padding:6px}
+.io small{font-family:var(--f-display);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.io b{font:700 24px var(--f-mono)}
+.io.out{border-color:var(--amber)} .io.out b{color:var(--amber)}
+.io.pop b{animation:pop .5s}
+@keyframes pop{0%{transform:scale(.3)}60%{transform:scale(1.35)}100%{transform:scale(1)}}
+.station{min-width:84px;padding:10px 8px;text-align:center;background:var(--panel2);border:3px solid var(--line);transition:border-color .2s,box-shadow .2s}
+.station .op{font:700 20px var(--f-mono)}
+.station .val{min-height:1.4em;font:600 14px var(--f-mono);color:var(--cyan)}
+.station.on{border-color:var(--lime);box-shadow:0 0 0 4px #b9f43a33}
+.arrow{width:0;height:0;border-left:12px solid var(--muted);border-top:8px solid transparent;border-bottom:8px solid transparent}
+.tbl{border-collapse:collapse;width:100%;font:600 17px var(--f-mono)}
+.tbl th{font:400 12px var(--f-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:center;padding:6px;border-bottom:2px solid var(--line)}
+.tbl td{text-align:center;padding:6px;border-bottom:1px solid var(--line)}
+.tbl td.q{color:var(--line)}
+.tbl tr.now td{background:#b9f43a1c}
+.plot{width:100%;height:auto;display:block}
+.plot .g{stroke:var(--line);stroke-width:1}
+.plot .ax{stroke:var(--muted);stroke-width:2}
+.plot text{fill:var(--muted);font:11px var(--f-mono)}
+.plot .pt{fill:var(--lime);stroke:#0a0d12;stroke-width:2}
+.plot .ln{fill:none;stroke:var(--lime);stroke-width:2;stroke-dasharray:5 4;opacity:.8}
+.plot text.lb{fill:var(--fg);font-weight:700}
+.caps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.caps{grid-template-columns:minmax(0,1fr)}}
+.cap{border:2px solid var(--line);padding:12px;background:var(--panel2)}
+.cap h4{margin:0 0 6px;font:700 15px var(--f-body)}
+.logchips{display:flex;flex-wrap:wrap;gap:6px;min-height:34px;margin:8px 0}
+.logchips b{font:700 16px var(--f-mono);padding:4px 9px;background:#0c1017;border:2px solid var(--line)}
+.rel-set{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.rel-set span{font:600 15px var(--f-mono);padding:4px 8px;background:#0c1017;border:2px solid var(--line)}
+.quiz{display:flex;flex-direction:column;gap:10px}
+.q{border:2px solid var(--line);padding:12px;background:var(--panel2)}
+.q .fb{margin-top:6px;font-size:14px}
+
+/* misión 2: balanza */
+.levels{display:flex;flex-wrap:wrap;gap:6px}
+.lv{min-width:42px;font:700 15px var(--f-mono);padding:7px 10px;background:var(--panel2);color:var(--fg);border:2px solid var(--line);border-radius:4px;cursor:pointer;position:relative}
+.lv[aria-current="true"]{border-color:var(--lime);color:var(--lime)}
+.lv.done::after{content:"";position:absolute;right:3px;top:3px;width:7px;height:7px;background:var(--lime)}
+.eqcard{text-align:center;padding:14px 8px;background:#0c1017;border:3px solid var(--line);margin-top:12px}
+.eqcard .tag{font-family:var(--f-display);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.eqn{font:700 clamp(24px,6vw,34px) var(--f-mono);margin-top:6px;word-spacing:.1em}
+.eqn .rel{color:var(--amber)}
+.scale{position:relative;max-width:560px;height:236px;margin:12px auto 6px}
+.beam{position:absolute;left:2%;right:2%;top:10px;height:14px;background:var(--amber);border:2px solid #0009;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+.pivot{position:absolute;left:50%;top:3px;width:26px;height:26px;margin-left:-13px;background:var(--panel2);border:3px solid var(--amber);transform:rotate(45deg)}
+.stand{position:absolute;left:50%;top:26px;width:10px;margin-left:-5px;height:200px;background:var(--line)}
+.sbase{position:absolute;left:32%;right:32%;bottom:0;height:12px;background:var(--line)}
+.pan{position:absolute;top:24px;width:44%;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+.pan.l{left:2%} .pan.r{right:2%}
+.pan .string{width:2px;height:24px;background:var(--muted);margin:0 auto}
+.pan .tray{border:3px solid var(--muted);border-top:0;background:#0004;min-height:112px;display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-content:flex-end;padding:8px}
+.pan .lab{text-align:center;font:700 15px var(--f-mono);margin-top:6px;min-height:1.6em}
+.crate{min-width:42px;height:42px;display:grid;place-items:center;font:700 20px var(--f-mono);color:var(--lime-ink);background:var(--lime);border:3px solid #0008;padding:0 6px}
+.crate.neg{background:var(--pink)}
+.tiles{display:inline-flex;flex-wrap:wrap;gap:2px;max-width:112px}
+.tile{display:block;width:14px;height:14px;background:var(--lime);border:2px solid #0007}
+.tiles.neg .tile{background:var(--pink)}
+.nchip{min-width:42px;height:36px;display:grid;place-items:center;padding:0 8px;font:700 18px var(--f-mono);color:var(--lime);background:#0c1017;border:3px solid var(--lime)}
+.nchip.neg{color:var(--pink);border-color:var(--pink)}
+.ops{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:12px}
+.ops .grp{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.log{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.log li{border-left:4px solid var(--cyan);padding:6px 10px;background:var(--panel2);font:600 15px var(--f-mono);overflow-wrap:anywhere}
+.log .ot{display:block;font:700 12px var(--f-body);color:var(--cyan);text-transform:uppercase;letter-spacing:.06em}
+.log .res{display:block;color:var(--lime)}
+.log .mirror{display:inline-block;margin-top:4px;font:700 12px var(--f-body);color:var(--lime-ink);background:var(--amber);padding:2px 8px}
+.win{margin-top:12px;border:3px solid var(--lime);background:#1d2a0e;padding:14px}
+.win b.big{font-family:var(--f-display);font-size:16px;color:var(--lime)}
+.win p{margin-top:6px}
+.ask{margin-top:12px;border:3px solid var(--amber);background:#2a2210;padding:14px}
+
+/* misión 3 */
+.nl{width:100%;height:auto;display:block;touch-action:pan-y;cursor:pointer;user-select:none}
+.nl .base{stroke:var(--muted);stroke-width:3;fill:none}
+.nl .tick{stroke:var(--muted);stroke-width:2}
+.nl text{fill:var(--muted);font:700 17px var(--f-mono);text-anchor:middle}
+.nl text.z{fill:var(--amber)}
+.nl .zone{fill:var(--lime);opacity:.2}
+.nl .zr{stroke:var(--lime);stroke-width:7;stroke-linecap:butt}
+.nl .ar{stroke:var(--cyan);stroke-width:7}
+.nl .ok{fill:var(--lime);stroke:#0a0d12;stroke-width:2}
+.nl .no{fill:var(--pink);stroke:#0a0d12;stroke-width:2}
+.nl .tok{fill:none;stroke:var(--fg);stroke-width:3}
+.nl .open{fill:var(--panel);stroke-width:5}
+.nl .closed{stroke:#0a0d12;stroke-width:2}
+.mirror-svg{width:100%;height:auto;display:block}
+.mirror-svg text{fill:var(--muted);font:600 13px var(--f-mono);text-anchor:middle}
+.mirror-svg .tk{stroke:var(--line);stroke-width:2}
+.mirror-svg .ln{stroke:var(--muted);stroke-width:3}
+.mirror-svg .ca{fill:var(--cyan)} .mirror-svg .cb{fill:var(--amber)}
+.mirror-svg .lk{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 4}
+.mirror-svg text.mk{fill:#0a0d12;font-weight:700;font-size:13px}
+.readout{font:600 15px var(--f-mono);min-height:2.6em;margin-top:8px;overflow-wrap:anywhere}
+
+.soon{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.soon .card h3{font-size:13px;margin-bottom:6px}
+.soon .tag{font:600 12px var(--f-mono);color:var(--cyan)}
+.soon p{font-size:14px;color:var(--fg);margin-top:6px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;pointer-events:none;
+  font-family:var(--f-display);font-size:14px;background:var(--lime);color:var(--lime-ink);padding:10px 16px;border:3px solid #0a0d12;transition:.3s;z-index:20}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* módulos nuevos */
+.tabs{gap:6px}
+.tab{font-size:12px;padding:8px 10px}
+input[type=range]{width:100%;accent-color:var(--lime);height:28px}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
+.pl{width:100%;height:auto;display:block;max-width:420px;margin-inline:auto}
+.pl .g{stroke:var(--line);stroke-width:1;opacity:.45}
+.pl .g5{opacity:1}
+.pl .ax{stroke:var(--muted);stroke-width:2}
+.pl text{fill:var(--muted);font:11px var(--f-mono)}
+.pl .l1{stroke:var(--cyan);stroke-width:3.5;fill:none}
+.pl .l2{stroke:var(--lime);stroke-width:3.5;fill:none}
+.pl .gh{stroke:var(--amber);stroke-width:3;stroke-dasharray:7 6;fill:none}
+.pl .tri{fill:none;stroke:var(--pink);stroke-width:2.5}
+.pl .pt{fill:var(--lime);stroke:#0a0d12;stroke-width:2}
+.pl .pt2{fill:var(--pink);stroke:#0a0d12;stroke-width:2}
+.pl .ra{fill:none;stroke:var(--amber);stroke-width:2.5}
+.pl text.lb{fill:var(--fg);font-weight:700;font-size:12px}
+.expr{font:700 clamp(22px,5.4vw,32px) var(--f-mono);display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 8px;margin-top:8px;min-height:54px}
+.expr .n{padding:2px 2px}
+.expr .gl{color:var(--muted)}
+.optk{font:700 inherit;font-family:var(--f-mono);font-size:inherit;color:var(--cyan);background:var(--panel2);border:2px solid var(--line);border-radius:4px;min-width:40px;padding:2px 8px;cursor:pointer;line-height:1.3}
+.optk sup{font-size:.7em}
+.optk.hint{border-color:var(--lime);box-shadow:0 0 0 4px #b9f43a40;color:var(--lime)}
+.optk.bad{border-color:var(--pink);animation:shake .35s}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.ladder span{font:700 12px var(--f-display);letter-spacing:.05em;text-transform:uppercase;padding:6px 10px;border:2px solid var(--line);color:var(--muted)}
+.ladder span.on{border-color:var(--lime);color:var(--lime-ink);background:var(--lime)}
+.dots{display:flex;flex-wrap:wrap;gap:2px;margin-top:8px;max-height:130px;overflow:hidden}
+.dots i{display:block;width:8px;height:8px;background:var(--pink)}
+.venn{width:100%;height:auto;display:block;margin-top:12px}
+.venn .c{fill:#0c1017;stroke:var(--line);stroke-width:3}
+.venn .u{fill:none;stroke:var(--line);stroke-width:2;stroke-dasharray:6 5}
+.venn .hl{fill:var(--lime);opacity:.35}
+.venn text{fill:var(--fg);font:700 16px var(--f-mono);text-anchor:middle}
+.venn text.tt{fill:var(--muted);font:700 22px var(--f-display)}
+.venn .chipbg{fill:var(--panel2);stroke:var(--line);stroke-width:2}
+.cells{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;margin-top:12px}
+.cells i{display:block;min-width:8px;flex:1 1 8px;max-width:34px;height:26px;border:2px solid var(--line);background:#0c1017}
+.cells i.s{background:var(--lime);border-color:#0a0d12}
+.cells i.s.neg{background:var(--pink)}
+.q .row{align-items:flex-end}
+.q input[type=text]{width:90px}
+@media (max-width:420px){.tab{font-size:11px;padding:7px 8px}}
+
+/* menú */
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.mcard{display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:var(--fg);background:var(--panel);border:2px solid var(--line);border-radius:6px;padding:14px;cursor:pointer;box-shadow:0 4px 0 #0008;min-width:0}
+.mcard:hover{border-color:var(--lime)}
+.mcard .num{font-family:var(--f-display);font-size:28px;color:var(--lime);line-height:1}
+.mcard .tt{font:800 18px var(--f-body)}
+.mcard .st{font:600 12px var(--f-mono);color:var(--cyan)}
+.mcard .bar{height:10px;margin-top:4px}
+.mcard .cnt{font:600 12px var(--f-mono);color:var(--muted)}
+.mcard.full{border-color:var(--lime)}
+
+/* práctica */
+.practice{margin-top:18px;border-color:var(--amber)}
+.practice .muted{color:var(--muted);font-size:14px}
+.pr-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.pr-chip{font:700 12px var(--f-mono);min-width:34px;height:30px;padding:0 4px;background:var(--panel2);color:var(--muted);border:2px solid var(--line);border-radius:3px;cursor:pointer}
+.pr-chip.done{background:var(--lime);color:var(--lime-ink);border-color:var(--lime)}
+.pr-chip.cur{outline:2px solid var(--cyan);outline-offset:1px}
+.pr-q{font-size:18px;line-height:1.5;margin-bottom:12px}
+.pr-n{font-family:var(--f-mono);color:var(--amber);font-weight:700}
+.pr-in{margin-bottom:12px}
+.pr-f{display:flex;flex-direction:column;gap:4px;font:700 12px var(--f-mono);color:var(--muted)}
+.pr-f input{width:130px;font:700 18px var(--f-mono);padding:8px;background:#0c1017;color:var(--fg);border:2px solid var(--line);border-radius:4px}
+.pr-f input:focus{outline:none;border-color:var(--cyan)}
+.pr-choices{display:flex;flex-direction:column;gap:8px}
+.pr-opt{text-align:left}
+.pr-opt.sel{border-color:var(--cyan);color:var(--cyan)}
+.pr-act{gap:8px;flex-wrap:wrap}
+.pr-msg{margin-top:10px;min-height:1.4em}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Taller de Álgebra</h1>
+      <p>Misiones interactivas para entender álgebra jugando. Se prueba, se falla y se entiende. Los ejercicios salen de los exámenes cortos y de los temas del libro.</p>
+    </div>
+    <div class="xp" aria-live="polite">
+      <div class="lbl"><span id="lvl">Nivel 1</span><span id="xpn">0 XP</span></div>
+      <div class="bar"><i id="xpbar"></i></div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Misiones">
+    <button class="tab" role="tab" data-tab="inicio">Menú</button>
+    <button class="tab" role="tab" data-tab="desigualdades">1 · Desigualdades</button>
+    <button class="tab" role="tab" data-tab="ecuaciones">2 · Ecuaciones</button>
+    <button class="tab" role="tab" data-tab="funciones">3 · Funciones</button>
+    <button class="tab" role="tab" data-tab="varios">4 · Varios pasos</button>
+    <button class="tab" role="tab" data-tab="pendiente">5 · Pendiente</button>
+    <button class="tab" role="tab" data-tab="estandar">6 · Forma estándar</button>
+    <button class="tab" role="tab" data-tab="rectas">7 · Paralelas y perpendiculares</button>
+    <button class="tab" role="tab" data-tab="orden">8 · Orden de operaciones</button>
+    <button class="tab" role="tab" data-tab="exponentes">9 · Exponentes</button>
+    <button class="tab" role="tab" data-tab="conjuntos">10 · Conjuntos</button>
+    <button class="tab" role="tab" data-tab="racionales">11 · Racionales</button>
+  </nav>
+
+  <!-- ============ MENÚ ============ -->
+  <section class="mission" data-tab="inicio">
+    <div class="mhead">
+      <p class="eyebrow">Menú principal</p>
+      <h2>Elige tu misión</h2>
+      <p class="lede">Cada misión convierte un tema en un juego. Gana XP resolviendo niveles y sigue tu avance desde aquí. El avance se guarda en este navegador.</p>
+    </div>
+    <div class="card">
+      <div class="xp" style="width:100%"><div class="lbl"><span>Avance total</span><span id="menu-pct">0%</span></div><div class="bar"><i id="menu-bar"></i></div></div>
+    </div>
+    <div class="menu" id="menu-grid"></div>
+    <div class="card">
+      <h3>Empezar de cero</h3>
+      <p class="sub">Borra el XP y el avance de todas las misiones para repetirlo todo desde el principio.</p>
+      <div class="row" style="margin-top:12px"><button class="btn" id="reset-ask">Reiniciar todos los avances</button></div>
+      <div class="ask" id="reset-box" hidden>
+        <b>¿Seguro? Se borran el XP y todos los niveles completados.</b>
+        <div class="row" style="margin-top:10px"><button class="btn primary" id="reset-yes">Sí, empezar de cero</button><button class="btn" id="reset-no">Cancelar</button></div>
+        <p class="msg" id="reset-msg" aria-live="polite" style="margin-top:8px"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MISIÓN 1 ============ -->
+  <section class="mission" data-tab="funciones" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 3 · Funciones</p>
+      <h2>La mesa de crafteo</h2>
+      <p class="lede">Pones ingredientes, aplicas la receta y sale un objeto. Si pones lo mismo, sale lo mismo. Esa mesa es una función: entra <b>x</b>, sale <b>y</b>.</p>
+      <p class="exam">Examen corto 1 · 9.º ej. 3 (hacer la tabla de la función) · Examen corto 2 · 6.º ej. 1 (completar tablas)</p>
+    </div>
+
+    <div class="card">
+      <h3>1 · Elige una receta</h3>
+      <div class="rules" id="fn-rules" role="group" aria-label="Recetas"></div>
+      <p class="sub" style="margin-top:14px">Inventario. Solo entra lo que está en el dominio de esta receta. Toca un ingrediente.</p>
+      <div class="hotbar" id="fn-hotbar"></div>
+      <div class="machine" id="fn-machine" aria-label="Máquina de la función"></div>
+      <div class="row">
+        <label class="fld">Tu predicción de la salida (opcional)
+          <input type="text" id="fn-guess" inputmode="text" autocomplete="off" placeholder="¿cuánto sale?">
+        </label>
+        <button class="btn primary" id="fn-go" style="align-self:flex-end">Craftear</button>
+      </div>
+      <p class="msg" id="fn-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>2 · La tabla se llena sola</h3>
+        <table class="tbl" id="fn-table"></table>
+        <p class="sub" id="fn-insight" style="margin-top:10px"></p>
+      </div>
+      <div class="card">
+        <h3>Cada craft es un punto</h3>
+        <svg class="plot" id="fn-plot" viewBox="0 0 360 250" role="img" aria-label="Plano con los puntos crafteados"></svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>3 · ¿Máquina o cápsula sorpresa?</h3>
+      <p>Mete el número <b>3</b> varias veces en cada máquina y mira qué pasa.</p>
+      <div class="caps" style="margin-top:12px">
+        <div class="cap"><h4>Máquina A · receta 2x + 1</h4><button class="btn" id="cap-a">Meter el 3</button><div class="logchips" id="cap-a-log"></div><p class="sub" id="cap-a-v"></p></div>
+        <div class="cap"><h4>Máquina B · cápsula sorpresa</h4><button class="btn" id="cap-b">Meter el 3</button><div class="logchips" id="cap-b-log"></div><p class="sub" id="cap-b-v"></p></div>
+      </div>
+      <p style="margin-top:16px"><b>Regla de oro:</b> una misma entrada nunca puede dar dos salidas. Dos entradas distintas sí pueden dar la misma. ¿Cuáles de estas son funciones?</p>
+      <div class="quiz" id="fn-quiz" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <h3>4 · Modo reversa</h3>
+      <p>La máquina escupió un resultado. ¿Qué número entró? Piensa en deshacer cada estación en orden contrario.</p>
+      <div class="machine" id="rev-machine"></div>
+      <div class="row">
+        <label class="fld">Entró el número
+          <input type="text" id="rev-in" inputmode="text" autocomplete="off" placeholder="x = ?">
+        </label>
+        <button class="btn primary" id="rev-check" style="align-self:flex-end">Comprobar</button>
+        <button class="btn ghost" id="rev-new" style="align-self:flex-end">Otra máquina</button>
+      </div>
+      <p class="msg" id="rev-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+
+    <div class="card practice" id="pr-funciones"></div>
+
+  </section>
+
+  <!-- ============ MISIÓN 2 ============ -->
+  <section class="mission" data-tab="ecuaciones" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 2 · Ecuaciones lineales</p>
+      <h2>La balanza perfectamente equilibrada</h2>
+      <p class="lede">Una ecuación es una balanza en equilibrio. Lo que haces en un plato lo haces en el otro, o la rompes. Tu misión: dejar la caja misteriosa sola en un plato.</p>
+      <p class="exam">Examen corto 2 · 8.º ej. 1 y 2 · 9.º ej. 1 y 2 (ecuaciones de uno y dos pasos)</p>
+    </div>
+    <div class="card" id="eq-root"></div>
+
+    <div class="card practice" id="pr-ecuaciones"></div>
+
+  </section>
+
+  <!-- ============ MISIÓN 3 ============ -->
+  <section class="mission" data-tab="desigualdades" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 1 · Desigualdades (5-1, 5-2)</p>
+      <h2>La zona segura y el espejo</h2>
+      <p class="lede">Una ecuación pide un valor. Una desigualdad pide una zona. Explora la recta, descubre dónde se cumple y dibújala. Con números negativos todo se voltea, como en el Mundo del Revés.</p>
+      <p class="exam">Examen corto 2 · 8.º ej. 3 (inecuaciones y recta numérica) · Temas 5-1, 5-2 y 5-3</p>
+    </div>
+
+    <div class="card" id="mirror">
+      <h3>Calentamiento · el espejo</h3>
+      <p>Elige dos números y un multiplicador. Mira qué le pasa al orden.</p>
+      <div class="row" style="margin-top:10px">
+        <label class="fld">a<input type="number" id="mr-a" value="-3" min="-5" max="5" step="1"></label>
+        <label class="fld">b<input type="number" id="mr-b" value="2" min="-5" max="5" step="1"></label>
+        <label class="fld">Multiplicar por
+          <select id="mr-m"><option value="2">2</option><option value="-1" selected>−1</option><option value="-2">−2</option><option value="-3">−3</option></select>
+        </label>
+      </div>
+      <svg class="mirror-svg" id="mr-svg" viewBox="0 0 640 200" role="img" aria-label="Dos rectas numéricas, antes y después de multiplicar"></svg>
+      <p class="readout" id="mr-out" aria-live="polite"></p>
+    </div>
+
+    <div class="card" id="iq-root"></div>
+
+    <div class="card practice" id="pr-desigualdades"></div>
+
+  </section>
+
+  <!-- ============ 5-3 VARIOS PASOS ============ -->
+  <section class="mission" data-tab="varios" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 4 · Tema 5-3</p>
+      <h2>Varios pasos: paréntesis y letras en los dos platos</h2>
+      <p class="lede">Ahora la caja misteriosa está en los dos platos y hay paréntesis que estorban. Primero se limpia cada lado, luego se juntan las letras en un solo plato y al final se resuelve como siempre.</p>
+      <p class="exam">Examen corto 2 · 9.º ej. 3 y 4 · Examen corto 2 · 10.º ej. 4 · Tema 5-3 con desigualdades</p>
+    </div>
+    <div class="card" id="mp-root"></div>
+
+    <div class="card practice" id="pr-varios"></div>
+
+  </section>
+
+  <!-- ============ PENDIENTE ============ -->
+  <section class="mission" data-tab="pendiente" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 5 · Pendiente e intercepto (3.4 y 3.5)</p>
+      <h2>La rampa y el punto de aparición</h2>
+      <p class="lede">Una recta tiene dos datos: dónde aparece el personaje sobre el eje y (el intercepto b) y qué tan empinada es la rampa (la pendiente m). Mueve los controles hasta encajar con la recta punteada.</p>
+      <p class="exam">Libro 3.4 forma pendiente-intercepto · 3.5 forma punto-pendiente</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Controles</h3>
+        <label class="fld">Pendiente m <input type="range" id="pt-m" min="-8" max="8" step="1" value="1"></label>
+        <label class="fld" style="margin-top:10px">Intercepto b <input type="range" id="pt-b" min="-8" max="8" step="1" value="0"></label>
+        <p class="eqn" id="pt-eq" style="margin-top:12px" aria-live="polite"></p>
+        <p class="sub" id="pt-info" style="margin-top:6px"></p>
+        <div class="levels" id="pt-levels" style="margin-top:14px" role="group" aria-label="Retos"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="pt-check">Comprobar con la punteada</button>
+          <label class="fld" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="pt-free"> Modo libre</label>
+        </div>
+        <p class="msg" id="pt-msg" aria-live="polite" style="margin-top:8px"></p>
+        <h3 style="margin-top:14px">Punto-pendiente</h3>
+        <label class="fld">Elige un punto de tu recta, x₁ <input type="number" id="pt-x1" min="-5" max="5" step="1" value="2"></label>
+        <p class="readout" id="pt-ps"></p>
+      </div>
+      <div class="card"><h3>El plano</h3><svg class="pl" id="pt-svg" viewBox="0 0 360 360" role="img" aria-label="Plano con la recta"></svg></div>
+    </div>
+
+    <div class="card practice" id="pr-pendiente"></div>
+
+  </section>
+
+  <!-- ============ FORMA ESTÁNDAR ============ -->
+  <section class="mission" data-tab="estandar" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 6 · Tema 4-4</p>
+      <h2>La tienda y la forma estándar</h2>
+      <p class="lede">Tienes un presupuesto exacto y dos objetos con precio. Todas las compras que gastan justo el presupuesto forman una recta: Ax + By = C.</p>
+      <p class="exam">Tema 4-4 · Escribir ecuaciones lineales en forma estándar</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>1 · Gasta el presupuesto exacto</h3>
+        <div class="levels" id="st-shops" role="group" aria-label="Tiendas"></div>
+        <p id="st-rule" style="margin-top:10px;font-weight:600"></p>
+        <div class="row" style="margin-top:10px">
+          <div class="cap" style="min-width:140px"><h4>Espadas (x)</h4><div class="row"><button class="btn" data-st="x-" aria-label="una espada menos">−</button><b id="st-xv" style="font:700 22px var(--f-mono);min-width:28px;text-align:center">0</b><button class="btn" data-st="x+" aria-label="una espada más">+</button></div></div>
+          <div class="cap" style="min-width:140px"><h4>Pociones (y)</h4><div class="row"><button class="btn" data-st="y-" aria-label="una poción menos">−</button><b id="st-yv" style="font:700 22px var(--f-mono);min-width:28px;text-align:center">0</b><button class="btn" data-st="y+" aria-label="una poción más">+</button></div></div>
+        </div>
+        <p class="readout" id="st-spend"></p>
+        <div class="row"><button class="btn primary" id="st-buy">Guardar compra</button><button class="btn" id="st-ext">Ver los extremos</button></div>
+        <p class="msg" id="st-msg" aria-live="polite" style="margin-top:8px"></p>
+      </div>
+      <div class="card"><h3>Todas las compras exactas</h3><svg class="pl" id="st-svg" viewBox="0 0 360 360" role="img" aria-label="Plano con las compras"></svg></div>
+    </div>
+    <div class="card">
+      <h3>2 · Escribe en forma estándar</h3>
+      <div class="levels" id="sf-levels" role="group" aria-label="Ejercicios"></div>
+      <div class="eqcard"><div class="tag">Reglas: A, B y C enteros · A positivo · sin factor común</div><div class="eqn" id="sf-given" aria-live="polite"></div></div>
+      <div class="row" style="margin-top:12px;justify-content:center">
+        <label class="fld">A<input type="text" id="sf-a" inputmode="text" autocomplete="off"></label>
+        <label class="fld">B<input type="text" id="sf-b" inputmode="text" autocomplete="off"></label>
+        <label class="fld">C<input type="text" id="sf-c" inputmode="text" autocomplete="off"></label>
+        <button class="btn primary" id="sf-check" style="align-self:flex-end">Comprobar Ax + By = C</button>
+        <button class="btn" id="sf-hint" style="align-self:flex-end">Pista</button>
+      </div>
+      <p class="msg" id="sf-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+
+    <div class="card practice" id="pr-estandar"></div>
+
+  </section>
+
+  <!-- ============ PARALELAS Y PERPENDICULARES ============ -->
+  <section class="mission" data-tab="rectas" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 7 · Tema 4-5</p>
+      <h2>Rieles y esquinas de noventa grados</h2>
+      <p class="lede">Dos rieles que nunca se tocan tienen la misma pendiente. Dos calles que se cruzan en ángulo recto tienen pendientes que son recíprocas y de signo contrario.</p>
+      <p class="exam">Tema 4-5 · Escribir ecuaciones de rectas paralelas y perpendiculares</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Reto</h3>
+        <div class="levels" id="pp-levels" role="group" aria-label="Retos"></div>
+        <p id="pp-task" style="margin-top:10px;font-weight:600"></p>
+        <label class="fld" style="margin-top:10px">Pendiente de tu recta, m₂ <input type="range" id="pp-m" min="-8" max="8" step="1" value="1"></label>
+        <label class="fld" style="margin-top:10px">Intercepto de tu recta, b₂ <input type="range" id="pp-b" min="-8" max="8" step="1" value="0"></label>
+        <p class="eqn" id="pp-eq" style="margin-top:12px"></p>
+        <p class="readout" id="pp-rel"></p>
+        <div class="row" style="margin-top:8px"><button class="btn primary" id="pp-check">Comprobar</button></div>
+        <p class="msg" id="pp-msg" aria-live="polite" style="margin-top:8px"></p>
+      </div>
+      <div class="card"><h3>El plano</h3><svg class="pl" id="pp-svg" viewBox="0 0 360 360" role="img" aria-label="Dos rectas en el plano"></svg></div>
+    </div>
+    <div class="card">
+      <h3>Clasifica por las pendientes</h3>
+      <div class="quiz" id="pp-quiz"></div>
+    </div>
+
+    <div class="card practice" id="pr-rectas"></div>
+
+  </section>
+
+  <!-- ============ ORDEN DE OPERACIONES ============ -->
+  <section class="mission" data-tab="orden" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 8 · Orden de operaciones (libro 1.4)</p>
+      <h2>La pelea de jefes por niveles</h2>
+      <p class="lede">Cada expresión es un jefe. Solo se le puede pegar en el orden correcto: paréntesis, potencias, multiplicar y dividir, sumar y restar. Toca la operación que va primero.</p>
+      <p class="exam">Exámenes cortos 1 · 6.º ej. 4 · 7.º ej. 5 · 9.º ej. 2 · 10.º ej. 4</p>
+    </div>
+    <div class="card">
+      <div class="levels" id="or-levels" role="group" aria-label="Jefes"></div>
+      <div class="ladder" id="or-ladder"></div>
+      <div class="eqcard"><div class="tag" id="or-tag"></div><div class="expr" id="or-expr" aria-live="polite"></div></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="or-hint">Pista</button><button class="btn ghost" id="or-reset">Reiniciar jefe</button><span class="sub" id="or-count"></span></div>
+      <p class="msg" id="or-msg" aria-live="polite" style="margin-top:10px"></p>
+      <ol class="log" id="or-log"></ol>
+    </div>
+
+    <div class="card practice" id="pr-orden"></div>
+
+  </section>
+
+  <!-- ============ EXPONENTES ============ -->
+  <section class="mission" data-tab="exponentes" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 9 · Exponentes y notación científica (1.5 y 1.6)</p>
+      <h2>El rumor viral y el reino cuántico</h2>
+      <p class="lede">Un exponente cuenta cuántas veces se multiplica la base. Y la notación científica es mover el punto decimal y contar los saltos.</p>
+      <p class="exam">Examen corto 1 · 6.º ej. 2 y 3 · 7.º ej. 2 y 3</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>1 · Constructor de potencias</h3>
+        <div class="row">
+          <label class="fld">Base<input type="number" id="ex-b" min="1" max="12" step="1" value="2"></label>
+          <label class="fld">Exponente (cuántas veces) <input type="range" id="ex-e" min="1" max="8" step="1" value="4"></label>
+        </div>
+        <div class="logchips" id="ex-chips" style="margin-top:12px"></div>
+        <p class="eqn" id="ex-out" aria-live="polite"></p>
+        <h3 style="margin-top:16px">El rumor viral</h3>
+        <label class="fld">Día <input type="range" id="ex-d" min="0" max="9" step="1" value="3"></label>
+        <p class="readout" id="ex-day"></p>
+        <div class="dots" id="ex-dots" aria-hidden="true"></div>
+      </div>
+      <div class="card">
+        <h3>Escribe como potencia y calcula</h3>
+        <div class="quiz" id="ex-quiz"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>2 · Notación científica: mueve el punto</h3>
+      <div class="levels" id="nc-levels" role="group" aria-label="Retos"></div>
+      <p id="nc-task" style="margin-top:10px;font-weight:600"></p>
+      <div class="eqcard"><div class="eqn" id="nc-num" aria-live="polite"></div><div class="sub" id="nc-exp" style="margin-top:6px"></div></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="nc-left">◀ Mover el punto a la izquierda</button><button class="btn" id="nc-right">Mover a la derecha ▶</button><button class="btn primary" id="nc-check">Listo</button></div>
+      <p class="msg" id="nc-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+
+    <div class="card practice" id="pr-exponentes"></div>
+
+  </section>
+
+  <!-- ============ CONJUNTOS ============ -->
+  <section class="mission" data-tab="conjuntos" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 10 · Conjuntos (libro 1.2)</p>
+      <h2>Los inventarios de dos jugadores</h2>
+      <p class="lede">Cada jugador guarda objetos con cierta regla. Lo que tienen los dos es la intersección. Todo lo que tiene al menos uno es la unión.</p>
+      <p class="exam">Libro 1.2 · Conjuntos y otros conceptos básicos</p>
+    </div>
+    <div class="card">
+      <h3>1 · Clasifica las tarjetas</h3>
+      <div class="levels" id="cj-pairs" role="group" aria-label="Pares de conjuntos"></div>
+      <p id="cj-rules" style="margin-top:10px"></p>
+      <p class="sub" style="margin-top:8px">Toca una tarjeta de la bandeja y luego su región.</p>
+      <div class="logchips" id="cj-tray"></div>
+      <div class="row">
+        <button class="btn" data-reg="A">Solo A</button><button class="btn" data-reg="AB">A y B</button><button class="btn" data-reg="B">Solo B</button><button class="btn" data-reg="N">Ninguno</button>
+      </div>
+      <svg class="venn" id="cj-svg" viewBox="0 0 560 270" role="img" aria-label="Diagrama de Venn"></svg>
+      <p class="msg" id="cj-msg" aria-live="polite"></p>
+    </div>
+    <div class="card">
+      <h3>2 · Operaciones</h3>
+      <div class="row" id="cj-ops" role="group" aria-label="Operaciones"></div>
+      <p class="readout" id="cj-out" aria-live="polite"></p>
+    </div>
+
+    <div class="card practice" id="pr-conjuntos"></div>
+
+  </section>
+
+  <!-- ============ RACIONALES ============ -->
+  <section class="mission" data-tab="racionales" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 11 · Racionales y proporciones</p>
+      <h2>Fracciones, decimales y recetas a escala</h2>
+      <p class="lede">Simplificar es agrupar porciones iguales. Una proporción es una receta a escala: lo que escalas arriba lo escalas abajo.</p>
+      <p class="exam">Examen corto 2 · 8.º ej. 4 y 5 · 9.º ej. 5</p>
+    </div>
+    <div class="card">
+      <h3>1 · Simplifica agrupando</h3>
+      <div class="levels" id="rf-levels" role="group" aria-label="Fracciones"></div>
+      <div class="eqcard"><div class="eqn" id="rf-frac"></div><div class="cells" id="rf-cells" aria-hidden="true"></div></div>
+      <div class="row" style="margin-top:12px">
+        <label class="fld">Dividir numerador y denominador entre<input type="text" id="rf-g" inputmode="numeric" autocomplete="off" placeholder="g"></label>
+        <button class="btn primary" id="rf-go" style="align-self:flex-end">Agrupar</button>
+        <button class="btn ghost" id="rf-reset" style="align-self:flex-end">Reiniciar</button>
+      </div>
+      <p class="msg" id="rf-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>2 · Decimales y fracciones</h3><div class="quiz" id="rd-quiz"></div></div>
+      <div class="card"><h3>3 · Suma de fracciones</h3><div class="quiz" id="rs-quiz"></div></div>
+    </div>
+    <div class="card"><h3>4 · Compara en la recta</h3><div class="quiz" id="rc-quiz"></div></div>
+    <div class="card">
+      <h3>5 · Proporciones: multiplica en cruz</h3>
+      <div id="rp-root"></div>
+    </div>
+
+    <div class="card practice" id="pr-racionales"></div>
+
+  </section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = ms => new Promise(r => setTimeout(r, REDUCED ? 0 : ms));
+const MIN = '−';
+
+/* ---------- números racionales exactos ---------- */
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a || 1; };
+class Rat {
+  constructor(n, d = 1) { if (d < 0) { n = -n; d = -d; } const g = gcd(n, d); this.n = n / g; this.d = d / g; }
+  add(o) { return new Rat(this.n * o.d + o.n * this.d, this.d * o.d); }
+  sub(o) { return this.add(o.neg()); }
+  mul(o) { return new Rat(this.n * o.n, this.d * o.d); }
+  div(o) { return new Rat(this.n * o.d, this.d * o.n); }
+  neg() { return new Rat(-this.n, this.d); }
+  isInt() { return this.d === 1; }
+  isZero() { return this.n === 0; }
+  eq(o) { return this.n === o.n && this.d === o.d; }
+  cmp(o) { return this.n * o.d - o.n * this.d; }
+}
+const Q = (n, d = 1) => new Rat(n, d);
+const ONE = Q(1);
+const sg = q => q.n < 0 ? MIN : '';
+const qs = q => q.d === 1 ? sg(q) + Math.abs(q.n) : sg(q) + Math.abs(q.n) + '/' + q.d;
+const fr = (n, d) => `<span class="fr"><i>${n}</i><i>${d}</i></span>`;
+const qh = q => q.d === 1 ? sg(q) + Math.abs(q.n) : sg(q) + fr(Math.abs(q.n), q.d);
+const absQ = q => q.n < 0 ? q.neg() : q;
+function parseQ(s) {
+  if (s == null) return null;
+  s = String(s).trim().replace(/[−–]/g, '-').replace(',', '.');
+  let m = s.match(/^(-?\d+)\s*\/\s*(-?\d+)$/);
+  if (m) { const d = +m[2]; return d ? Q(+m[1], d) : null; }
+  if (/^-?\d+$/.test(s)) return Q(+s);
+  if (/^-?\d*\.\d+$/.test(s)) { const k = s.split('.')[1].length; return Q(Math.round(parseFloat(s) * 10 ** k), 10 ** k); }
+  return null;
+}
+
+/* ---------- XP ---------- */
+let xp = 0;
+try { xp = +localStorage.getItem('taller-algebra-xp') || 0; } catch (e) {}
+let toastT;
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 1800); }
+function renderXP() {
+  $('#lvl').textContent = 'Nivel ' + (Math.floor(xp / 50) + 1);
+  $('#xpn').textContent = xp + ' XP';
+  $('#xpbar').style.width = ((xp % 50) / 50 * 100) + '%';
+}
+function addXP(n) { xp += n; try { localStorage.setItem('taller-algebra-xp', xp); } catch (e) {} renderXP(); toast('+' + n + ' XP'); }
+renderXP();
+
+/* ---------- avance guardado ---------- */
+const PROG_KEY = 'taller-algebra-prog', XP_KEY = 'taller-algebra-xp';
+let stored = {};
+try { stored = JSON.parse(localStorage.getItem(PROG_KEY) || '{}') || {}; } catch (e) {}
+const PROG = {};
+function saveProg() {
+  try { localStorage.setItem(PROG_KEY, JSON.stringify(Object.fromEntries(Object.entries(PROG).map(([k, v]) => [k, [...v]])))); } catch (e) {}
+  renderMenu();
+}
+function regSet(k) {
+  const st = new Set(Array.isArray(stored[k]) ? stored[k] : []), add = st.add.bind(st);
+  st.add = v => { add(v); saveProg(); return st; };
+  PROG[k] = st; return st;
+}
+const psz = k => PROG[k] ? PROG[k].size : 0;
+const MENU = [
+  { tab: 'desigualdades', n: 1, t: 'Desigualdades', s: 'Temas 5-1 y 5-2', tot: 7, get: () => psz('s-iq') },
+  { tab: 'ecuaciones', n: 2, t: 'Ecuaciones', s: 'Uno y dos pasos', tot: 9, get: () => psz('s-eq') },
+  { tab: 'funciones', n: 3, t: 'Funciones', s: 'La mesa de crafteo', tot: 5, get: () => psz('fn-full') },
+  { tab: 'varios', n: 4, t: 'Varios pasos', s: 'Tema 5-3', tot: 7, get: () => psz('m-mp') },
+  { tab: 'pendiente', n: 5, t: 'Pendiente e intercepto', s: 'Libro 3.4 y 3.5', tot: 6, get: () => psz('pt') },
+  { tab: 'estandar', n: 6, t: 'Forma estándar', s: 'Tema 4-4', tot: 8, get: () => psz('sf') + psz('st') },
+  { tab: 'rectas', n: 7, t: 'Paralelas y perpendiculares', s: 'Tema 4-5', tot: 5, get: () => psz('pp') },
+  { tab: 'orden', n: 8, t: 'Orden de operaciones', s: 'Libro 1.4', tot: 8, get: () => psz('or') },
+  { tab: 'exponentes', n: 9, t: 'Exponentes y notación científica', s: 'Libro 1.5 y 1.6', tot: 6, get: () => psz('nc') },
+  { tab: 'conjuntos', n: 10, t: 'Conjuntos', s: 'Libro 1.2', tot: 3, get: () => psz('cj') },
+  { tab: 'racionales', n: 11, t: 'Racionales y proporciones', s: 'Exámenes 8.º y 9.º', tot: 8, get: () => psz('rf') + psz('m-rp') }
+];
+function renderMenu() {
+  const grid = $('#menu-grid'); if (!grid) return;
+  let c = 0, t = 0;
+  grid.innerHTML = MENU.map(m => {
+    const g = Math.min(m.get(), m.tot); c += g; t += m.tot;
+    return `<button class="mcard${g >= m.tot ? ' full' : ''}" data-go="${m.tab}"><span class="num">${m.n}</span><span class="tt">${m.t}</span><span class="st">${m.s}</span><span class="bar"><i style="width:${g / m.tot * 100}%"></i></span><span class="cnt">${g} de ${m.tot} actividades</span></button>`;
+  }).join('');
+  $$('#menu-grid .mcard').forEach(b => b.addEventListener('click', () => { location.hash = b.dataset.go; showTab(b.dataset.go); window.scrollTo(0, 0); }));
+  const pct = Math.round(c / t * 100);
+  $('#menu-pct').textContent = pct + '%'; $('#menu-bar').style.width = pct + '%';
+}
+
+/* ---------- pestañas ---------- */
+const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales'];
+function showTab(id) {
+  if (!TABS.includes(id)) id = 'inicio';
+  if (id === 'inicio') renderMenu();
+  $$('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === id)));
+  $$('.mission').forEach(m => { m.hidden = m.dataset.tab !== id; });
+}
+$$('.tab').forEach(t => t.addEventListener('click', () => { location.hash = t.dataset.tab; showTab(t.dataset.tab); }));
+addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+showTab(location.hash.slice(1));
+
+</script>
+<script>
+'use strict';
+/* ======================================================
+   MISIÓN 1 · FUNCIONES
+   ====================================================== */
+const runOps = (ops, x) => {
+  let v = x; const steps = [];
+  for (const o of ops) {
+    let r;
+    if (o.t === 'add') r = v.add(o.q);
+    else if (o.t === 'mul') r = v.mul(o.q);
+    else if (o.t === 'pow') r = v.mul(v);
+    else r = o.q.sub(v);
+    steps.push(r); v = r;
+  }
+  return { out: v, steps };
+};
+const opHTML = o => o.t === 'add' ? (o.q.n < 0 ? MIN : '+') + ' ' + qh(absQ(o.q))
+  : o.t === 'mul' ? '× ' + (o.q.n < 0 ? '(' + qh(o.q) + ')' : qh(o.q))
+  : o.t === 'pow' ? '□²' : qh(o.q) + ' − □';
+const invHTML = o => o.t === 'add' ? (o.q.n < 0 ? '+' : MIN) + ' ' + qh(absQ(o.q))
+  : o.t === 'mul' ? (o.q.isInt() ? '÷ ' + qh(o.q) : '× ' + qh(ONE.div(o.q)))
+  : qh(o.q) + ' − □';
+const invert = (o, y) => o.t === 'add' ? y.sub(o.q) : o.t === 'mul' ? y.div(o.q) : o.q.sub(y);
+
+const RULES = [
+  { id: 'a', v: 'x', html: 'y = x − 3', ops: [{ t: 'add', q: Q(-3) }], dom: [1, 2, 3, 4, 5], linear: true, inv: true },
+  { id: 'b', v: 'm', html: 'y = 2m + 3', ops: [{ t: 'mul', q: Q(2) }, { t: 'add', q: Q(3) }], dom: [3, 5, 8], linear: true, inv: true },
+  { id: 'c', v: 'x', html: 'y = ' + fr('2x', 3) + ' + 1', ops: [{ t: 'mul', q: Q(2, 3) }, { t: 'add', q: Q(1) }], dom: [3, 6, 9, 12, 15], linear: true, inv: true },
+  { id: 'd', v: 'p', html: 'y = p² − 4', ops: [{ t: 'pow' }, { t: 'add', q: Q(-4) }], dom: [-2, -1, 0, 1, 2, 3, 4, 5], linear: false, inv: false },
+  { id: 'e', v: 'r', html: 'y = 25 − r', ops: [{ t: 'rsub', q: Q(25) }], dom: [4, 10, 15], linear: true, inv: true }
+];
+const FN = { rule: RULES[0], sel: null, crafted: new Map(), busy: false, predicted: new Set(), full: regSet('fn-full'), last: null };
+
+function fnMsg(t, cls = '') { const m = $('#fn-msg'); m.textContent = t; m.className = 'msg ' + cls; }
+
+function machineHTML(rule, mode) {
+  const ops = mode === 'rev' ? [...rule.ops].reverse() : rule.ops;
+  const lab = o => mode === 'rev' ? invHTML(o) : opHTML(o);
+  return `<div class="io" data-in><small>${mode === 'rev' ? 'sale' : 'entra'}</small><b>?</b></div>
+    ${ops.map(o => `<span class="arrow"></span><div class="station"><div class="op">${lab(o)}</div><div class="val"></div></div>`).join('')}
+    <span class="arrow"></span><div class="io out" data-out><small>${mode === 'rev' ? 'entró' : 'sale'}</small><b>?</b></div>`;
+}
+
+function renderRules() {
+  const box = $('#fn-rules');
+  box.innerHTML = RULES.map(r => `<button class="rule" data-id="${r.id}" aria-pressed="${r === FN.rule}">${r.html}</button>`).join('');
+  $$('.rule', box).forEach(b => b.addEventListener('click', () => { FN.rule = RULES.find(r => r.id === b.dataset.id); resetFn(); }));
+}
+function renderHotbar() {
+  const hb = $('#fn-hotbar');
+  hb.innerHTML = FN.rule.dom.map(x => `<button class="slot${FN.sel === x ? ' sel' : ''}${FN.crafted.has(x) ? ' done' : ''}" data-x="${x}" aria-label="${FN.rule.v} igual a ${x}">${x < 0 ? MIN + Math.abs(x) : x}</button>`).join('')
+    + `<button class="slot decoy" data-x="shoe" aria-label="un zapato">🥾</button>`;
+  $$('.slot', hb).forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.x === 'shoe') {
+      b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+      fnMsg('La mesa no acepta zapatos. El dominio es el conjunto de entradas permitidas: aquí solo números de la lista.', 'info'); return;
+    }
+    if (FN.busy) return;
+    FN.sel = +b.dataset.x; renderHotbar(); $('#fn-machine [data-in] b').textContent = FN.sel < 0 ? MIN + Math.abs(FN.sel) : FN.sel;
+    fnMsg('Ingrediente listo. Predice la salida o craftea directo.', '');
+  }));
+}
+function renderTable(nowX) {
+  const r = FN.rule;
+  $('#fn-table').innerHTML = `<tr><th>${r.v}</th><th>y</th></tr>` + r.dom.map(x => {
+    const y = FN.crafted.get(x);
+    return `<tr class="${x === nowX ? 'now' : ''}"><td>${x < 0 ? MIN + Math.abs(x) : x}</td><td class="${y ? '' : 'q'}">${y ? qh(y) : '?'}</td></tr>`;
+  }).join('');
+}
+function renderPlot(nowX) {
+  const r = FN.rule;
+  const pts = r.dom.map(x => ({ x, y: runOps(r.ops, Q(x)).out }));
+  const xs = r.dom, ys = pts.map(p => p.y.n / p.y.d);
+  const x0 = Math.min(0, ...xs) - 1, x1 = Math.max(0, ...xs) + 1, y0 = Math.min(0, ...ys) - 1, y1 = Math.max(0, ...ys) + 1;
+  const W = 360, H = 250, P = 28;
+  const sx = v => P + (v - x0) / (x1 - x0) * (W - 2 * P), sy = v => H - P - (v - y0) / (y1 - y0) * (H - 2 * P);
+  const stepF = rg => rg > 40 ? 10 : rg > 20 ? 5 : rg > 10 ? 2 : 1;
+  const stx = stepF(x1 - x0), sty = stepF(y1 - y0);
+  let g = '';
+  for (let v = Math.ceil(x0 / stx) * stx; v <= x1; v += stx) { g += `<line class="g" x1="${sx(v)}" y1="${P / 2}" x2="${sx(v)}" y2="${H - P / 2}"/>`; if (v) g += `<text x="${sx(v)}" y="${sy(0) + 14}" text-anchor="middle">${v < 0 ? MIN + Math.abs(v) : v}</text>`; }
+  for (let v = Math.ceil(y0 / sty) * sty; v <= y1; v += sty) { g += `<line class="g" x1="${P / 2}" y1="${sy(v)}" x2="${W - P / 2}" y2="${sy(v)}"/>`; if (v) g += `<text x="${sx(0) - 5}" y="${sy(v) + 4}" text-anchor="end">${v < 0 ? MIN + Math.abs(v) : v}</text>`; }
+  g += `<line class="ax" x1="${P / 2}" y1="${sy(0)}" x2="${W - P / 2}" y2="${sy(0)}"/><line class="ax" x1="${sx(0)}" y1="${P / 2}" x2="${sx(0)}" y2="${H - P / 2}"/>`;
+  const done = pts.filter(p => FN.crafted.has(p.x));
+  if (done.length === pts.length) g += `<polyline class="ln" points="${pts.map(p => sx(p.x) + ',' + sy(p.y.n / p.y.d)).join(' ')}"/>`;
+  done.forEach(p => { g += `<circle class="pt" cx="${sx(p.x)}" cy="${sy(p.y.n / p.y.d)}" r="6"/>`; });
+  const last = done.find(p => p.x === nowX);
+  if (last) g += `<text class="lb" x="${Math.min(sx(last.x) + 9, W - 60)}" y="${sy(last.y.n / last.y.d) - 9}">(${qs(Q(last.x))}, ${qs(last.y)})</text>`;
+  $('#fn-plot').innerHTML = g;
+}
+function resetFn() {
+  FN.sel = null; FN.crafted = new Map(); FN.busy = false;
+  $('#fn-machine').innerHTML = machineHTML(FN.rule, 'fwd');
+  $('#fn-guess').value = '';
+  renderRules(); renderHotbar(); renderTable(); renderPlot();
+  $('#fn-insight').textContent = '';
+  fnMsg('Toca un ingrediente del inventario.', '');
+}
+async function craft() {
+  if (FN.busy) return;
+  const r = FN.rule;
+  if (FN.sel == null) { fnMsg('Primero elige un ingrediente del inventario.', 'info'); return; }
+  FN.busy = true; $('#fn-go').disabled = true;
+  const x = FN.sel, { out, steps } = runOps(r.ops, Q(x));
+  const st = $$('#fn-machine .station'), outB = $('#fn-machine [data-out] b'), outBox = $('#fn-machine [data-out]');
+  st.forEach(s => { s.querySelector('.val').textContent = ''; s.classList.remove('on'); });
+  outB.textContent = '?'; outBox.classList.remove('pop');
+  for (let i = 0; i < st.length; i++) {
+    st[i].classList.add('on'); await sleep(420);
+    st[i].querySelector('.val').innerHTML = '= ' + qh(steps[i]); await sleep(220);
+    st[i].classList.remove('on');
+  }
+  outB.innerHTML = qh(out); void outBox.offsetWidth; outBox.classList.add('pop');
+  FN.crafted.set(x, out);
+  const g = parseQ($('#fn-guess').value);
+  const key = r.id + ':' + x;
+  if ($('#fn-guess').value.trim() && g) {
+    if (g.eq(out)) {
+      if (!FN.predicted.has(key)) { FN.predicted.add(key); addXP(5); }
+      fnMsg(`¡Predicho! ${r.v} = ${x} da ${qs(out)}.`, 'ok');
+    } else fnMsg(`La máquina dio ${qs(out)}, tú pusiste ${qs(g)}. Mira lo que sale de cada estación y busca dónde cambió.`, 'bad');
+  } else fnMsg(`${r.v} = ${x} da ${qs(out)}.`, 'info');
+  $('#fn-guess').value = '';
+  renderHotbar(); renderTable(x); renderPlot(x);
+  if (FN.crafted.size === r.dom.length) {
+    $('#fn-insight').textContent = r.linear
+      ? 'Tabla completa. Mira la gráfica: los puntos quedan en línea recta. Por eso se llama función lineal.'
+      : 'Tabla completa. Mira la gráfica: el 2 y el −2 dan la misma salida y los puntos no quedan en línea recta. No es lineal.';
+    if (!FN.full.has(r.id)) { FN.full.add(r.id); addXP(15); }
+  }
+  FN.busy = false; $('#fn-go').disabled = false;
+}
+$('#fn-go').addEventListener('click', craft);
+$('#fn-guess').addEventListener('keydown', e => { if (e.key === 'Enter') craft(); });
+resetFn();
+
+/* cápsula sorpresa */
+const cap = { a: [], b: [] };
+function renderCap() {
+  ['a', 'b'].forEach(k => {
+    $('#cap-' + k + '-log').innerHTML = cap[k].map(v => `<b>${v}</b>`).join('');
+    const s = new Set(cap[k]), n = cap[k].length, el = $('#cap-' + k + '-v');
+    if (n < 3) el.textContent = n ? 'Mete el 3 otra vez.' : '';
+    else if (k === 'a') el.textContent = 'Siempre sale lo mismo con la misma entrada. Es función.';
+    else el.textContent = s.size > 1 ? 'El mismo 3 dio salidas distintas. NO es función.' : 'Salió igual de casualidad. Sigue metiendo el 3: nada garantiza que se repita.';
+  });
+}
+$('#cap-a').addEventListener('click', () => { if (cap.a.length < 8) cap.a.push(7); renderCap(); });
+$('#cap-b').addEventListener('click', () => { if (cap.b.length < 8) cap.b.push(1 + Math.floor(Math.random() * 12)); renderCap(); if (cap.b.length === 3) addXP(3); });
+
+/* quiz ¿es función? */
+const QZ = [
+  { pairs: [[1, 3], [2, 5], [3, 7]], fn: true, why: 'Cada entrada aparece una sola vez. Cumple.' },
+  { pairs: [[1, 2], [1, 5], [2, 4]], fn: false, why: 'La entrada 1 da dos salidas: 2 y 5. Rompe la regla de oro.' },
+  { pairs: [[1, 4], [2, 4], [3, 4]], fn: true, why: 'Todas las entradas dan 4, y eso está permitido. Lo prohibido es una entrada con dos salidas.' }
+];
+$('#fn-quiz').innerHTML = QZ.map((q, i) => `<div class="q" data-i="${i}"><div class="rel-set">${q.pairs.map(p => `<span>${p[0]} → ${p[1]}</span>`).join('')}</div>
+  <div class="row"><button class="btn" data-a="1">Es función</button><button class="btn" data-a="0">No es función</button></div><p class="fb" aria-live="polite"></p></div>`).join('');
+$$('#fn-quiz .q').forEach(box => {
+  const q = QZ[+box.dataset.i]; let got = false;
+  $$('button', box).forEach(b => b.addEventListener('click', () => {
+    const ok = (b.dataset.a === '1') === q.fn, fb = $('.fb', box);
+    fb.textContent = (ok ? '¡Correcto! ' : 'Casi. ') + q.why; fb.style.color = ok ? 'var(--lime)' : 'var(--pink)';
+    if (ok && !got) { got = true; addXP(4); }
+  }));
+});
+
+/* reversa */
+const REV = { rule: null, x: null };
+function newRev() {
+  const pool = RULES.filter(r => r.inv);
+  const r = pool[Math.floor(Math.random() * pool.length)];
+  const x = r.dom[Math.floor(Math.random() * r.dom.length)];
+  REV.rule = r; REV.x = x;
+  const out = runOps(r.ops, Q(x)).out;
+  $('#rev-machine').innerHTML = machineHTML(r, 'rev');
+  $('#rev-machine [data-in] b').innerHTML = qh(out);
+  $('#rev-in').value = '';
+  const m = $('#rev-msg'); m.className = 'msg info'; m.innerHTML = 'Receta: ' + r.html;
+}
+function checkRev() {
+  const g = parseQ($('#rev-in').value), m = $('#rev-msg');
+  if (!g) { m.textContent = 'Escribe un número.'; m.className = 'msg bad'; return; }
+  const r = REV.rule;
+  if (g.eq(Q(REV.x))) {
+    const sts = $$('#rev-machine .station'); let y = runOps(r.ops, Q(REV.x)).out;
+    [...r.ops].reverse().forEach((o, i) => { y = invert(o, y); sts[i].querySelector('.val').innerHTML = '= ' + qh(y); });
+    $('#rev-machine [data-out] b').innerHTML = qh(Q(REV.x));
+    m.textContent = '¡Eso! Deshiciste las estaciones en orden contrario. Eso mismo es resolver una ecuación.'; m.className = 'msg ok'; addXP(8);
+  } else { m.textContent = 'Todavía no. Prueba tu número en la máquina normal y compara.'; m.className = 'msg bad'; }
+}
+$('#rev-check').addEventListener('click', checkRev);
+$('#rev-in').addEventListener('keydown', e => { if (e.key === 'Enter') checkRev(); });
+$('#rev-new').addEventListener('click', newRev);
+newRev();
+
+</script>
+<script>
+'use strict';
+/* ======================================================
+   MOTOR COMÚN DE ECUACIONES Y DESIGUALDADES
+   ====================================================== */
+const FLIP = { '<': '>', '>': '<', '≤': '≥', '≥': '≤', '=': '=' };
+function termA(a, v) {
+  if (a.isInt()) { if (a.n === 1) return v; if (a.n === -1) return MIN + v; return sg(a) + Math.abs(a.n) + v; }
+  return sg(a) + fr((Math.abs(a.n) === 1 ? '' : Math.abs(a.n)) + v, a.d);
+}
+function expr(a, b, v) { let s = termA(a, v); if (!b.isZero()) s += ` ${b.n < 0 ? MIN : '+'} ${qh(absQ(b))}`; return s; }
+const WORD = { add: 'Sumar', sub: 'Restar', mul: 'Multiplicar por', div: 'Dividir entre' };
+const SYM = { add: '+', sub: '−', mul: '×', div: '÷' };
+
+function makeSolver(root, key, rawLevels, cfg) {
+  const iq = cfg.kind === 'iq';
+  const lv = rawLevels.map(l => ({ v: l.v, a: Array.isArray(l.a) ? Q(l.a[0], l.a[1]) : Q(l.a), b: Q(l.b), c: Q(l.c), rel: l.rel || '=', flip: !!l.flip, tag: l.tag }));
+  root.innerHTML = `
+    <div class="levels" role="group" aria-label="Niveles"></div>
+    <div class="eqcard"><div class="tag"></div><div class="eqn" aria-live="polite"></div></div>
+    <div class="view"></div>
+    <form class="ops" autocomplete="off">
+      <div class="grp"><span>Operación</span>
+        <fieldset class="seg" style="border:0">
+          <legend class="vh">Operación</legend>
+          ${['add', 'sub', 'mul', 'div'].map((o, i) => `<label><input type="radio" name="op-${key}" value="${o}"${i === 1 ? ' checked' : ''}><span aria-label="${WORD[o]}">${SYM[o]}</span></label>`).join('')}
+        </fieldset>
+      </div>
+      <label class="fld">Número<input type="text" class="num" inputmode="text" placeholder="ej. 7 ó 6/5"></label>
+      <button class="btn primary" type="submit">Aplicar a los dos lados</button>
+      <button class="btn" type="button" data-hint>Pista</button>
+      <button class="btn ghost" type="button" data-reset>Reiniciar nivel</button>
+    </form>
+    <p class="msg" aria-live="polite" style="margin-top:10px"></p>
+    <div class="ask" hidden></div>
+    <div class="win" hidden></div>
+    <ol class="log" aria-label="Registro de pasos"></ol>`;
+  const E = { levels: $('.levels', root), tag: $('.eqcard .tag', root), eq: $('.eqn', root), view: $('.view', root), form: $('.ops', root), num: $('.num', root), msg: $('.msg', root), ask: $('.ask', root), win: $('.win', root), log: $('.log', root) };
+  let idx = 0, st = null, busy = false;
+  const done = regSet('s-' + key);
+  const lvl = () => lv[idx];
+  const solved = s => s.a.eq(ONE) && s.b.isZero();
+  const say = (t, c = '') => { E.msg.textContent = t; E.msg.className = 'msg ' + c; };
+  const eqHTML = (s, l = lvl()) => {
+    const L = expr(s.a, s.b, l.v), R = qh(s.c), rel = `<span class="rel">${s.rel}</span>`;
+    return l.flip ? `${R} ${rel} ${L}` : `${L} ${rel} ${R}`;
+  };
+  function renderLevels() {
+    E.levels.innerHTML = lv.map((l, i) => `<button class="lv${done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === idx}" aria-label="Nivel ${i + 1}">${i + 1}</button>`).join('');
+    $$('.lv', E.levels).forEach(b => b.addEventListener('click', () => init(+b.dataset.i)));
+  }
+  function renderEq() { E.eq.innerHTML = eqHTML(st); cfg.renderView(E.view, st, lvl()); }
+  function init(i) {
+    idx = i; const l = lvl();
+    st = { a: l.a, b: l.b, c: l.c, rel: l.rel, steps: 0, hints: 0 };
+    E.log.innerHTML = ''; E.win.hidden = true; E.ask.hidden = true; busy = false;
+    E.tag.textContent = `Nivel ${i + 1} de ${lv.length} · ${l.tag}`;
+    E.num.value = ''; say(iq ? 'Aplica operaciones a los dos lados hasta dejar la letra sola.' : 'Elige una operación y un número. Se aplica en los dos platos.');
+    renderLevels(); renderEq(); cfg.onLevel && cfg.onLevel(l, st);
+  }
+  function apply(s, op, n) {
+    let { a, b, c, rel } = s;
+    if (op === 'add') { b = b.add(n); c = c.add(n); }
+    else if (op === 'sub') { b = b.sub(n); c = c.sub(n); }
+    else { const f = op === 'mul' ? n : ONE.div(n); a = a.mul(f); b = b.mul(f); c = c.mul(f); if (f.n < 0) rel = FLIP[rel]; }
+    return { ...s, a, b, c, rel, steps: s.steps + 1 };
+  }
+  function logLine(old, op, n, next, flipped) {
+    const l = lvl(), nt = n.n < 0 ? `(${qh(n)})` : qh(n);
+    let L = expr(old.a, old.b, l.v), R = qh(old.c);
+    if (op === 'mul' || op === 'div') { if (!old.b.isZero()) L = `(${L})`; if (old.c.n < 0 || !old.c.isInt()) R = `(${R})`; }
+    const s = SYM[op], line = l.flip ? `${R} ${s} ${nt} ${old.rel} ${L} ${s} ${nt}` : `${L} ${s} ${nt} ${old.rel} ${R} ${s} ${nt}`;
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="ot">${WORD[op]} ${qh(n)} a los dos lados</span>${line}<span class="res">${eqHTML(next, l)}</span>` + (flipped ? '<span class="mirror">Espejo: el signo se voltea</span>' : '');
+    E.log.prepend(li);
+  }
+  async function commit(op, n) {
+    busy = true;
+    const old = st, next = apply(old, op, n), flipped = next.rel !== old.rel;
+    logLine(old, op, n, next, flipped);
+    st = next;
+    if (cfg.onStep) await cfg.onStep(op, n, flipped);
+    renderEq();
+    if (solved(st)) win();
+    else say(flipped ? 'El espejo se activó: multiplicar o dividir por un negativo voltea el signo.' : 'Bien. Sigue.', flipped ? 'info' : '');
+    busy = false;
+  }
+  function win() {
+    const l = lvl(), sol = st.c;
+    const par = (l.b.isZero() ? 0 : 1) + (l.a.eq(ONE) ? 0 : 1);
+    const first = !done.has(idx); done.add(idx); renderLevels();
+    let chk = '';
+    if (!iq) {
+      const val = l.a.mul(sol).add(l.b);
+      const left = (l.a.eq(ONE) ? `(${qs(sol)})` : `${qs(l.a)}·(${qs(sol)})`) + (l.b.isZero() ? '' : ` ${l.b.n < 0 ? MIN : '+'} ${qs(absQ(l.b))}`);
+      chk = `<p>Comprobación: ${left} = ${qs(val)}. ${val.eq(l.c) ? '✓ Coincide con ' + qs(l.c) + '.' : ''}</p>`;
+    }
+    const bonus = st.steps <= par && st.hints === 0;
+    if (first) addXP(iq ? 6 : 10 + (bonus ? 5 : 0));
+    E.win.hidden = false;
+    E.win.innerHTML = `<b class="big">${iq ? 'Álgebra lista' : 'Caja liberada'}</b><p>Quedó ${eqHTML(st)}. ${st.steps} paso${st.steps === 1 ? '' : 's'} (lo mínimo son ${par}).${bonus && first && !iq ? ' Bonus por ir directo.' : ''}</p>${chk}
+      ${iq ? '<p>Ahora dibuja la respuesta en la recta de abajo.</p>' : ''}
+      ${idx < lv.length - 1 ? '<button class="btn primary" type="button" data-next style="margin-top:10px">Siguiente nivel</button>' : '<p style="margin-top:8px">Último nivel completado.</p>'}`;
+    const nb = $('[data-next]', E.win); if (nb) nb.addEventListener('click', () => init(idx + 1));
+    cfg.onSolved && cfg.onSolved(st, l);
+  }
+  function askFlip(op, n) {
+    busy = true; E.ask.hidden = false;
+    E.ask.innerHTML = `<b>Vas a ${op === 'mul' ? 'multiplicar' : 'dividir'} por ${qh(n)}, que es negativo.</b>
+      <p>Antes de aplicarlo, predice: ¿qué le pasa al signo de la desigualdad?</p>
+      <div class="row" style="margin-top:10px"><button class="btn" type="button" data-p="same">Se queda igual</button><button class="btn" type="button" data-p="flip">Se voltea</button></div>
+      <p class="fbk" style="margin-top:8px" aria-live="polite"></p>`;
+    $$('[data-p]', E.ask).forEach(b => b.addEventListener('click', async () => {
+      const ok = b.dataset.p === 'flip';
+      if (ok) { addXP(3); E.ask.hidden = true; busy = false; commit(op, n); }
+      else {
+        $('.fbk', E.ask).innerHTML = 'Prueba con 2 &lt; 5. Multiplica ambos por −1 y quedan −2 y −5. ¿Es −2 &lt; −5? No: −2 está a la derecha, así que −2 &gt; −5. Se voltea. Lo aplico por ti.';
+        $$('[data-p]', E.ask).forEach(x => x.disabled = true);
+        await sleep(2600); E.ask.hidden = true; busy = false; commit(op, n);
+      }
+    }));
+  }
+  function readOp() { return { op: $(`input[name="op-${key}"]:checked`, root).value, n: parseQ(E.num.value) }; }
+  E.form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (busy || solved(st)) return;
+    const { op, n } = readOp();
+    if (!n) { say('Escribe un número entero o una fracción, por ejemplo 7 ó 6/5.', 'bad'); return; }
+    if (n.isZero() && op === 'div') { say('No se puede dividir entre 0.', 'bad'); return; }
+    if (n.isZero() && op === 'mul') { say('Multiplicar por 0 borra toda la información de la ecuación.', 'bad'); return; }
+    if (iq && (op === 'mul' || op === 'div') && n.n < 0) { askFlip(op, n); return; }
+    commit(op, n);
+  });
+  $('[data-reset]', root).addEventListener('click', () => init(idx));
+  $('[data-hint]', root).addEventListener('click', () => {
+    if (solved(st)) return; st.hints++;
+    let t;
+    if (!st.b.isZero()) t = `Deshaz primero el ${st.b.n > 0 ? '+' : MIN} ${qs(absQ(st.b))}: ${st.b.n > 0 ? 'resta' : 'suma'} ${qs(absQ(st.b))} a los dos lados.`;
+    else if (st.a.isInt()) t = `La ${lvl().v} está multiplicada por ${qs(st.a)}. Deshazlo: divide entre ${qs(st.a)} a los dos lados.`;
+    else { const inv = ONE.div(st.a); t = `Multiplica los dos lados por ${qs(inv)} para dejar la ${lvl().v} sola.`; }
+    say(t, 'info');
+  });
+  init(0);
+  return { readOp, say, get st() { return st; }, get lvl() { return lvl(); }, E, busy: () => busy };
+}
+
+</script>
+<script>
+'use strict';
+/* ---------- misión 2: balanza ---------- */
+const EQ_LEVELS = [
+  { v: 'x', a: 1, b: 7, c: 17, tag: 'Suma y resta · Examen 8.º' },
+  { v: 'k', a: 1, b: -5, c: 11, tag: 'Suma y resta · Examen 8.º' },
+  { v: 'x', a: 1, b: 13, c: 25, flip: true, tag: 'La incógnita a la derecha' },
+  { v: 'x', a: 2, b: 0, c: 16, tag: 'Multiplicación' },
+  { v: 'y', a: [1, 8], b: 0, c: 20, tag: 'División · Examen 8.º' },
+  { v: 'y', a: -7, b: 0, c: 35, tag: 'Con negativos · Examen 8.º' },
+  { v: 'x', a: 6, b: -5, c: 7, tag: 'Dos pasos · Examen 8.º' },
+  { v: 'h', a: [1, 7], b: 2, c: 12, tag: 'Dos pasos · Examen 8.º' },
+  { v: 'x', a: [5, 6], b: -8, c: 7, flip: true, tag: 'Dos pasos con fracción · Examen 9.º' }
+];
+function constGoods(q) {
+  if (q.isZero()) return '<span class="nchip">0</span>';
+  if (q.isInt() && Math.abs(q.n) <= 12) return `<span class="tiles${q.n < 0 ? ' neg' : ''}">${'<i class="tile"></i>'.repeat(Math.abs(q.n))}</span>`;
+  return `<span class="nchip${q.n < 0 ? ' neg' : ''}">${qh(q)}</span>`;
+}
+function xGoods(a, v) {
+  if (a.isInt() && Math.abs(a.n) <= 4) return Array.from({ length: Math.abs(a.n) }, () => `<span class="crate${a.n < 0 ? ' neg' : ''}">${v}</span>`).join('');
+  return `<span class="crate">${termA(a, v)}</span>`;
+}
+let eqSolver;
+let tiltNow = 0;
+function setTilt(deg) {
+  tiltNow = deg;
+  const sc = $('#eq-root .scale'); if (!sc) return;
+  const dist = sc.offsetWidth * 0.26, dy = Math.sin(deg * Math.PI / 180) * dist;
+  $('.beam', sc).style.transform = `rotate(${deg}deg)`;
+  $('.pan.l', sc).style.transform = `translateY(${-dy}px)`;
+  $('.pan.r', sc).style.transform = `translateY(${dy}px)`;
+}
+eqSolver = makeSolver($('#eq-root'), 'eq', EQ_LEVELS, {
+  kind: 'eq',
+  renderView(slot, s, l) {
+    if (!$('.scale', slot)) {
+      slot.innerHTML = `<div class="scale" role="img" aria-label="Balanza en equilibrio">
+        <div class="stand"></div><div class="sbase"></div><div class="beam"></div><div class="pivot"></div>
+        <div class="pan l"><div class="string"></div><div class="tray"></div><div class="lab"></div></div>
+        <div class="pan r"><div class="string"></div><div class="tray"></div><div class="lab"></div></div>
+      </div>
+      <div class="row" style="justify-content:center"><button class="btn" type="button" id="eq-cheat">Probar trampa: tocar solo el plato izquierdo</button></div>`;
+      $('#eq-cheat').addEventListener('click', cheat);
+    }
+    const sc = $('.scale', slot);
+    $('.pan.l .tray', sc).innerHTML = xGoods(s.a, l.v) + (s.b.isZero() ? '' : constGoods(s.b));
+    $('.pan.r .tray', sc).innerHTML = constGoods(s.c);
+    $('.pan.l .lab', sc).innerHTML = expr(s.a, s.b, l.v);
+    $('.pan.r .lab', sc).innerHTML = qh(s.c);
+    if (l.flip) { /* los platos no se intercambian: la ecuación se lee igual */ }
+    setTilt(0);
+  },
+  async onStep() { for (const d of [5, -4, 2, 0]) { setTilt(d); await sleep(140); } }
+});
+async function cheat() {
+  const { op, n } = eqSolver.readOp();
+  if (eqSolver.busy()) return;
+  if (op !== 'add' && op !== 'sub') { eqSolver.say('Para la trampa usa + o −. Ponlo en la operación y prueba.', 'info'); return; }
+  const k = n && !n.isZero() ? Math.abs(Math.round(n.n / n.d)) : 5, sign = op === 'add' ? 1 : -1;
+  setTilt(-sign * Math.min(18, 6 + k));
+  eqSolver.say(`¡Trampa! ${op === 'add' ? 'Sumaste' : 'Restaste'} ${k} solo en el plato izquierdo y la balanza se inclinó. Ya no es la misma ecuación. Por eso se hace en los dos lados.`, 'bad');
+  await sleep(2400); setTilt(0);
+}
+
+</script>
+<script>
+'use strict';
+/* ---------- misión 3: recta numérica ---------- */
+const IQ_LEVELS = [
+  { v: 'h', a: 1, b: 4, rel: '<', c: 10, tag: 'Suma · Examen 8.º · 5-1' },
+  { v: 'y', a: 1, b: -9, rel: '≥', c: 2, tag: 'Resta · Examen 8.º · 5-1' },
+  { v: 'x', a: 3, b: 0, rel: '<', c: 12, tag: 'Dividir por positivo · 5-2' },
+  { v: 'x', a: -2, b: 0, rel: '<', c: 6, tag: 'Dividir por negativo · 5-2' },
+  { v: 'x', a: 3, b: -5, rel: '≥', c: 10, tag: 'Dos pasos · 5-3' },
+  { v: 'x', a: -3, b: 2, rel: '≥', c: 11, tag: 'Dos pasos con espejo · 5-3' },
+  { v: 'n', a: [-1, 4], b: 0, rel: '≤', c: 3, tag: 'Fracción negativa · 5-2' }
+];
+const NL = { lo: 0, hi: 12, tests: [], token: null, zone: null, ans: { bound: null, closed: false, dir: 'right' }, mode: 'probe', expected: null, solvedOK: false, lvl: null, W: 584, PAD: 28, SP: 44 };
+let iqSolver;
+function relHolds(rel, c) { const k = c.cmp(Q(0)); return rel === '<' ? k < 0 : rel === '>' ? k > 0 : rel === '≤' ? k <= 0 : rel === '≥' ? k >= 0 : k === 0; }
+function evalText(l, t) {
+  const val = l.a.mul(Q(t)).add(l.b), diff = val.sub(l.c);
+  const ok = relHolds(l.rel, diff);
+  const left = (l.a.eq(ONE) ? `(${qs(Q(t))})` : `${qs(l.a)}·(${qs(Q(t))})`) + (l.b.isZero() ? '' : ` ${l.b.n < 0 ? MIN : '+'} ${qs(absQ(l.b))}`);
+  return { ok, text: `${l.v} = ${qs(Q(t))}: ${left} = ${qs(val)}. ¿${qs(val)} ${l.rel} ${qs(l.c)}? ${ok ? 'Sí ✓' : 'No ✗'}` };
+}
+function drawNL() {
+  const svg = $('#nl-svg'), { lo, hi, W, PAD, SP } = NL;
+  const X = v => PAD + (v - lo) * SP, Y = 56;
+  let g = `<line class="base" x1="6" y1="${Y}" x2="${W - 6}" y2="${Y}"/>
+    <path d="M6 ${Y} l10 -7 v14 z M${W - 6} ${Y} l-10 -7 v14 z" style="fill:var(--muted)"/>`;
+  if (NL.zone) {
+    const z = NL.zone, x1 = z.dir === 'right' ? X(z.bound) : 8, x2 = z.dir === 'right' ? W - 8 : X(z.bound);
+    g += `<rect class="zone" x="${x1}" y="30" width="${x2 - x1}" height="52"/>`;
+  }
+  for (let v = lo; v <= hi; v++) g += `<line class="tick" x1="${X(v)}" y1="${Y - 9}" x2="${X(v)}" y2="${Y + 9}"/><text class="${v === 0 ? 'z' : ''}" x="${X(v)}" y="${Y + 34}">${v < 0 ? MIN + Math.abs(v) : v}</text>`;
+  const ray = (a, cls) => {
+    const x1 = a.dir === 'right' ? X(a.bound) : 8, x2 = a.dir === 'right' ? W - 12 : X(a.bound);
+    const arrow = a.dir === 'right' ? `<path d="M${W - 8} ${Y} l-14 -9 v18 z" style="fill:${cls === 'ar' ? 'var(--cyan)' : 'var(--lime)'}"/>` : `<path d="M8 ${Y} l14 -9 v18 z" style="fill:${cls === 'ar' ? 'var(--cyan)' : 'var(--lime)'}"/>`;
+    const col = cls === 'ar' ? 'var(--cyan)' : 'var(--lime)';
+    return `<line class="${cls}" x1="${Math.min(x1, x2)}" y1="${Y}" x2="${Math.max(x1, x2)}" y2="${Y}"/>${arrow}` +
+      (a.closed ? `<circle class="closed" cx="${X(a.bound)}" cy="${Y}" r="10" style="fill:${col}"/>` : `<circle class="open" cx="${X(a.bound)}" cy="${Y}" r="9" style="stroke:${col}"/>`);
+  };
+  if (NL.zone) g += ray(NL.zone, 'zr');
+  if (NL.ans.bound != null) g += ray(NL.ans, 'ar');
+  NL.tests.forEach(t => { g += `<circle class="${t.ok ? 'ok' : 'no'}" cx="${X(t.v)}" cy="16" r="8"/>`; });
+  if (NL.token != null) g += `<circle class="tok" cx="${X(NL.token)}" cy="16" r="13"/>`;
+  svg.innerHTML = g;
+}
+function nlSetLevel(l) {
+  const sol = l.c.sub(l.b).div(l.a), s = sol.n / sol.d;
+  NL.lo = s - 6; NL.hi = s + 6; NL.tests = []; NL.token = null; NL.zone = null; NL.expected = null; NL.solvedOK = false;
+  NL.ans = { bound: null, closed: false, dir: 'right' }; NL.lvl = l; NL.mode = 'probe';
+  $('input[name="nl-mode"][value="probe"]').checked = true;
+  $('input[name="nl-c"][value="open"]').checked = true; $('input[name="nl-d"][value="right"]').checked = true;
+  $('#nl-read').textContent = 'Toca la recta para probar un valor. Los verdes cumplen la desigualdad, los rosas no.';
+  $('#nl-msg').textContent = ''; $('#nl-msg').className = 'msg';
+  $('#nl-check').disabled = true; $$('#nl-draw input').forEach(i => { i.disabled = true; });
+  $('#nl-orig').innerHTML = `Desigualdad original: <b>${expr(l.a, l.b, l.v)} ${l.rel} ${qh(l.c)}</b>`;
+  drawNL();
+}
+function nlSolved(s, l) {
+  NL.expected = { bound: s.c.n / s.c.d, closed: s.rel === '≤' || s.rel === '≥', dir: (s.rel === '<' || s.rel === '≤') ? 'left' : 'right', rel: s.rel };
+  $('#nl-check').disabled = false; $$('#nl-draw input').forEach(i => { i.disabled = false; });
+  $('#nl-msg').textContent = 'Resuelta. Cambia a "Dibujar respuesta", toca la frontera y elige círculo y dirección.'; $('#nl-msg').className = 'msg info';
+}
+function nlPointer(e) {
+  const svg = $('#nl-svg'), r = svg.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width * NL.W;
+  return Math.max(NL.lo, Math.min(NL.hi, Math.round((x - NL.PAD) / NL.SP) + NL.lo));
+}
+function nlAct(v) {
+  if (NL.mode === 'probe') {
+    NL.token = v; const r = evalText(NL.lvl, v);
+    if (!NL.tests.find(t => t.v === v)) NL.tests.push({ v, ok: r.ok });
+    $('#nl-read').textContent = r.text;
+  } else {
+    if (!NL.expected) { $('#nl-msg').textContent = 'Primero resuelve la desigualdad con las operaciones.'; $('#nl-msg').className = 'msg info'; return; }
+    NL.ans.bound = v;
+  }
+  drawNL();
+}
+function nlCheck() {
+  const e = NL.expected, a = NL.ans, m = $('#nl-msg'); if (!e) return;
+  const bad = [];
+  if (a.bound == null) { m.textContent = 'Dibuja primero: en "Dibujar respuesta" toca la frontera en la recta.'; m.className = 'msg info'; return; }
+  if (a.bound !== e.bound) bad.push('La frontera no está en el valor al que llegaste con el álgebra.');
+  if (a.closed !== e.closed) bad.push(`El signo final es ${e.rel}: ${e.closed ? 'incluye el valor, así que el círculo va lleno' : 'no incluye el valor, así que el círculo va vacío'}.`);
+  if (a.dir !== e.dir) bad.push('La dirección está al revés. Prueba un valor a cada lado de la frontera.');
+  if (bad.length) { m.textContent = bad.join(' '); m.className = 'msg bad'; return; }
+  m.textContent = '¡Zona segura marcada! Coincide con los valores que probaste.'; m.className = 'msg ok';
+  NL.zone = { bound: e.bound, closed: e.closed, dir: e.dir };
+  if (!NL.solvedOK) { NL.solvedOK = true; addXP(8); }
+  drawNL();
+}
+
+$('#iq-root').innerHTML = '<div id="iq-solver"></div>';
+const nlWrap = document.createElement('div');
+nlWrap.innerHTML = `
+  <h3 style="margin-top:22px;font-size:14px;color:var(--amber);text-transform:uppercase;letter-spacing:.08em">La recta · explora y dibuja</h3>
+  <p class="sub" id="nl-orig" style="margin-top:8px"></p>
+  <svg class="nl" id="nl-svg" viewBox="0 0 584 118" role="img" aria-label="Recta numérica interactiva"></svg>
+  <p class="readout" id="nl-read" aria-live="polite"></p>
+  <div class="row" style="margin-top:6px">
+    <fieldset class="seg txt" style="border:0;padding:0"><legend class="vh">Modo</legend>
+      <label><input type="radio" name="nl-mode" value="probe" checked><span>Probar valores</span></label>
+      <label><input type="radio" name="nl-mode" value="draw"><span>Dibujar respuesta</span></label>
+    </fieldset>
+  </div>
+  <div class="row" id="nl-draw" style="margin-top:10px">
+    <fieldset class="seg txt" style="border:0;padding:0"><legend class="vh">Círculo</legend>
+      <label><input type="radio" name="nl-c" value="open" checked disabled><span>Círculo vacío</span></label>
+      <label><input type="radio" name="nl-c" value="closed" disabled><span>Círculo lleno</span></label>
+    </fieldset>
+    <fieldset class="seg txt" style="border:0;padding:0"><legend class="vh">Dirección</legend>
+      <label><input type="radio" name="nl-d" value="left" disabled><span>Hacia la izquierda</span></label>
+      <label><input type="radio" name="nl-d" value="right" checked disabled><span>Hacia la derecha</span></label>
+    </fieldset>
+    <button class="btn primary" type="button" id="nl-check" disabled>Comprobar dibujo</button>
+  </div>
+  <p class="msg" id="nl-msg" aria-live="polite" style="margin-top:10px"></p>`;
+$('#iq-root').appendChild(nlWrap);
+$$('input[name="nl-mode"]').forEach(i => i.addEventListener('change', () => { NL.mode = i.value; }));
+$$('input[name="nl-c"]').forEach(i => i.addEventListener('change', () => { NL.ans.closed = i.value === 'closed'; drawNL(); }));
+$$('input[name="nl-d"]').forEach(i => i.addEventListener('change', () => { NL.ans.dir = i.value; drawNL(); }));
+$('#nl-check').addEventListener('click', nlCheck);
+let nlDown = false;
+$('#nl-svg').addEventListener('pointerdown', e => { nlDown = true; nlAct(nlPointer(e)); });
+$('#nl-svg').addEventListener('pointermove', e => { if (nlDown && NL.mode === 'probe') nlAct(nlPointer(e)); });
+addEventListener('pointerup', () => { nlDown = false; });
+
+iqSolver = makeSolver($('#iq-solver'), 'iq', IQ_LEVELS, {
+  kind: 'iq',
+  renderView(slot) { slot.innerHTML = ''; },
+  onLevel(l) { nlSetLevel(l); },
+  onSolved(s, l) { nlSolved(s, l); }
+});
+
+/* espejo */
+function drawMirror() {
+  const clamp = (v, d) => { v = parseInt(v, 10); return isNaN(v) ? d : Math.max(-5, Math.min(5, v)); };
+  const a = clamp($('#mr-a').value, -3), b = clamp($('#mr-b').value, 2), m = +$('#mr-m').value;
+  const lo = -15, hi = 15, W = 640, P = 20, SPm = (W - 2 * P) / (hi - lo), X = v => P + (v - lo) * SPm;
+  const rows = [{ y: 56, a, b }, { y: 146, a: a * m, b: b * m }];
+  let g = '';
+  rows.forEach((r, ri) => {
+    g += `<line class="ln" x1="${P - 6}" y1="${r.y}" x2="${W - P + 6}" y2="${r.y}"/>`;
+    for (let v = lo; v <= hi; v++) g += `<line class="tk" x1="${X(v)}" y1="${r.y - (v % 5 === 0 ? 8 : 4)}" x2="${X(v)}" y2="${r.y + (v % 5 === 0 ? 8 : 4)}"/>` + (v % 5 === 0 ? `<text x="${X(v)}" y="${r.y + 26}">${v < 0 ? MIN + Math.abs(v) : v}</text>` : '');
+    g += `<text x="${P}" y="${r.y - 26}" style="text-anchor:start;font-weight:700">${ri ? 'Después' : 'Antes'}</text>`;
+  });
+  g += `<line class="lk" x1="${X(a)}" y1="${rows[0].y + 12}" x2="${X(a * m)}" y2="${rows[1].y - 12}"/><line class="lk" x1="${X(b)}" y1="${rows[0].y + 12}" x2="${X(b * m)}" y2="${rows[1].y - 12}"/>`;
+  rows.forEach(r => {
+    g += `<circle class="ca" cx="${X(r.a)}" cy="${r.y}" r="11"/><text class="mk" x="${X(r.a)}" y="${r.y + 4}">a</text><circle class="cb" cx="${X(r.b)}" cy="${r.y}" r="11" ${r.a === r.b ? 'transform="translate(0,-24)"' : ''}/><text class="mk" x="${X(r.b)}" y="${r.y + 4 + (r.a === r.b ? -24 : 0)}">b</text>`;
+  });
+  $('#mr-svg').innerHTML = g;
+  const cmp = (p, q) => p < q ? '<' : p > q ? '>' : '=', f = v => v < 0 ? MIN + Math.abs(v) : String(v);
+  const before = cmp(a, b), after = cmp(a * m, b * m);
+  const out = $('#mr-out');
+  out.textContent = `Antes: ${f(a)} ${before} ${f(b)}.  Después de × ${f(m)}: ${f(a * m)} ${after} ${f(b * m)}.` +
+    (a === b ? ' Son iguales, no hay orden que voltear.' : m < 0 ? '  El espejo cambió el orden: el signo se voltea.' : '  El orden se mantiene.');
+  out.style.color = (a !== b && m < 0) ? 'var(--amber)' : 'var(--fg)';
+}
+['#mr-a', '#mr-b', '#mr-m'].forEach(s => $(s).addEventListener('input', drawMirror));
+drawMirror();
+
+</script>
+<script>
+'use strict';
+/* ======================================================
+   MOTOR DE VARIOS PASOS (letras en los dos lados, paréntesis)
+   ====================================================== */
+const R_ = x => Array.isArray(x) ? Q(x[0], x[1]) : Q(x);
+const expr2 = (a, b, v) => a.isZero() ? qh(b) : expr(a, b, v);
+function makeMulti(root, key, raw) {
+  const lv = raw.map(l => ({ ...l, rel: l.rel || '=', pre: l.pre || [], a1: R_(l.a1), b1: R_(l.b1), a2: R_(l.a2), b2: R_(l.b2) }));
+  root.innerHTML = `
+    <div class="levels" role="group" aria-label="Niveles"></div>
+    <div class="eqcard"><div class="tag"></div><div class="eqn" aria-live="polite"></div></div>
+    <div class="ask pre" hidden></div>
+    <form class="ops" autocomplete="off">
+      <div class="grp"><span>Operación</span>
+        <fieldset class="seg" style="border:0"><legend class="vh">Operación</legend>
+          ${['add', 'sub', 'mul', 'div'].map((o, i) => `<label><input type="radio" name="op-${key}" value="${o}"${i === 1 ? ' checked' : ''}><span aria-label="${WORD[o]}">${SYM[o]}</span></label>`).join('')}
+        </fieldset></div>
+      <label class="fld">Número<input type="text" class="num" inputmode="text" placeholder="ej. 5 ó 2/3"></label>
+      <label class="fld" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" class="withx"> con la letra</label>
+      <button class="btn primary" type="submit">Aplicar a los dos lados</button>
+      <button class="btn" type="button" data-hint>Pista</button>
+      <button class="btn ghost" type="button" data-reset>Reiniciar nivel</button>
+    </form>
+    <p class="msg" aria-live="polite" style="margin-top:10px"></p>
+    <div class="win" hidden></div>
+    <ol class="log" aria-label="Registro de pasos"></ol>`;
+  const E = { levels: $('.levels', root), tag: $('.tag', root), eq: $('.eqn', root), pre: $('.pre', root), form: $('.ops', root), num: $('.num', root), wx: $('.withx', root), msg: $('.msg', root), win: $('.win', root), log: $('.log', root) };
+  let idx = 0, st = null, busy = false; const done = regSet('m-' + key);
+  const l0 = () => lv[idx];
+  const say = (t, c = '') => { E.msg.textContent = t; E.msg.className = 'msg ' + c; };
+  const solved = s => (s.a1.eq(ONE) && s.b1.isZero() && s.a2.isZero()) || (s.a2.eq(ONE) && s.b2.isZero() && s.a1.isZero());
+  const numeric = () => st.stage >= l0().pre.length;
+  const eqNum = (s, l = l0()) => `${expr2(s.a1, s.b1, l.v)} <span class="rel">${s.rel}</span> ${expr2(s.a2, s.b2, l.v)}`;
+  function renderEq() {
+    const l = l0();
+    E.eq.innerHTML = numeric() ? eqNum(st) : (st.stage === 0 ? l.orig : l.pre[st.stage - 1].html);
+    $$('input,button', E.form).forEach(x => { x.disabled = !numeric() || solved(st); });
+    E.pre.hidden = numeric();
+    if (!numeric()) {
+      const p = l.pre[st.stage], dec = 'Pasar términos al otro lado';
+      const order = idx % 2 ? [dec, p.label] : [p.label, dec];
+      E.pre.innerHTML = `<b>Primero limpia cada lado. ¿Qué haces ahora?</b><div class="row" style="margin-top:10px">${order.map(t => `<button class="btn" type="button" data-c="${t === p.label ? 'ok' : 'no'}">${t}</button>`).join('')}</div>`;
+      $$('[data-c]', E.pre).forEach(b => b.addEventListener('click', () => {
+        if (b.dataset.c === 'no') { say('Todavía no. ' + p.why, 'bad'); return; }
+        const li = document.createElement('li'); li.innerHTML = `<span class="ot">${p.label}</span><span class="res">${p.html}</span>`; E.log.prepend(li);
+        st.stage++; renderEq();
+        say(numeric() ? 'Lado limpio. Ahora junta las letras en un solo plato y despeja.' : 'Bien. Sigue limpiando.', 'ok');
+      }));
+    }
+  }
+  function renderLevels() {
+    E.levels.innerHTML = lv.map((l, i) => `<button class="lv${done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === idx}" aria-label="Nivel ${i + 1}">${i + 1}</button>`).join('');
+    $$('.lv', E.levels).forEach(b => b.addEventListener('click', () => init(+b.dataset.i)));
+  }
+  function init(i) {
+    idx = i; const l = l0();
+    st = { stage: 0, a1: l.a1, b1: l.b1, a2: l.a2, b2: l.b2, rel: l.rel, steps: 0, hints: 0 };
+    E.log.innerHTML = ''; E.win.hidden = true; E.num.value = ''; E.wx.checked = false;
+    E.tag.textContent = `Nivel ${i + 1} de ${lv.length} · ${l.tag}`;
+    say(l.pre.length ? 'Primero hay que limpiar los lados.' : 'Junta las letras en un solo lado y despeja.');
+    renderLevels(); renderEq();
+  }
+  function apply(s, op, n, withX) {
+    let { a1, b1, a2, b2, rel } = s;
+    if (op === 'add' || op === 'sub') { const k = op === 'add' ? n : n.neg(); if (withX) { a1 = a1.add(k); a2 = a2.add(k); } else { b1 = b1.add(k); b2 = b2.add(k); } }
+    else { const f = op === 'mul' ? n : ONE.div(n); a1 = a1.mul(f); b1 = b1.mul(f); a2 = a2.mul(f); b2 = b2.mul(f); if (f.n < 0) rel = FLIP[rel]; }
+    return { ...s, a1, b1, a2, b2, rel, steps: s.steps + 1 };
+  }
+  E.form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (busy || !numeric() || solved(st)) return;
+    const op = $(`input[name="op-${key}"]:checked`, root).value, n = parseQ(E.num.value), wx = E.wx.checked, l = l0();
+    if (!n) { say('Escribe un número entero o una fracción, por ejemplo 5 ó 2/3.', 'bad'); return; }
+    if ((op === 'mul' || op === 'div') && wx) { say('"Con la letra" solo sirve al sumar o restar. Para multiplicar o dividir usa un número solo.', 'bad'); return; }
+    if (n.isZero() && (op === 'div' || op === 'mul')) { say('Con 0 no se puede multiplicar ni dividir.', 'bad'); return; }
+    const old = st, next = apply(old, op, n, wx), flipped = next.rel !== old.rel;
+    const nt0 = wx ? (n.eq(ONE) ? l.v : qh(n) + l.v) : qh(n), nt = n.n < 0 ? `(${nt0})` : nt0;
+    let Ls = expr2(old.a1, old.b1, l.v), Rs = expr2(old.a2, old.b2, l.v);
+    if (op === 'mul' || op === 'div') { if (!old.b1.isZero() && !old.a1.isZero()) Ls = `(${Ls})`; if (!old.b2.isZero() && !old.a2.isZero()) Rs = `(${Rs})`; }
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="ot">${WORD[op]} ${nt0} a los dos lados</span>${Ls} ${SYM[op]} ${nt} ${old.rel} ${Rs} ${SYM[op]} ${nt}<span class="res">${eqNum(next)}</span>` + (flipped ? '<span class="mirror">Espejo: el signo se voltea</span>' : '');
+    E.log.prepend(li); st = next; renderEq();
+    if (solved(st)) win(); else say(flipped ? 'El espejo se activó: dividir o multiplicar por un negativo voltea el signo.' : 'Bien. Sigue.', flipped ? 'info' : '');
+  });
+  function win() {
+    const l = l0(), first = !done.has(idx); done.add(idx); renderLevels();
+    const sol = (st.a1.eq(ONE) && st.a2.isZero()) ? st.b2 : st.b1;
+    const Lv = l.a1.mul(sol).add(l.b1), Rv = l.a2.mul(sol).add(l.b2);
+    const ok = relHolds(l.rel, Lv.sub(Rv));
+    if (first) addXP(12);
+    E.win.hidden = false;
+    E.win.innerHTML = `<b class="big">Nivel superado</b><p>Quedó ${eqNum(st)}.</p><p>Comprobación con ${l.v} = ${qs(sol)}: lado izquierdo ${qs(Lv)}, lado derecho ${qs(Rv)}. ${ok ? '✓ Se cumple.' : ''}</p>` +
+      (idx < lv.length - 1 ? '<button class="btn primary" type="button" data-next style="margin-top:10px">Siguiente nivel</button>' : '<p style="margin-top:8px">Último nivel completado.</p>');
+    const nb = $('[data-next]', E.win); if (nb) nb.addEventListener('click', () => init(idx + 1));
+    renderEq();
+  }
+  $('[data-reset]', root).addEventListener('click', () => init(idx));
+  $('[data-hint]', root).addEventListener('click', () => {
+    if (!numeric() || solved(st)) return; st.hints++;
+    const l = l0(), v = l.v; let t;
+    if (!st.a1.isZero() && !st.a2.isZero()) {
+      const k = st.a1.cmp(st.a2) < 0 ? st.a1 : st.a2;
+      t = `Junta las letras en un solo plato: ${k.n > 0 ? 'resta' : 'suma'} ${qs(absQ(k))}${v} a los dos lados (marca "con la letra"). Conviene restar la letra con el menor coeficiente.`;
+    } else {
+      const varLeft = !st.a1.isZero(), a = varLeft ? st.a1 : st.a2, b = varLeft ? st.b1 : st.b2;
+      if (!b.isZero()) t = `Deshaz el ${b.n > 0 ? '+' : MIN} ${qs(absQ(b))}: ${b.n > 0 ? 'resta' : 'suma'} ${qs(absQ(b))} a los dos lados.`;
+      else t = a.isInt() ? `La ${v} está multiplicada por ${qs(a)}: divide entre ${qs(a)} a los dos lados.` : `Multiplica los dos lados por ${qs(ONE.div(a))} para dejar la ${v} sola.`;
+    }
+    say(t, 'info');
+  });
+  init(0);
+}
+
+/* ======================================================
+   PLANO COORDENADO COMPARTIDO
+   ====================================================== */
+let planeN = 0;
+function planeSVG(o) {
+  const S = 360, P = 24, min = o.min ?? -10, max = o.max ?? 10, id = 'pc' + (++planeN);
+  const sx = v => P + (v - min) / (max - min) * (S - 2 * P), sy = v => S - P - (v - min) / (max - min) * (S - 2 * P);
+  const fv = v => v < 0 ? MIN + Math.abs(v) : String(v);
+  let g = `<defs><clipPath id="${id}"><rect x="${P}" y="${P}" width="${S - 2 * P}" height="${S - 2 * P}"/></clipPath></defs>`;
+  for (let v = Math.ceil(min); v <= max; v++) { const c = v % 5 === 0 ? ' g5' : ''; g += `<line class="g${c}" x1="${sx(v)}" y1="${P}" x2="${sx(v)}" y2="${S - P}"/><line class="g${c}" x1="${P}" y1="${sy(v)}" x2="${S - P}" y2="${sy(v)}"/>`; }
+  const zero = min <= 0 && max >= 0, ay = zero ? sy(0) : sy(min), ax = zero ? sx(0) : sx(min);
+  g += `<line class="ax" x1="${P}" y1="${ay}" x2="${S - P}" y2="${ay}"/><line class="ax" x1="${ax}" y1="${P}" x2="${ax}" y2="${S - P}"/>`;
+  const step = o.lab || 5;
+  for (let v = Math.ceil(min / step) * step; v <= max; v += step) { if (v === 0) continue; g += `<text x="${sx(v)}" y="${ay + 14}" text-anchor="middle">${fv(v)}</text><text x="${ax - 5}" y="${sy(v) + 4}" text-anchor="end">${fv(v)}</text>`; }
+  (o.lines || []).forEach(l => { g += `<line clip-path="url(#${id})" class="${l.cls}" x1="${sx(min)}" y1="${sy(l.m * min + l.b)}" x2="${sx(max)}" y2="${sy(l.m * max + l.b)}"/>`; });
+  if (o.extra) g += o.extra(sx, sy);
+  (o.pts || []).forEach(p => { g += `<circle class="${p.cls || 'pt'}" cx="${sx(p.x)}" cy="${sy(p.y)}" r="5.5"/>` + (p.label ? `<text class="lb" x="${Math.min(sx(p.x) + 8, S - 70)}" y="${sy(p.y) - 8}">${p.label}</text>` : ''); });
+  return g;
+}
+function lineEq(m, b) {
+  if (m.isZero()) return 'y = ' + qh(b);
+  const mt = termA(m, 'x');
+  return b.isZero() ? `y = ${mt}` : `y = ${mt} ${b.n < 0 ? MIN : '+'} ${qh(absQ(b))}`;
+}
+function lineText(m, b) {
+  if (m.isZero()) return 'y = ' + qs(b);
+  const mt = m.eq(ONE) ? 'x' : m.eq(ONE.neg()) ? MIN + 'x' : (m.isInt() ? qs(m) + 'x' : '(' + qs(m) + ')x');
+  return b.isZero() ? `y = ${mt}` : `y = ${mt} ${b.n < 0 ? MIN : '+'} ${qs(absQ(b))}`;
+}
+const tick = (el, ok, text) => { el.textContent = text; el.className = 'msg ' + (ok ? 'ok' : 'bad'); };
+
+</script>
+<script>
+'use strict';
+/* ---------- pendiente e intercepto ---------- */
+const PT = { lv: [{ m: Q(2), b: Q(1) }, { m: Q(-1), b: Q(3) }, { m: Q(1, 2), b: Q(-2) }, { m: Q(0), b: Q(4) }, { m: Q(-3), b: Q(0) }, { m: Q(-1, 2), b: Q(5) }], i: 0, done: regSet('pt'), ok: false };
+const fl = q => q.n / q.d;
+function ptDraw() {
+  const m = Q(+$('#pt-m').value, 2), b = Q(+$('#pt-b').value), t = PT.lv[PT.i], free = $('#pt-free').checked;
+  const x1 = Math.max(-5, Math.min(5, parseInt($('#pt-x1').value, 10) || 0)), y1 = m.mul(Q(x1)).add(b);
+  const lines = []; if (!free) lines.push({ m: fl(t.m), b: fl(t.b), cls: 'gh' });
+  lines.push({ m: fl(m), b: fl(b), cls: 'l2' });
+  const mf = fl(m), bf = fl(b);
+  $('#pt-svg').innerHTML = planeSVG({
+    lines, pts: [{ x: 0, y: bf, cls: 'pt2', label: 'inicio' }, { x: x1, y: fl(y1), cls: 'pt' }],
+    extra: (sx, sy) => `<polyline class="tri" points="${sx(0)},${sy(bf)} ${sx(2)},${sy(bf)} ${sx(2)},${sy(bf + 2 * mf)}"/><text x="${sx(1)}" y="${sy(bf) + (mf >= 0 ? 15 : -7)}" text-anchor="middle">avanzas 2</text><text x="${sx(2) + 5}" y="${sy(bf + mf) + 4}">sube ${qs(Q(2).mul(m))}</text>`
+  });
+  $('#pt-eq').innerHTML = lineEq(m, b);
+  $('#pt-info').textContent = `Aparece en y = ${qs(b)}. Con pendiente ${qs(m)}, por cada 2 pasos a la derecha ${m.n > 0 ? 'sube' : m.n < 0 ? 'baja' : 'no cambia:'} ${qs(absQ(Q(2).mul(m)))}.`;
+  $('#pt-ps').innerHTML = `Punto (${x1}, ${qs(y1)}). Punto-pendiente: y ${y1.n < 0 ? '+' : MIN} ${qs(absQ(y1))} = ${m.isInt() ? qs(m) : '(' + qs(m) + ')'}(x ${x1 < 0 ? '+' : MIN} ${Math.abs(x1)})`;
+}
+function ptLevels() {
+  $('#pt-levels').innerHTML = PT.lv.map((l, i) => `<button class="lv${PT.done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === PT.i}" aria-label="Reto ${i + 1}">${i + 1}</button>`).join('');
+  $$('#pt-levels .lv').forEach(b => b.addEventListener('click', () => { PT.i = +b.dataset.i; $('#pt-msg').textContent = ''; ptLevels(); ptDraw(); }));
+}
+['#pt-m', '#pt-b', '#pt-x1', '#pt-free'].forEach(s => $(s).addEventListener('input', ptDraw));
+$('#pt-check').addEventListener('click', () => {
+  const m = Q(+$('#pt-m').value, 2), b = Q(+$('#pt-b').value), t = PT.lv[PT.i];
+  if ($('#pt-free').checked) { tick($('#pt-msg'), false, 'Quita el modo libre para comprobar con la punteada.'); return; }
+  if (m.eq(t.m) && b.eq(t.b)) {
+    tick($('#pt-msg'), true, 'Encajó. La recta es ' + lineText(t.m, t.b) + '.');
+    if (!PT.done.has(PT.i)) { PT.done.add(PT.i); addXP(8); ptLevels(); }
+  } else if (b.eq(t.b)) tick($('#pt-msg'), false, 'El punto de aparición coincide. Falta ajustar qué tan empinada es.');
+  else if (m.eq(t.m)) tick($('#pt-msg'), false, 'La pendiente coincide. Falta subir o bajar la recta: mira dónde cruza el eje y.');
+  else tick($('#pt-msg'), false, 'Primero ubica el punto de aparición (b) y luego ajusta la pendiente.');
+});
+ptLevels(); ptDraw();
+
+</script>
+<script>
+'use strict';
+/* ---------- forma estándar 4-4 ---------- */
+const SH = [{ A: 3, B: 2, C: 12 }, { A: 2, B: 3, C: 12 }, { A: 2, B: 1, C: 10 }];
+const ST = { i: 0, x: 0, y: 0, found: [], ext: false, full: regSet('st') };
+function stSols(s) { let n = 0; for (let x = 0; x * s.A <= s.C; x++) if ((s.C - x * s.A) % s.B === 0) n++; return n; }
+function stDraw() {
+  const s = SH[ST.i], mx = Math.ceil(Math.max(s.C / s.A, s.C / s.B)) + 1, tot = s.A * ST.x + s.B * ST.y;
+  $('#st-rule').innerHTML = `Espada ${s.A} monedas · Poción ${s.B} monedas · Presupuesto ${s.C}. Ecuación: <b>${s.A}x + ${s.B}y = ${s.C}</b>`;
+  $('#st-xv').textContent = ST.x; $('#st-yv').textContent = ST.y;
+  $('#st-spend').textContent = `${s.A}·${ST.x} + ${s.B}·${ST.y} = ${tot}  ${tot === s.C ? '→ presupuesto exacto ✓' : tot > s.C ? '→ te pasaste en ' + (tot - s.C) : '→ te sobran ' + (s.C - tot)}`;
+  const pts = ST.found.map(([x, y]) => ({ x, y, label: `(${x}, ${y})` }));
+  const lines = (ST.ext || ST.found.length >= 2) ? [{ m: -s.A / s.B, b: s.C / s.B, cls: 'gh' }] : [];
+  if (ST.ext) { pts.push({ x: s.C / s.A, y: 0, cls: 'pt2', label: `(${s.C / s.A}, 0)` }, { x: 0, y: s.C / s.B, cls: 'pt2', label: `(0, ${s.C / s.B})` }); }
+  $('#st-svg').innerHTML = planeSVG({ min: 0, max: mx, lab: Math.max(1, Math.ceil(mx / 6)), lines, pts });
+}
+function stShops() {
+  $('#st-shops').innerHTML = SH.map((s, i) => `<button class="lv" data-i="${i}" aria-current="${i === ST.i}" style="min-width:90px">${s.A}x+${s.B}y=${s.C}</button>`).join('');
+  $$('#st-shops .lv').forEach(b => b.addEventListener('click', () => { ST.i = +b.dataset.i; ST.x = 0; ST.y = 0; ST.found = []; ST.ext = false; $('#st-msg').textContent = ''; stShops(); stDraw(); }));
+}
+$$('[data-st]').forEach(b => b.addEventListener('click', () => {
+  const k = b.dataset.st; if (k === 'x+') ST.x++; if (k === 'x-') ST.x = Math.max(0, ST.x - 1); if (k === 'y+') ST.y++; if (k === 'y-') ST.y = Math.max(0, ST.y - 1); stDraw();
+}));
+$('#st-buy').addEventListener('click', () => {
+  const s = SH[ST.i], tot = s.A * ST.x + s.B * ST.y, m = $('#st-msg');
+  if (tot !== s.C) { tick(m, false, tot > s.C ? 'Te pasaste del presupuesto.' : 'Todavía sobra dinero. Ajusta hasta gastar justo ' + s.C + '.'); return; }
+  if (ST.found.some(([x, y]) => x === ST.x && y === ST.y)) { tick(m, false, 'Esa compra ya está guardada.'); return; }
+  ST.found.push([ST.x, ST.y]); stDraw();
+  if (ST.found.length === stSols(s)) { tick(m, true, '¡Las encontraste todas! Mira: caen sobre una misma recta.'); if (!ST.full.has(ST.i)) { ST.full.add(ST.i); addXP(10); } }
+  else tick(m, true, `Compra guardada (${ST.x}, ${ST.y}). Hay ${stSols(s) - ST.found.length} más.`);
+});
+$('#st-ext').addEventListener('click', () => { const s = SH[ST.i]; ST.ext = true; stDraw(); tick($('#st-msg'), true, `Extremos: solo espadas (${s.C / s.A}, 0) y solo pociones (0, ${s.C / s.B}). Con esos dos puntos ya se dibuja la recta.`); });
+stShops(); stDraw();
+
+const SF = [
+  { html: 'y = 2x − 3', m: Q(2), b: Q(-3) },
+  { html: 'y = −3x + 6', m: Q(-3), b: Q(6) },
+  { html: 'y = ' + fr('2x', 3) + ' + 1', m: Q(2, 3), b: Q(1) },
+  { html: 'y = −' + fr('3x', 4) + ' + 2', m: Q(-3, 4), b: Q(2) },
+  { html: 'y − 4 = −2(x − 1)', m: Q(-2), b: Q(6) }
+];
+const SFS = { i: 0, done: regSet('sf'), hint: 0 };
+const SF_HINTS = ['Pasa el término con x al lado izquierdo y deja la y sola a la derecha, o al revés. Si pasas la x, cambia su signo.', 'Si hay fracciones, multiplica toda la ecuación por el denominador para que desaparezcan.', 'A debe ser positivo. Si te quedó negativo, multiplica toda la ecuación por −1.', 'Revisa que A, B y C no tengan un factor común. Si lo tienen, divide.'];
+function sfLevels() {
+  $('#sf-levels').innerHTML = SF.map((l, i) => `<button class="lv${SFS.done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === SFS.i}" aria-label="Ejercicio ${i + 1}">${i + 1}</button>`).join('');
+  $$('#sf-levels .lv').forEach(b => b.addEventListener('click', () => { SFS.i = +b.dataset.i; SFS.hint = 0; ['#sf-a', '#sf-b', '#sf-c'].forEach(s => { $(s).value = ''; }); $('#sf-msg').textContent = ''; sfLevels(); $('#sf-given').innerHTML = SF[SFS.i].html; }));
+}
+$('#sf-check').addEventListener('click', () => {
+  const l = SF[SFS.i], A = parseQ($('#sf-a').value), B = parseQ($('#sf-b').value), C = parseQ($('#sf-c').value), m = $('#sf-msg');
+  if (!A || !B || !C) { tick(m, false, 'Escribe A, B y C como números.'); return; }
+  if (![A, B, C].every(q => q.isInt())) { tick(m, false, 'En la forma estándar A, B y C son enteros, sin fracciones.'); return; }
+  const on0 = B.mul(l.b).eq(C), on1 = A.add(B.mul(l.m.add(l.b))).eq(C);
+  if (!(on0 && on1)) { tick(m, false, 'Esa ecuación no es la misma recta. Comprueba: el punto (0, ' + qs(l.b) + ') debe cumplirla.'); return; }
+  if (A.n < 0 || (A.n === 0 && B.n < 0)) { tick(m, false, 'La recta es correcta, pero A debe ser positivo. Multiplica todo por −1.'); return; }
+  if (gcd(gcd(Math.abs(A.n), Math.abs(B.n)), Math.abs(C.n)) !== 1) { tick(m, false, 'Casi. Se puede simplificar: divide A, B y C entre su factor común.'); return; }
+  tick(m, true, `¡Forma estándar: ${A.n === 1 ? '' : A.n}x ${B.n < 0 ? MIN : '+'} ${Math.abs(B.n) === 1 ? '' : Math.abs(B.n)}y = ${qs(C)}! Interceptos: (${qs(C.div(A))}, 0) y (0, ${qs(C.div(B))}).`);
+  if (!SFS.done.has(SFS.i)) { SFS.done.add(SFS.i); addXP(8); sfLevels(); }
+});
+$('#sf-hint').addEventListener('click', () => { tick($('#sf-msg'), true, SF_HINTS[Math.min(SFS.hint++, SF_HINTS.length - 1)]); $('#sf-msg').className = 'msg info'; });
+sfLevels(); $('#sf-given').innerHTML = SF[0].html;
+
+</script>
+<script>
+'use strict';
+/* ---------- rectas paralelas y perpendiculares 4-5 ---------- */
+const PP = [
+  { t: 'par', m1: Q(2), b1: Q(1), pt: [0, -3] }, { t: 'par', m1: Q(-1), b1: Q(4), pt: [2, 1] },
+  { t: 'perp', m1: Q(2), b1: Q(1), pt: [0, 3] }, { t: 'perp', m1: Q(1, 3), b1: Q(2), pt: [1, 2] }, { t: 'perp', m1: Q(-2, 3), b1: Q(1), pt: [2, 1] }
+];
+const PPS = { i: 0, done: regSet('pp') };
+function ppDraw() {
+  const l = PP[PPS.i], m2 = Q(+$('#pp-m').value, 2), b2 = Q(+$('#pp-b').value), prod = l.m1.mul(m2);
+  const [x0, y0] = l.pt, perp = prod.eq(Q(-1));
+  $('#pp-svg').innerHTML = planeSVG({
+    lines: [{ m: fl(l.m1), b: fl(l.b1), cls: 'l1' }, { m: fl(m2), b: fl(b2), cls: 'l2' }], pts: [{ x: x0, y: y0, cls: 'pt2', label: `(${x0}, ${y0})` }],
+    extra: (sx, sy) => {
+      if (!perp) return '';
+      const ix = (fl(b2) - fl(l.b1)) / (fl(l.m1) - fl(m2)), iy = fl(l.m1) * ix + fl(l.b1), n1 = Math.hypot(1, fl(l.m1)), n2 = Math.hypot(1, fl(m2)), s = 1;
+      const u1 = [1 / n1, fl(l.m1) / n1], u2 = [1 / n2, fl(m2) / n2];
+      const p = [[ix + s * u1[0], iy + s * u1[1]], [ix + s * (u1[0] + u2[0]), iy + s * (u1[1] + u2[1])], [ix + s * u2[0], iy + s * u2[1]]];
+      return `<polyline class="ra" points="${p.map(q => sx(q[0]) + ',' + sy(q[1])).join(' ')}"/>`;
+    }
+  });
+  $('#pp-eq').innerHTML = `<span style="color:var(--cyan)">${lineEq(l.m1, l.b1)}</span><br>${lineEq(m2, b2)}`;
+  $('#pp-rel').textContent = `m₁ = ${qs(l.m1)}   m₂ = ${qs(m2)}   m₁·m₂ = ${qs(prod)}\n` + (l.m1.eq(m2) ? (l.b1.eq(b2) ? 'Es la misma recta.' : 'Paralelas: misma pendiente, distinto intercepto.') : perp ? 'Perpendiculares: m₁·m₂ = −1.' : 'Se cruzan, pero no en ángulo recto.');
+  $('#pp-rel').style.whiteSpace = 'pre-line';
+}
+function ppLevels() {
+  $('#pp-levels').innerHTML = PP.map((l, i) => `<button class="lv${PPS.done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === PPS.i}" aria-label="Reto ${i + 1}">${i + 1}</button>`).join('');
+  $$('#pp-levels .lv').forEach(b => b.addEventListener('click', () => { PPS.i = +b.dataset.i; ppTask(); ppLevels(); ppDraw(); $('#pp-msg').textContent = ''; }));
+}
+function ppTask() { const l = PP[PPS.i]; $('#pp-task').innerHTML = `Dibuja la recta <b>${l.t === 'par' ? 'paralela' : 'perpendicular'}</b> a <span style="color:var(--cyan)">${lineEq(l.m1, l.b1)}</span> que pase por (${l.pt[0]}, ${l.pt[1]}).`; }
+['#pp-m', '#pp-b'].forEach(s => $(s).addEventListener('input', ppDraw));
+$('#pp-check').addEventListener('click', () => {
+  const l = PP[PPS.i], m2 = Q(+$('#pp-m').value, 2), b2 = Q(+$('#pp-b').value), m = $('#pp-msg');
+  const through = m2.mul(Q(l.pt[0])).add(b2).eq(Q(l.pt[1]));
+  const rel = l.t === 'par' ? (m2.eq(l.m1) && !b2.eq(l.b1)) : l.m1.mul(m2).eq(Q(-1));
+  if (rel && through) { tick(m, true, `Correcto: ${lineText(m2, b2)}.`); if (!PPS.done.has(PPS.i)) { PPS.done.add(PPS.i); addXP(8); ppLevels(); } }
+  else if (!rel) tick(m, false, l.t === 'par' ? 'Las paralelas tienen la misma pendiente que la recta azul.' : 'Para perpendicular: la pendiente es el recíproco con el signo contrario.');
+  else tick(m, false, 'La relación está bien, pero no pasa por el punto rosa. Ajusta el intercepto.');
+});
+const PQ = [[Q(3), Q(3), 'par', 'Misma pendiente: paralelas.'], [Q(2), Q(-1, 2), 'perp', '2 · (−1/2) = −1: perpendiculares.'], [Q(1, 2), Q(2), 'none', 'Son recíprocas pero falta el signo contrario: 1/2 · 2 = 1, no −1.']];
+$('#pp-quiz').innerHTML = PQ.map((q, i) => `<div class="q" data-i="${i}"><p>Pendientes <b>${qs(q[0])}</b> y <b>${qs(q[1])}</b></p><div class="row" style="margin-top:8px"><button class="btn" data-a="par">Paralelas</button><button class="btn" data-a="perp">Perpendiculares</button><button class="btn" data-a="none">Ninguna</button></div><p class="fb" aria-live="polite"></p></div>`).join('');
+$$('#pp-quiz .q').forEach(box => {
+  const q = PQ[+box.dataset.i]; let got = false;
+  $$('button', box).forEach(b => b.addEventListener('click', () => { const ok = b.dataset.a === q[2], fb = $('.fb', box); fb.textContent = (ok ? '¡Correcto! ' : 'Casi. ') + q[3]; fb.style.color = ok ? 'var(--lime)' : 'var(--pink)'; if (ok && !got) { got = true; addXP(3); } }));
+});
+ppTask(); ppLevels(); ppDraw();
+
+</script>
+<script>
+'use strict';
+/* ---------- 5-3 varios pasos ---------- */
+makeMulti($('#mp-root'), 'mp', [
+  { v: 'x', tag: 'Distribuir y combinar · Examen 9.º', orig: '7x + 2(x + 6) = 39', pre: [{ label: 'Distribuir el 2', html: '7x + 2x + 12 = 39', why: 'Hay un paréntesis. Multiplica el 2 por cada término de adentro.' }, { label: 'Combinar términos semejantes', html: '9x + 12 = 39', why: 'Junta primero los términos con x que están del mismo lado.' }], a1: 9, b1: 12, a2: 0, b2: 39 },
+  { v: 'x', tag: 'Fracción fuera del paréntesis · Examen 9.º', orig: fr(2, 5) + '(3x + 4) = 10', pre: [{ label: 'Distribuir ' + fr(2, 5), html: fr('6x', 5) + ' + ' + fr(8, 5) + ' = 10', why: 'Hay un paréntesis. Multiplica 2/5 por 3x y por 4.' }], a1: [6, 5], b1: [8, 5], a2: 0, b2: 10 },
+  { v: 'y', tag: 'Letras en los dos lados · Examen 9.º', orig: '8y − 6 = ' + fr(2, 3) + '(6y + 15)', pre: [{ label: 'Distribuir ' + fr(2, 3), html: '8y − 6 = 4y + 10', why: 'Antes de mover letras, elimina el paréntesis.' }], a1: 8, b1: -6, a2: 4, b2: 10 },
+  { v: 'x', tag: 'Letras en los dos lados · Examen 9.º', orig: '5x − 2 = 2(3x − 4)', pre: [{ label: 'Distribuir el 2', html: '5x − 2 = 6x − 8', why: 'Elimina el paréntesis primero.' }], a1: 5, b1: -2, a2: 6, b2: -8 },
+  { v: 'x', tag: 'Fracción en el numerador · Examen 10.º', orig: fr('4x + 12', 2) + ' = 3x − 5', pre: [{ label: 'Dividir cada término entre 2', html: '2x + 6 = 3x − 5', why: 'La fracción divide a todo el numerador. Divide cada término entre 2.' }], a1: 2, b1: 6, a2: 3, b2: -5 },
+  { v: 'x', tag: 'Desigualdad con letras en los dos lados · 5-3', orig: '3x + 2 ≤ 5x − 6', rel: '≤', pre: [], a1: 3, b1: 2, a2: 5, b2: -6 },
+  { v: 'x', tag: 'Desigualdad con paréntesis · 5-3', orig: '4(x − 1) > 2x + 6', rel: '>', pre: [{ label: 'Distribuir el 4', html: '4x − 4 > 2x + 6', why: 'Elimina el paréntesis antes de juntar las letras.' }], a1: 4, b1: -4, a2: 2, b2: 6 }
+]);
+
+</script>
+<script>
+'use strict';
+/* ---------- orden de operaciones ---------- */
+const OR_EXPR = ['15 - 6 + 9', '25 - 4 * (30 / 6)', '3^2 + 4 * 3 - 5', '7 + (15 - 2^3) - 20 / 4', '4^3 / 8 + 5 * 4 - 6', '2^4 * 3 - 24 / 6', '5^2 - (-2)^3', '20 - 4 * [8 / (10 - 2^3)]'];
+const OR_TAGS = ['Izquierda a derecha · Examen 6.º', 'Paréntesis primero · Examen 6.º', 'Potencias · Examen 6.º', 'Paréntesis con potencia · Examen 6.º', 'Todo junto · Examen 7.º', 'Todo junto · Examen 9.º', 'Potencias con negativos · Examen 10.º', 'Paréntesis anidados · Examen 10.º'];
+const PREC = { '^': 3, '*': 2, '/': 2, '+': 1, '-': 1 };
+const GL = { '*': '×', '/': '÷', '-': '−', '+': '+' };
+const isOpen = t => t.k === 'p' && '(['.includes(t.v), isClose = t => t.k === 'p' && ')]'.includes(t.v);
+function orTok(s) {
+  const re = /\(-(\d+)\)|(\d+)|([()\[\]+\-*\/^])/g, t = []; let m;
+  while ((m = re.exec(s))) { if (m[1] !== undefined) t.push({ k: 'n', v: -+m[1] }); else if (m[2] !== undefined) t.push({ k: 'n', v: +m[2] }); else if ('()[]'.includes(m[3])) t.push({ k: 'p', v: m[3] }); else t.push({ k: 'o', v: m[3] }); }
+  return t;
+}
+function orCands(T) {
+  const groups = [], stack = [];
+  T.forEach((t, i) => { if (isOpen(t)) stack.push(i); else if (isClose(t)) { const o = stack.pop(); if (!T.slice(o + 1, i).some(isOpen)) groups.push([o + 1, i - 1]); } });
+  if (!groups.length) groups.push([0, T.length - 1]);
+  const out = [];
+  groups.forEach(([a, b]) => { let best = -1, bi = -1; for (let k = a; k <= b; k++) if (T[k].k === 'o' && PREC[T[k].v] > best) { best = PREC[T[k].v]; bi = k; } if (bi >= 0) out.push(bi); });
+  return out;
+}
+function orStep(T, k) {
+  const a = T[k - 1].v, b = T[k + 1].v, o = T[k].v;
+  const r = o === '+' ? a + b : o === '-' ? a - b : o === '*' ? a * b : o === '/' ? a / b : a ** b;
+  T.splice(k - 1, 3, { k: 'n', v: r });
+  for (let i = 0; i < T.length - 2;) { if (isOpen(T[i]) && T[i + 1].k === 'n' && isClose(T[i + 2])) { T.splice(i, 3, T[i + 1]); i = 0; } else i++; }
+}
+const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+const supN = n => String(n).split('').map(c => SUP[+c]).join('');
+function orText(T) {
+  let s = '';
+  for (let i = 0; i < T.length; i++) {
+    const t = T[i];
+    if (t.k === 'n') { const prev = T[i - 1], wrap = t.v < 0 && prev && !isOpen(prev); s += (wrap ? '(' : '') + (t.v < 0 ? MIN + Math.abs(t.v) : t.v) + (wrap ? ')' : ''); }
+    else if (t.k === 'p') s += t.v;
+    else if (t.v === '^') { s += supN(T[i + 1].v); i++; }
+    else s += ' ' + GL[t.v] + ' ';
+  }
+  return s;
+}
+const OR = { i: 0, T: [], mist: 0, hints: 0, done: regSet('or'), total: 0, hintSet: new Set() };
+function orCat(T, c) { if (T.some(t => t.k === 'p')) return 0; const p = PREC[T[c[0]].v]; return p === 3 ? 1 : p === 2 ? 2 : 3; }
+function orRender() {
+  const T = OR.T; let h = '';
+  for (let i = 0; i < T.length; i++) {
+    const t = T[i], hint = OR.hintSet.has(i) ? ' hint' : '';
+    if (t.k === 'n') { const prev = T[i - 1], wrap = t.v < 0 && prev && !isOpen(prev); h += `<span class="n">${wrap ? '(' : ''}${t.v < 0 ? MIN + Math.abs(t.v) : t.v}${wrap ? ')' : ''}</span>`; }
+    else if (t.k === 'p') h += `<span class="gl">${t.v}</span>`;
+    else if (t.v === '^') { h += `<button class="optk${hint}" data-i="${i}" aria-label="elevar a ${T[i + 1].v}"><sup>${T[i + 1].v}</sup></button>`; i++; }
+    else h += `<button class="optk${hint}" data-i="${i}" aria-label="operación ${GL[t.v]}">${GL[t.v]}</button>`;
+  }
+  $('#or-expr').innerHTML = h;
+  const done = T.length === 1;
+  const cat = done ? -1 : orCat(T, orCands(T));
+  $('#or-ladder').innerHTML = ['Paréntesis', 'Potencias', '× y ÷', '+ y −'].map((n, i) => `<span class="${i === cat ? 'on' : ''}">${n}</span>`).join('');
+  $('#or-count').textContent = `Errores: ${OR.mist}`;
+}
+function orLevels() {
+  $('#or-levels').innerHTML = OR_EXPR.map((e, i) => `<button class="lv${OR.done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === OR.i}" aria-label="Jefe ${i + 1}">${i + 1}</button>`).join('');
+  $$('#or-levels .lv').forEach(b => b.addEventListener('click', () => orInit(+b.dataset.i)));
+}
+function orInit(i) {
+  clearTimeout(OR.ht); OR.i = i; OR.T = orTok(OR_EXPR[i]); OR.mist = 0; OR.hints = 0; OR.hintSet = new Set();
+  $('#or-tag').textContent = `Jefe ${i + 1} de ${OR_EXPR.length} · ${OR_TAGS[i]}`;
+  $('#or-log').innerHTML = `<li><span class="ot">Inicio</span>${orText(OR.T)}</li>`;
+  const m = $('#or-msg'); m.textContent = 'Toca la operación que va primero.'; m.className = 'msg';
+  orLevels(); orRender();
+}
+$('#or-expr').addEventListener('click', e => {
+  const b = e.target.closest('.optk'); if (!b || OR.T.length === 1) return;
+  const k = +b.dataset.i, c = orCands(OR.T), m = $('#or-msg');
+  clearTimeout(OR.ht); OR.hintSet = new Set();
+  if (c.includes(k)) {
+    orStep(OR.T, k);
+    const li = document.createElement('li'); li.innerHTML = `<span class="ot">Golpe correcto</span>${orText(OR.T)}`; $('#or-log').prepend(li);
+    if (OR.T.length === 1) {
+      const first = !OR.done.has(OR.i); OR.done.add(OR.i);
+      tick(m, true, `¡Jefe vencido! Resultado: ${OR.T[0].v < 0 ? MIN + Math.abs(OR.T[0].v) : OR.T[0].v}.` + (OR.mist === 0 ? ' Sin errores.' : ''));
+      if (first) addXP(OR.mist <= 1 ? 8 : 4);
+      orLevels();
+    } else { m.textContent = 'Bien. Sigue.'; m.className = 'msg'; }
+    orRender();
+  } else {
+    OR.mist++;
+    const cat = orCat(OR.T, c), p = PREC[OR.T[k].v];
+    const msgs = ['Hay paréntesis: resuelve primero lo que está dentro, empezando por el más interno.', 'No hay paréntesis, así que van primero las potencias.', 'Ya no hay potencias: ahora × y ÷, siempre de izquierda a derecha.', 'Solo quedan + y −, de izquierda a derecha.'];
+    const sameLevel = (cat === 2 && p === 2) || (cat === 3 && p === 1);
+    tick(m, false, 'Todavía no. ' + (sameLevel ? 'Esas operaciones van al mismo nivel, y se hacen de izquierda a derecha.' : msgs[cat]));
+    orRender(); const nb = $(`#or-expr .optk[data-i="${k}"]`); if (nb) nb.classList.add('bad');
+  }
+});
+$('#or-hint').addEventListener('click', () => {
+  if (OR.T.length === 1) return; OR.hints++; OR.hintSet = new Set(orCands(OR.T)); orRender();
+  const m = $('#or-msg'); m.textContent = 'Las operaciones resaltadas son las que van ahora.'; m.className = 'msg info';
+  clearTimeout(OR.ht); OR.ht = setTimeout(() => { OR.hintSet = new Set(); orRender(); }, 1800);
+});
+$('#or-reset').addEventListener('click', () => orInit(OR.i));
+orInit(0);
+
+</script>
+<script>
+'use strict';
+/* ---------- exponentes y notación científica ---------- */
+const commas = s => String(s).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+function exDraw() {
+  const b = Math.max(1, Math.min(12, parseInt($('#ex-b').value, 10) || 1)), e = +$('#ex-e').value;
+  $('#ex-chips').innerHTML = Array.from({ length: e }, (_, i) => `<b>${b}</b>`).join('<span class="sub">×</span>');
+  $('#ex-out').innerHTML = `${b}<sup>${e}</sup> = ${commas(b ** e)}`;
+  const d = +$('#ex-d').value, n = 2 ** d;
+  $('#ex-day').textContent = `Día ${d}: 2^${d} = ${commas(n)} ${n === 1 ? 'persona' : 'personas'} conocen el rumor.`;
+  $('#ex-dots').innerHTML = '<i></i>'.repeat(Math.min(n, 512));
+}
+['#ex-b', '#ex-e', '#ex-d'].forEach(s => $(s).addEventListener('input', exDraw));
+exDraw();
+const EXQ = [
+  { t: 'Escribe como potencia: 6 × 6 × 6 × 6 × 6', two: true, b: 6, e: 5 },
+  { t: 'Escribe como potencia: 12 × 12 × 12', two: true, b: 12, e: 3 },
+  { t: 'Escribe como potencia: 9 × 9 × 9 × 9 × 9 × 9 × 9', two: true, b: 9, e: 7 },
+  { t: 'Escribe como potencia: 1 × 1 × 1 × 1 × 1', two: true, b: 1, e: 5 },
+  { t: 'Calcula 2⁴', v: 16 }, { t: 'Calcula 5³', v: 125 }, { t: 'Calcula 6³', v: 216 }, { t: 'Calcula 42¹', v: 42 }
+];
+$('#ex-quiz').innerHTML = EXQ.map((q, i) => `<div class="q" data-i="${i}"><p>${q.t}</p><div class="row" style="margin-top:6px">
+  ${q.two ? '<label class="fld">Base<input type="text" class="i1" inputmode="numeric"></label><label class="fld">Exponente<input type="text" class="i2" inputmode="numeric"></label>' : '<label class="fld">Valor<input type="text" class="i1" inputmode="numeric"></label>'}
+  <button class="btn">Comprobar</button></div><p class="fb" aria-live="polite"></p></div>`).join('');
+$$('#ex-quiz .q').forEach(box => {
+  const q = EXQ[+box.dataset.i]; let got = false;
+  $('button', box).addEventListener('click', () => {
+    const fb = $('.fb', box), v1 = +($('.i1', box).value.trim() || NaN), v2 = q.two ? +($('.i2', box).value.trim() || NaN) : 0;
+    const ok = q.two ? (v1 === q.b && v2 === q.e) : v1 === q.v;
+    fb.textContent = ok ? '¡Correcto!' : (q.two ? 'La base es el número que se repite y el exponente cuenta cuántas veces aparece.' : 'Multiplica la base tantas veces como diga el exponente. No es base × exponente.');
+    fb.style.color = ok ? 'var(--lime)' : 'var(--pink)'; if (ok && !got) { got = true; addXP(3); }
+  });
+});
+const NCL = [
+  { task: 'Escribe 4,700,000 en notación científica. Mueve el punto hasta que quede un solo dígito antes del punto.', digits: '47', p0: 7, target: 1, mode: 'sci' },
+  { task: 'Escribe 382,000,000 en notación científica.', digits: '382', p0: 9, target: 1, mode: 'sci' },
+  { task: 'Escribe 93,000 en notación científica.', digits: '93', p0: 5, target: 1, mode: 'sci' },
+  { task: 'Escribe 5.46 × 10⁵ en forma estándar: mueve el punto 5 lugares a la derecha.', digits: '546', p0: 1, target: 6, mode: 'std' },
+  { task: 'Escribe 2.712 × 10⁷ en forma estándar.', digits: '2712', p0: 1, target: 8, mode: 'std' },
+  { task: 'Calcula 18 × 10³ moviendo el punto 3 lugares a la derecha.', digits: '18', p0: 2, target: 5, mode: 'std' }
+];
+const NC = { i: 0, p: 7, done: regSet('nc') };
+function pointString(d, p) {
+  let ip, fp;
+  if (p <= 0) { ip = '0'; fp = '0'.repeat(-p) + d; } else if (p >= d.length) { ip = d + '0'.repeat(p - d.length); fp = ''; } else { ip = d.slice(0, p); fp = d.slice(p); }
+  return commas(ip) + (fp ? '.' + fp : '');
+}
+function ncDraw() {
+  const l = NCL[NC.i], k = l.mode === 'sci' ? l.p0 - NC.p : l.target - NC.p;
+  $('#nc-task').textContent = l.task;
+  $('#nc-num').innerHTML = `${pointString(l.digits, NC.p)} × 10<sup>${k}</sup>`;
+  const moved = NC.p - l.p0;
+  $('#nc-exp').textContent = moved === 0 ? 'El punto está en su lugar original.' : `Moviste el punto ${Math.abs(moved)} ${Math.abs(moved) === 1 ? 'lugar' : 'lugares'} a la ${moved < 0 ? 'izquierda' : 'derecha'}.`;
+  $('#nc-levels').innerHTML = NCL.map((x, i) => `<button class="lv${NC.done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === NC.i}" aria-label="Reto ${i + 1}">${i + 1}</button>`).join('');
+  $$('#nc-levels .lv').forEach(b => b.addEventListener('click', () => { NC.i = +b.dataset.i; NC.p = NCL[NC.i].p0; $('#nc-msg').textContent = ''; ncDraw(); }));
+}
+$('#nc-left').addEventListener('click', () => { NC.p = Math.max(0, NC.p - 1); ncDraw(); });
+$('#nc-right').addEventListener('click', () => { NC.p = Math.min(14, NC.p + 1); ncDraw(); });
+$('#nc-check').addEventListener('click', () => {
+  const l = NCL[NC.i], m = $('#nc-msg');
+  if (NC.p !== l.target) { tick(m, false, l.mode === 'sci' ? 'Todavía no: el número antes del punto debe ser mayor o igual que 1 y menor que 10, o sea un solo dígito.' : 'Cuenta los saltos: el exponente te dice cuántos lugares mover el punto a la derecha.'); return; }
+  tick(m, true, l.mode === 'sci' ? `¡Notación científica! ${pointString(l.digits, 1)} × 10^${l.p0 - 1}.` : `¡Listo! Forma estándar: ${pointString(l.digits, l.target)}.`);
+  if (!NC.done.has(NC.i)) { NC.done.add(NC.i); addXP(6); ncDraw(); }
+});
+NC.p = NCL[0].p0; ncDraw();
+
+</script>
+<script>
+'use strict';
+/* ---------- conjuntos ---------- */
+const isPrime = n => n > 1 && Array.from({ length: n - 2 }, (_, i) => i + 2).every(d => n % d);
+const CJP = [
+  { A: 'múltiplos de 2', B: 'múltiplos de 3', fa: n => n % 2 === 0, fb: n => n % 3 === 0 },
+  { A: 'números primos', B: 'números impares', fa: isPrime, fb: n => n % 2 === 1 },
+  { A: 'menores que 7', B: 'números pares', fa: n => n < 7, fb: n => n % 2 === 0 }
+];
+const CJ = { i: 0, sel: null, placed: new Map(), op: 'A∩B', done: regSet('cj') };
+const CJU = Array.from({ length: 12 }, (_, i) => i + 1);
+const cjReg = (p, n) => p.fa(n) && p.fb(n) ? 'AB' : p.fa(n) ? 'A' : p.fb(n) ? 'B' : 'N';
+const CJ_OPS = { 'A∪B': (a, b) => a || b, 'A∩B': (a, b) => a && b, 'A−B': (a, b) => a && !b, 'B−A': (a, b) => b && !a, 'A′': (a) => !a };
+function cjDraw() {
+  const p = CJP[CJ.i];
+  $('#cj-pairs').innerHTML = CJP.map((x, i) => `<button class="lv" data-i="${i}" aria-current="${i === CJ.i}" style="min-width:60px">Par ${i + 1}</button>`).join('');
+  $$('#cj-pairs .lv').forEach(b => b.addEventListener('click', () => { CJ.i = +b.dataset.i; CJ.sel = null; CJ.placed = new Map(); $('#cj-msg').textContent = ''; cjDraw(); }));
+  $('#cj-rules').innerHTML = `<b style="color:var(--cyan)">A</b> = ${p.A} · <b style="color:var(--amber)">B</b> = ${p.B} · Universo U = {1, 2, …, 12}`;
+  $('#cj-tray').innerHTML = CJU.filter(n => !CJ.placed.has(n)).map(n => `<button class="lv" data-n="${n}" aria-current="${CJ.sel === n}">${n}</button>`).join('') || '<span class="sub">Todas colocadas.</span>';
+  $$('#cj-tray .lv').forEach(b => b.addEventListener('click', () => { CJ.sel = +b.dataset.n; cjDraw(); }));
+  // diagrama
+  const cA = [200, 130, 108], cB = [360, 130, 108], regs = { A: [135, 120], AB: [280, 120], B: [425, 120] };
+  const holes = (...c) => c.map(x => `<circle cx="${x[0]}" cy="${x[1]}" r="${x[2]}" fill="black"/>`).join('');
+  let g = `<defs><clipPath id="cjA"><circle cx="${cA[0]}" cy="${cA[1]}" r="${cA[2]}"/></clipPath>
+    <mask id="mAB"><rect width="560" height="270" fill="white"/>${holes(cB)}</mask><mask id="mBA"><rect width="560" height="270" fill="white"/>${holes(cA)}</mask></defs>
+    <rect class="u" x="8" y="8" width="544" height="254"/><circle class="c" cx="${cA[0]}" cy="${cA[1]}" r="${cA[2]}"/><circle class="c" cx="${cB[0]}" cy="${cB[1]}" r="${cB[2]}"/>`;
+  const o = CJ.op;
+  if (o === 'A∪B') g += `<circle class="hl" cx="${cA[0]}" cy="${cA[1]}" r="${cA[2]}"/><circle class="hl" cx="${cB[0]}" cy="${cB[1]}" r="${cB[2]}"/>`;
+  if (o === 'A∩B') g += `<circle class="hl" clip-path="url(#cjA)" cx="${cB[0]}" cy="${cB[1]}" r="${cB[2]}"/>`;
+  if (o === 'A−B') g += `<circle class="hl" mask="url(#mAB)" cx="${cA[0]}" cy="${cA[1]}" r="${cA[2]}"/>`;
+  if (o === 'B−A') g += `<circle class="hl" mask="url(#mBA)" cx="${cB[0]}" cy="${cB[1]}" r="${cB[2]}"/>`;
+  if (o === 'A′') g += `<mask id="mC"><rect width="560" height="270" fill="white"/>${holes(cA)}</mask><rect class="hl" mask="url(#mC)" x="8" y="8" width="544" height="254"/>`;
+  g += `<text class="tt" x="${cA[0] - 60}" y="34" style="fill:var(--cyan)">A</text><text class="tt" x="${cB[0] + 60}" y="34" style="fill:var(--amber)">B</text>`;
+  const by = { A: [], AB: [], B: [], N: [] }; CJ.placed.forEach((r, n) => by[r].push(n));
+  ['A', 'AB', 'B'].forEach(r => by[r].sort((a, b) => a - b).forEach((n, i) => { const x = regs[r][0] + ((i % 3) - 1) * 36, y = regs[r][1] + (Math.floor(i / 3) - 1) * 32; g += `<rect class="chipbg" x="${x - 15}" y="${y - 13}" width="30" height="26"/><text x="${x}" y="${y + 6}">${n}</text>`; }));
+  by.N.sort((a, b) => a - b).forEach((n, i) => { const x = 34 + i * 36, y = 244; g += `<rect class="chipbg" x="${x - 15}" y="${y - 13}" width="30" height="26"/><text x="${x}" y="${y + 6}">${n}</text>`; });
+  $('#cj-svg').innerHTML = g;
+  // operaciones
+  $('#cj-ops').innerHTML = Object.keys(CJ_OPS).map(k => `<button class="lv" data-o="${k}" aria-current="${k === CJ.op}" style="min-width:64px">${k}</button>`).join('');
+  $$('#cj-ops .lv').forEach(b => b.addEventListener('click', () => { CJ.op = b.dataset.o; cjDraw(); }));
+  const els = CJU.filter(n => CJ_OPS[CJ.op](p.fa(n), p.fb(n)));
+  $('#cj-out').textContent = `${CJ.op} = {${els.join(', ')}}   cantidad: ${els.length}`;
+}
+$$('[data-reg]').forEach(b => b.addEventListener('click', () => {
+  const p = CJP[CJ.i], n = CJ.sel, m = $('#cj-msg');
+  if (n == null) { tick(m, false, 'Primero toca una tarjeta de la bandeja.'); return; }
+  const r = cjReg(p, n);
+  if (b.dataset.reg === r) {
+    CJ.placed.set(n, r); CJ.sel = null; cjDraw();
+    if (CJ.placed.size === 12) { tick(m, true, '¡Todas colocadas! Ahora prueba las operaciones de abajo.'); if (!CJ.done.has(CJ.i)) { CJ.done.add(CJ.i); addXP(10); } }
+    else tick(m, true, `${n} va ahí.`);
+  } else tick(m, false, `${n} ${p.fa(n) ? 'sí' : 'no'} es de A (${p.A}) y ${p.fb(n) ? 'sí' : 'no'} es de B (${p.B}). Revisa las dos reglas.`);
+}));
+cjDraw();
+
+</script>
+<script>
+'use strict';
+/* ---------- racionales y proporciones ---------- */
+const RF = [[-16, 24], [17, 51], [25, 65], [18, 42]];
+const RFS = { i: 0, a: -16, d: 24, done: regSet('rf') };
+function rfDraw() {
+  const { a, d } = RFS;
+  $('#rf-frac').innerHTML = (a < 0 ? MIN : '') + fr(Math.abs(a), d);
+  $('#rf-cells').innerHTML = Array.from({ length: d }, (_, i) => `<i class="${i < Math.abs(a) ? 's' + (a < 0 ? ' neg' : '') : ''}"></i>`).join('');
+  $('#rf-levels').innerHTML = RF.map((x, i) => `<button class="lv${RFS.done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === RFS.i}" aria-label="Fracción ${i + 1}">${i + 1}</button>`).join('');
+  $$('#rf-levels .lv').forEach(b => b.addEventListener('click', () => rfInit(+b.dataset.i)));
+}
+function rfInit(i) { RFS.i = i; RFS.a = RF[i][0]; RFS.d = RF[i][1]; $('#rf-g').value = ''; $('#rf-msg').textContent = ''; rfDraw(); }
+$('#rf-go').addEventListener('click', () => {
+  const g = parseInt($('#rf-g').value, 10), m = $('#rf-msg');
+  if (!g || g < 2) { tick(m, false, 'Escribe un número mayor que 1 para agrupar.'); return; }
+  if (RFS.a % g || RFS.d % g) { tick(m, false, `${g} no divide a los dos números. Para agrupar de ${g} en ${g} debe dividir exacto al numerador y al denominador.`); return; }
+  const was = `${qs(Q(RFS.a))}/${RFS.d}`; RFS.a /= g; RFS.d /= g; rfDraw();
+  if (gcd(Math.abs(RFS.a), RFS.d) === 1) { tick(m, true, `${was} = ${qs(Q(RFS.a))}/${RFS.d}. Ya no se puede agrupar más: es irreducible.`); if (!RFS.done.has(RFS.i)) { RFS.done.add(RFS.i); addXP(5); rfDraw(); } }
+  else tick(m, true, `${was} = ${qs(Q(RFS.a))}/${RFS.d}. Todavía se puede agrupar más.`);
+});
+$('#rf-g').addEventListener('keydown', e => { if (e.key === 'Enter') $('#rf-go').click(); });
+$('#rf-reset').addEventListener('click', () => rfInit(RFS.i));
+rfInit(0);
+
+function fracQuiz(sel, items, mk) {
+  $(sel).innerHTML = items.map((q, i) => `<div class="q" data-i="${i}"><p>${q.t}</p><div class="row" style="margin-top:6px"><label class="fld">Respuesta<input type="text" inputmode="text" autocomplete="off" placeholder="${q.ph || 'a/b'}"></label><button class="btn">Comprobar</button></div><p class="fb" aria-live="polite"></p></div>`).join('');
+  $$(sel + ' .q').forEach(box => {
+    const q = items[+box.dataset.i]; let got = false;
+    const go = () => {
+      const s = $('input', box).value.trim(), fb = $('.fb', box), r = q.check(s);
+      fb.textContent = r.msg; fb.style.color = r.ok ? 'var(--lime)' : 'var(--pink)'; if (r.ok && !got) { got = true; addXP(3); }
+    };
+    $('button', box).addEventListener('click', go); $('input', box).addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  });
+}
+const redFrac = (s, want) => {
+  const v = parseQ(s); if (!v) return { ok: false, msg: 'Escribe una fracción como 3/4.' };
+  if (!v.eq(want)) return { ok: false, msg: 'Ese valor no coincide. Revisa el cálculo.' };
+  const m = s.replace(/[−–]/g, '-').match(/^(-?\d+)\s*\/\s*(-?\d+)$/);
+  if (m && gcd(Math.abs(+m[1]), Math.abs(+m[2])) !== 1) return { ok: false, msg: 'Bien, pero falta simplificar: agrupa hasta que no se pueda más.' };
+  return { ok: true, msg: '¡Correcto!' };
+};
+const decOk = (s, want, tol) => { const v = parseFloat(s.replace(',', '.')); return isNaN(v) ? { ok: false, msg: 'Escribe un número decimal.' } : Math.abs(v - want) <= tol ? { ok: true, msg: '¡Correcto!' } : { ok: false, msg: 'No coincide. Divide el numerador entre el denominador.' }; };
+fracQuiz('#rd-quiz', [
+  { t: 'Escribe 0.75 como fracción reducida', check: s => redFrac(s, Q(3, 4)) },
+  { t: 'Escribe 3.35 como fracción reducida', check: s => redFrac(s, Q(67, 20)) },
+  { t: 'Escribe <b>5/4</b> como decimal', ph: '0.00', check: s => decOk(s, 1.25, 0.001) },
+  { t: 'Escribe <b>25/65</b> como decimal con 2 cifras', ph: '0.00', check: s => decOk(s, 25 / 65, 0.006) }
+]);
+fracQuiz('#rs-quiz', [
+  { t: '−3/10 − 9/10 = ?', check: s => redFrac(s, Q(-6, 5)) },
+  { t: '9/25 + (−4/25) = ?', check: s => redFrac(s, Q(1, 5)) },
+  { t: '9/17 + 16/17 = ?', check: s => redFrac(s, Q(25, 17)) }
+]);
+const RCQ = [
+  { la: '−1/6', lb: '−1/5', a: -1 / 6, b: -1 / 5, lo: -1, hi: 0, ans: '>', why: '−1/6 está más cerca de 0 que −1/5, así que está a la derecha: es mayor.' },
+  { la: '4.2', lb: '4 1/5', a: 4.2, b: 4.2, lo: 4, hi: 5, ans: '=', why: '4 1/5 = 4 + 0.2 = 4.2. Caen en el mismo punto.' }
+];
+function rcLine(q) {
+  const x = v => 30 + (v - q.lo) / (q.hi - q.lo) * 420; let g = `<line x1="14" y1="48" x2="466" y2="48" stroke="var(--muted)" stroke-width="3"/>`;
+  for (let i = 0; i <= 10; i++) { const v = q.lo + i / 10 * (q.hi - q.lo); g += `<line x1="${x(v)}" y1="40" x2="${x(v)}" y2="56" stroke="var(--muted)" stroke-width="2"/>`; if (i % 5 === 0) g += `<text x="${x(v)}" y="78" text-anchor="middle" style="fill:var(--muted);font:600 13px var(--f-mono)">${v < 0 ? MIN + Math.abs(v) : v}</text>`; }
+  g += `<circle cx="${x(q.a)}" cy="48" r="9" style="fill:var(--cyan)"/><text x="${x(q.a)}" y="26" text-anchor="middle" style="fill:var(--cyan);font:700 13px var(--f-mono)">${q.la}</text>`;
+  g += `<circle cx="${x(q.b)}" cy="${q.a === q.b ? 48 : 48}" r="${q.a === q.b ? 5 : 9}" style="fill:var(--amber)"/><text x="${x(q.b)}" y="${q.a === q.b ? 12 : 26}" text-anchor="middle" style="fill:var(--amber);font:700 13px var(--f-mono)">${q.lb}</text>`;
+  return `<svg viewBox="0 0 480 90" style="width:100%;height:auto;display:block" role="img" aria-label="${q.la} y ${q.lb} en la recta">${g}</svg>`;
+}
+$('#rc-quiz').innerHTML = RCQ.map((q, i) => `<div class="q" data-i="${i}">${rcLine(q)}<p style="margin-top:6px">Compara <b style="color:var(--cyan)">${q.la}</b> con <b style="color:var(--amber)">${q.lb}</b></p><div class="row" style="margin-top:6px"><button class="btn" data-a="<">&lt;</button><button class="btn" data-a="=">=</button><button class="btn" data-a=">">&gt;</button></div><p class="fb" aria-live="polite"></p></div>`).join('');
+$$('#rc-quiz .q').forEach(box => {
+  const q = RCQ[+box.dataset.i]; let got = false;
+  $$('button', box).forEach(b => b.addEventListener('click', () => { const ok = b.dataset.a === q.ans, fb = $('.fb', box); fb.textContent = (ok ? '¡Correcto! ' : 'Casi. ') + q.why; fb.style.color = ok ? 'var(--lime)' : 'var(--pink)'; if (ok && !got) { got = true; addXP(3); } }));
+});
+const xy = fr; // alias para legibilidad
+makeMulti($('#rp-root'), 'rp', [
+  { v: 'x', tag: 'Proporción · Examen 9.º', orig: xy('x', 4) + ' = ' + xy(9, 12), pre: [{ label: 'Multiplicar en cruz', html: '12x = 4 · 9', why: 'En una proporción se multiplica en cruz: numerador de un lado por denominador del otro.' }, { label: 'Calcular el producto', html: '12x = 36', why: 'Resuelve primero la multiplicación 4 · 9.' }], a1: 12, b1: 0, a2: 0, b2: 36 },
+  { v: 'y', tag: 'Proporción · Examen 9.º', orig: xy(5, 8) + ' = ' + xy('y', 24), pre: [{ label: 'Multiplicar en cruz', html: '5 · 24 = 8y', why: 'Multiplica en cruz: 5 por 24 y 8 por y.' }, { label: 'Calcular el producto', html: '120 = 8y', why: 'Resuelve primero la multiplicación 5 · 24.' }], a1: 0, b1: 120, a2: 8, b2: 0 },
+  { v: 'x', tag: 'Proporción con coeficiente · Examen 9.º', orig: xy('6x', 10) + ' = ' + xy(36, 15), pre: [{ label: 'Multiplicar en cruz', html: '6x · 15 = 10 · 36', why: 'Multiplica en cruz antes de despejar.' }, { label: 'Calcular los productos', html: '90x = 360', why: 'Resuelve 6 · 15 y 10 · 36.' }], a1: 90, b1: 0, a2: 0, b2: 360 },
+  { v: 'c', tag: 'Proporción con suma · Examen 9.º', orig: xy('c + 2', 45) + ' = ' + xy(8, 5), pre: [{ label: 'Multiplicar en cruz', html: '5(c + 2) = 45 · 8', why: 'Multiplica en cruz: 5 por (c + 2) y 45 por 8.' }, { label: 'Distribuir y multiplicar', html: '5c + 10 = 360', why: 'Distribuye el 5 en el paréntesis y calcula 45 · 8.' }], a1: 5, b1: 10, a2: 0, b2: 360 }
+]);
+
+</script>
+<script>
+'use strict';
+/* ======================================================
+   BANCOS DE PRÁCTICA
+   36 ejercicios por misión, generados con una semilla fija:
+   siempre salen los mismos ejercicios en el mismo orden.
+   Cada ejercicio es un objeto:
+     q        enunciado (HTML)
+     fields   [{label, ph}]  campos de texto, o
+     choices  [texto, ...]   opciones; correct = índice correcto
+     check(v) -> {ok, msg}
+     canon    respuesta correcta como texto (para "Ver solución")
+     expl     explicación breve (HTML)
+   ====================================================== */
+
+/* ---------- utilidades ---------- */
+function prRng(seed) {
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const prInt = (r, a, b) => a + Math.floor(r() * (b - a + 1));
+const prPick = (r, arr) => arr[Math.floor(r() * arr.length)];
+function prShuf(r, arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const pNg = n => n < 0 ? MIN + Math.abs(n) : String(n);
+const pSgn = n => n < 0 ? MIN : '+';
+const pOk = (m = '¡Correcto!') => ({ ok: true, msg: m });
+const pNo = m => ({ ok: false, msg: m });
+const pLin = (a, b, v) => {
+  let s = a === 1 ? v : a === -1 ? MIN + v : pNg(a) + v;
+  if (b) s += (b < 0 ? ' − ' : ' + ') + Math.abs(b);
+  return s;
+};
+const pStd = (A, B, C) => `${A === 1 ? '' : A === -1 ? MIN : pNg(A)}x ${B < 0 ? '−' : '+'} ${Math.abs(B) === 1 ? '' : Math.abs(B)}y = ${pNg(C)}`;
+const pFrac = (n, d) => (n < 0 ? MIN : '') + Math.abs(n) + '/' + d;
+const pList = s => String(s).replace(/[{}\[\]()]/g, ' ').split(/[\s,;]+/).filter(Boolean);
+const TOG = { '<': '≤', '≤': '<', '>': '≥', '≥': '>' };
+
+/* ---------- tipos de ejercicio ---------- */
+function exNum(q, ans, expl, opt = {}) {
+  return {
+    q, fields: [{ ph: opt.ph || 'respuesta' }], canon: qs(ans), expl,
+    check: v => {
+      const x = parseQ(v[0]);
+      if (!x) return pNo('Escribe un número: entero, fracción como 3/4 o decimal.');
+      if (!x.eq(ans)) return pNo('No coincide. Revisa los pasos e inténtalo otra vez.');
+      if (opt.red && !x.isInt()) {
+        const m = String(v[0]).replace(/[−–]/g, '-').match(/^(-?\d+)\s*\/\s*(-?\d+)$/);
+        if (m && gcd(Math.abs(+m[1]), Math.abs(+m[2])) !== 1) return pNo('Es correcto, pero falta simplificar la fracción.');
+      }
+      return pOk();
+    }
+  };
+}
+function exChoice(r, q, opts, expl, fixed = false) {
+  const idx = opts.map((_, i) => i), order = fixed ? idx : prShuf(r, idx);
+  const choices = order.map(i => opts[i]), correct = order.indexOf(0);
+  return { q, choices, correct, canon: opts[0], expl, check: v => (+v[0] === correct ? pOk() : pNo('Esa no es. Mira la explicación si lo necesitas.')) };
+}
+function exTwo(q, labels, answers, expl) {
+  return {
+    q, fields: labels.map(l => ({ label: l })), canon: answers.map(qs).join('  y  '), expl,
+    check: v => {
+      const xs = v.map(parseQ);
+      if (xs.some(x => !x)) return pNo('Escribe un número en cada campo.');
+      const bad = xs.map((x, i) => !x.eq(answers[i]));
+      if (!bad.some(Boolean)) return pOk();
+      return pNo(bad.every(Boolean) ? 'Ninguno coincide. Revisa el procedimiento.' : `Revisa ${labels.filter((_, i) => bad[i]).join(' y ')}.`);
+    }
+  };
+}
+function exList(q, answers, expl, ordered = true) {
+  return {
+    q, fields: [{ ph: 'separados por comas' }], canon: answers.map(qs).join(', '), expl,
+    check: v => {
+      const xs = pList(v[0]).map(parseQ);
+      if (!xs.length || xs.some(x => !x)) return pNo('Escribe números separados por comas.');
+      if (ordered) return xs.length === answers.length && xs.every((x, i) => x.eq(answers[i])) ? pOk() : pNo('Revisa cada valor y el orden.');
+      const key = a => [...new Set(a.map(x => qs(x)))].sort().join('|');
+      return key(xs) === key(answers) ? pOk() : pNo('Revisa los elementos: no repitas ni olvides ninguno.');
+    }
+  };
+}
+function exSet(q, arr, expl) {
+  return {
+    q, fields: [{ ph: 'ej. 2, 5, 7  (o vacío)' }], canon: arr.length ? '{' + arr.join(', ') + '}' : '{ } (conjunto vacío)', expl,
+    check: v => {
+      const raw = String(v[0]).trim().toLowerCase();
+      if (!arr.length) return /^(vac[ií]o|\{\s*\}|∅|ninguno|-|—)$/.test(raw) || raw === '' ? (raw === '' ? pNo('Escribe los elementos, o "vacío" si no hay ninguno.') : pOk()) : pNo('Ese conjunto no tiene elementos en común.');
+      const got = pList(raw);
+      if (got.some(x => !/^-?\d+$/.test(x))) return pNo('Escribe solo números separados por comas.');
+      const a = [...new Set(got.map(Number))].sort((x, y) => x - y).join(','), b = [...arr].sort((x, y) => x - y).join(',');
+      return a === b ? pOk() : pNo('Los elementos no coinciden. Revisa cuáles cumplen la operación.');
+    }
+  };
+}
+function exDigits(q, digits, expl) {
+  return {
+    q, fields: [{ ph: 'número' }], canon: commas(digits), expl,
+    check: v => { const s = String(v[0]).replace(/[,\s.]/g, ''); return s === digits ? pOk() : pNo('No coincide. Cuenta bien los lugares que se mueve el punto.'); }
+  };
+}
+function ineqChoice(r, q, v, rel, x0, w, expl) {
+  const opts = [`${v} ${rel} ${pNg(x0)}`, `${v} ${FLIP[rel]} ${pNg(x0)}`, `${v} ${TOG[rel]} ${pNg(x0)}`, `${v} ${rel} ${pNg(w === x0 ? x0 + 2 : w)}`];
+  const e = exChoice(r, q, opts, expl); e.kind = 'ineq'; e.sol = { v, rel, x0 }; return e;
+}
+
+/* ---------- generador con unicidad ---------- */
+function prBuild(r, plan) {
+  const out = [], seen = new Set();
+  plan.forEach(([count, fn]) => {
+    for (let i = 0; i < count; i++) {
+      let ex = null;
+      for (let t = 0; t < 60; t++) { ex = fn(r, i, t); if (!seen.has(ex.q)) break; }
+      seen.add(ex.q); out.push(ex);
+    }
+  });
+  return out;
+}
+const VARS = ['x', 'y', 'n', 'k', 'h', 'm', 't', 'p', 'w', 'z'];
+
+/* ======================================================
+   1 · DESIGUALDADES
+   ====================================================== */
+function bankDesigualdades(r) {
+  const RELS = ['<', '>', '≤', '≥'];
+  const oneStep = (r, i) => {
+    const kind = ['add', 'sub', 'mul', 'neg', 'div', 'add', 'sub', 'mul', 'neg', 'div', 'add', 'neg'][i % 12];
+    const v = prPick(r, VARS), rel = prPick(r, RELS); let q, x0, c, fin = rel, w, ex;
+    if (kind === 'add') { const b = prInt(r, 2, 15); c = prInt(r, -3, 14); x0 = c - b; q = `${v} + ${b} ${rel} ${pNg(c)}`; w = c + b; ex = `Resta ${b} a los dos lados: ${v} ${rel} ${pNg(c)} − ${b} = ${pNg(x0)}.`; }
+    if (kind === 'sub') { const b = prInt(r, 2, 15); c = prInt(r, -5, 12); x0 = c + b; q = `${v} − ${b} ${rel} ${pNg(c)}`; w = c - b; ex = `Suma ${b} a los dos lados: ${v} ${rel} ${pNg(c)} + ${b} = ${pNg(x0)}.`; }
+    if (kind === 'mul') { const a = prInt(r, 2, 7); x0 = prInt(r, -6, 9); c = a * x0; q = `${a}${v} ${rel} ${pNg(c)}`; w = c - a; ex = `Divide entre ${a}. Es positivo, así que el signo no cambia: ${v} ${rel} ${pNg(x0)}.`; }
+    if (kind === 'neg') { const a = prInt(r, 2, 7); x0 = prInt(r, -6, 9); c = -a * x0; fin = FLIP[rel]; q = `${MIN}${a}${v} ${rel} ${pNg(c)}`; w = -x0 || 1; ex = `Divide entre −${a}. Es negativo, así que el signo se voltea: ${v} ${fin} ${pNg(x0)}.`; }
+    if (kind === 'div') { const d = prInt(r, 2, 6); x0 = d * prInt(r, -5, 6); c = x0 / d; q = `${v}/${d} ${rel} ${pNg(c)}`; w = c - d; ex = `Multiplica por ${d}. Es positivo, así que el signo no cambia: ${v} ${rel} ${pNg(x0)}.`; }
+    return ineqChoice(r, `Resuelve: <b>${q}</b>`, v, fin, x0, w, ex);
+  };
+  const twoStep = (r, i) => {
+    const v = prPick(r, VARS), rel = prPick(r, RELS), a = prInt(r, 2, 6) * (i % 2 ? -1 : 1), b = prInt(r, 1, 9) * (r() < .5 ? -1 : 1), x0 = prInt(r, -6, 8), c = a * x0 + b;
+    const fin = a < 0 ? FLIP[rel] : rel;
+    const ex = `Primero ${b > 0 ? 'resta' : 'suma'} ${Math.abs(b)}: ${pLin(a, 0, v)} ${rel} ${pNg(c - b)}. Luego divide entre ${pNg(a)}${a < 0 ? ' (negativo: el signo se voltea)' : ''}: ${v} ${fin} ${pNg(x0)}.`;
+    return ineqChoice(r, `Resuelve: <b>${pLin(a, b, v)} ${rel} ${pNg(c)}</b>`, v, fin, x0, c - b, ex);
+  };
+  const isSol = (r, i) => {
+    const v = prPick(r, VARS), rel = prPick(r, RELS), a = prInt(r, 2, 5) * (i % 3 === 2 ? -1 : 1), b = prInt(r, 1, 8) * (r() < .5 ? -1 : 1), x0 = prInt(r, -4, 7), c = a * x0 + b;
+    const t = x0 + prPick(r, [-2, -1, 0, 0, 1, 2, 3]), val = a * t + b;
+    const truth = rel === '<' ? val < c : rel === '>' ? val > c : rel === '≤' ? val <= c : val >= c;
+    const e = exChoice(r, `¿Es ${v} = ${pNg(t)} una solución de <b>${pLin(a, b, v)} ${rel} ${pNg(c)}</b>?`, truth ? ['Sí es solución', 'No es solución'] : ['No es solución', 'Sí es solución'], `Sustituye: ${pLin(a, b, '(' + pNg(t) + ')').replace('(' + pNg(t) + ')', '(' + pNg(t) + ')')} = ${pNg(val)}. ¿${pNg(val)} ${rel} ${pNg(c)}? ${truth ? 'Sí' : 'No'}.`, true);
+    e.kind = 'isSol'; e.test = { a, b, rel, c, t, truth }; return e;
+  };
+  const graph = (r, i) => {
+    const v = prPick(r, VARS), rel = prPick(r, RELS), x0 = prInt(r, -5, 8);
+    const closed = rel === '≤' || rel === '≥', left = rel === '<' || rel === '≤';
+    const name = (cl, lf) => `Círculo ${cl ? 'lleno' : 'vacío'}, hacia la ${lf ? 'izquierda' : 'derecha'}`;
+    const opts = [name(closed, left), name(!closed, left), name(closed, !left), name(!closed, !left)];
+    return exChoice(r, `La solución es <b>${v} ${rel} ${pNg(x0)}</b>. ¿Cómo se dibuja en la recta numérica?`, opts, `${rel} ${closed ? 'incluye' : 'no incluye'} el ${pNg(x0)}: círculo ${closed ? 'lleno' : 'vacío'}. Los valores que cumplen están a la ${left ? 'izquierda' : 'derecha'}.`);
+  };
+  return prBuild(r, [[12, oneStep], [12, twoStep], [6, isSol], [6, graph]]);
+}
+
+/* ======================================================
+   2 · ECUACIONES
+   ====================================================== */
+function bankEcuaciones(r) {
+  const one = (r, i) => {
+    const v = prPick(r, VARS), b = prInt(r, 2, 15), x0 = prInt(r, -9, 20), kind = i % 4;
+    const c = kind === 0 || kind === 2 ? x0 + b : x0 - b;
+    const q = kind === 0 ? `${v} + ${b} = ${pNg(c)}` : kind === 1 ? `${v} − ${b} = ${pNg(c)}` : kind === 2 ? `${pNg(c)} = ${v} + ${b}` : `${pNg(c)} = ${v} − ${b}`;
+    const plus = kind === 0 || kind === 2;
+    return exNum(`Resuelve: <b>${q}</b>`, Q(x0), `${plus ? 'Resta' : 'Suma'} ${b} a los dos lados: ${v} = ${pNg(x0)}.`);
+  };
+  const mul = (r, i) => {
+    const v = prPick(r, VARS), kind = i % 4;
+    let q, x0, ex;
+    if (kind === 0) { const a = prInt(r, 2, 9); x0 = prInt(r, -8, 12); q = `${a}${v} = ${pNg(a * x0)}`; ex = `Divide entre ${a}: ${v} = ${pNg(x0)}.`; }
+    if (kind === 1) { const d = prInt(r, 2, 9), c = prInt(r, -6, 9); x0 = d * c; q = `${v}/${d} = ${pNg(c)}`; ex = `Multiplica por ${d}: ${v} = ${pNg(x0)}.`; }
+    if (kind === 2) { const a = prInt(r, 2, 9); x0 = prInt(r, -8, 9); q = `${MIN}${a}${v} = ${pNg(-a * x0)}`; ex = `Divide entre −${a}: ${v} = ${pNg(x0)}.`; }
+    if (kind === 3) { const a = prInt(r, 2, 9); x0 = prInt(r, -8, 12); q = `${pNg(a * x0)} = ${a}${v}`; ex = `Divide entre ${a}: ${v} = ${pNg(x0)}.`; }
+    return exNum(`Resuelve: <b>${q}</b>`, Q(x0), ex);
+  };
+  const two = (r, i) => {
+    const v = prPick(r, VARS), kind = i % 6, x0 = prInt(r, -6, 12);
+    let q, ex;
+    if (kind === 0) { const a = prInt(r, 2, 7), b = prInt(r, 1, 12); q = `${a}${v} + ${b} = ${pNg(a * x0 + b)}`; ex = `Resta ${b}: ${a}${v} = ${pNg(a * x0)}. Divide entre ${a}: ${v} = ${pNg(x0)}.`; }
+    if (kind === 1) { const a = prInt(r, 2, 7), b = prInt(r, 1, 12); q = `${a}${v} − ${b} = ${pNg(a * x0 - b)}`; ex = `Suma ${b}: ${a}${v} = ${pNg(a * x0)}. Divide entre ${a}: ${v} = ${pNg(x0)}.`; }
+    if (kind === 2) { const d = prInt(r, 2, 7), b = prInt(r, 1, 10), xx = d * prInt(r, -4, 9); q = `${v}/${d} + ${b} = ${pNg(xx / d + b)}`; ex = `Resta ${b}: ${v}/${d} = ${pNg(xx / d)}. Multiplica por ${d}: ${v} = ${pNg(xx)}.`; return exNum(`Resuelve: <b>${q}</b>`, Q(xx), ex); }
+    if (kind === 3) { const d = prInt(r, 2, 7), b = prInt(r, 1, 10), xx = d * prInt(r, -3, 9); q = `${v}/${d} − ${b} = ${pNg(xx / d - b)}`; ex = `Suma ${b}: ${v}/${d} = ${pNg(xx / d)}. Multiplica por ${d}: ${v} = ${pNg(xx)}.`; return exNum(`Resuelve: <b>${q}</b>`, Q(xx), ex); }
+    if (kind === 4) { const [p, d] = prPick(r, [[2, 3], [3, 4], [5, 6], [2, 5], [3, 5], [3, 2]]), b = prInt(r, 1, 10), xx = d * prInt(r, -3, 6); q = `${pNg(p * xx / d - b)} = ${p}${v}/${d} − ${b}`; ex = `Suma ${b}: ${p}${v}/${d} = ${pNg(p * xx / d)}. Multiplica por ${d} y divide entre ${p}: ${v} = ${pNg(xx)}.`; return exNum(`Resuelve: <b>${q}</b>`, Q(xx), ex); }
+    if (kind === 5) { const a = prInt(r, 2, 6), b = prInt(r, 1, 12); q = `${MIN}${a}${v} + ${b} = ${pNg(-a * x0 + b)}`; ex = `Resta ${b}: −${a}${v} = ${pNg(-a * x0)}. Divide entre −${a}: ${v} = ${pNg(x0)}.`; }
+    return exNum(`Resuelve: <b>${q}</b>`, Q(x0), ex);
+  };
+  return prBuild(r, [[12, one], [12, mul], [12, two]]);
+}
+
+/* ======================================================
+   3 · FUNCIONES
+   ====================================================== */
+function fnRule(r, type) {
+  if (type === 'lin') { const a = prInt(r, 2, 5) * (r() < .35 ? -1 : 1), b = prInt(r, 1, 9) * (r() < .5 ? -1 : 1); return { txt: `y = ${pLin(a, b, 'x')}`, f: x => a * x + b, xs: [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8], a, b }; }
+  if (type === 'sq') { const c = prInt(r, 1, 9), s = r() < .6 ? -1 : 1; return { txt: `y = x² ${s < 0 ? '−' : '+'} ${c}`, f: x => x * x + s * c, xs: [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6] }; }
+  if (type === 'sub') { const k = prInt(r, 8, 30); return { txt: `y = ${k} − x`, f: x => k - x, xs: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }; }
+  if (type === 'half') { const d = prInt(r, 2, 5), b = prInt(r, 1, 9) * (r() < .5 ? -1 : 1); return { txt: `y = x/${d} ${b < 0 ? '−' : '+'} ${Math.abs(b)}`, f: x => x / d + b, xs: [-3, -2, -1, 0, 1, 2, 3, 4, 5].map(m => m * d) }; }
+  const [p, d] = prPick(r, [[2, 3], [3, 4], [5, 6], [3, 2], [4, 3]]), b = prInt(r, 1, 9) * (r() < .5 ? -1 : 1);
+  return { txt: `y = ${p}x/${d} ${b < 0 ? '−' : '+'} ${Math.abs(b)}`, f: x => p * x / d + b, xs: [-3, -2, -1, 0, 1, 2, 3, 4].map(m => m * d) };
+}
+function bankFunciones(r) {
+  const types = ['lin', 'sq', 'sub', 'half', 'lin', 'sq', 'frac', 'lin', 'sub', 'sq', 'half', 'frac'];
+  const evalEx = (r, i) => {
+    const R = fnRule(r, types[i % 12]), x = prPick(r, R.xs), y = R.f(x);
+    return exNum(`Una función tiene la regla <b>${R.txt}</b>. ¿Cuánto vale y cuando x = ${pNg(x)}?`, Q(y), `Sustituye x = ${pNg(x)} en la regla y calcula en orden: y = ${pNg(y)}.`);
+  };
+  const rev = (r, i) => {
+    const R = fnRule(r, 'lin'), x0 = prInt(r, -4, 9), y = R.f(x0);
+    return exNum(`La máquina <b>${R.txt}</b> escupió ${pNg(y)}. ¿Qué número entró?`, Q(x0), `Deshaz las estaciones en orden contrario. Entró x = ${pNg(x0)}, porque ${R.txt.replace('y', pNg(y))} cuando x = ${pNg(x0)}.`);
+  };
+  const table = (r, i) => {
+    const R = fnRule(r, i % 2 ? 'sq' : 'lin'), xs = i % 3 === 0 ? [-1, 0, 1, 2] : [1, 2, 3, 4];
+    return exList(`Completa la tabla de <b>${R.txt}</b> para x = ${xs.map(pNg).join(', ')}. Escribe las salidas en ese orden, separadas por comas.`, xs.map(x => Q(R.f(x))), `Calcula una salida por cada entrada: ${xs.map(x => `x = ${pNg(x)} → ${pNg(R.f(x))}`).join('; ')}.`);
+  };
+  const isFn = (r, i) => {
+    const xs = prShuf(r, [1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 4), ys = xs.map(() => prInt(r, 1, 9));
+    const yes = i % 2 === 0; let pairs = xs.map((x, k) => [x, ys[k]]);
+    if (yes && i % 4 === 0) pairs[1][1] = pairs[0][1];
+    if (!yes) { pairs[2][0] = pairs[0][0]; if (pairs[2][1] === pairs[0][1]) pairs[2][1] = pairs[0][1] % 9 + 1; }
+    const txt = pairs.map(p => `(${p[0]}, ${p[1]})`).join(', ');
+    const why = yes ? 'Ninguna entrada se repite con salidas distintas.' : `La entrada ${pairs[0][0]} tiene dos salidas distintas.`;
+    return exChoice(r, `¿Es función esta relación de pares (entrada, salida)? <b>${txt}</b>`, yes ? ['Sí es función', 'No es función'] : ['No es función', 'Sí es función'], why, true);
+  };
+  const range = (r, i) => {
+    const R = fnRule(r, i % 2 ? 'sq' : 'lin'), xs = i % 2 ? [-2, -1, 0, 1, 2] : [1, 2, 3, 4, 5];
+    return exList(`<b>${R.txt}</b> con dominio {${xs.map(pNg).join(', ')}}. ¿Cuál es el rango? Escribe los valores sin repetir.`, [...new Set(xs.map(x => R.f(x)))].map(x => Q(x)), `Calcula la salida de cada entrada y quita los repetidos.`, false);
+  };
+  return prBuild(r, [[12, evalEx], [6, rev], [6, table], [6, isFn], [6, range]]);
+}
+
+/* ======================================================
+   4 · VARIOS PASOS
+   ====================================================== */
+function bankVarios(r) {
+  const par = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 2, 6) * (i % 5 === 4 ? -1 : 1), b = prInt(r, 1, 8) * (r() < .5 ? -1 : 1), x0 = prInt(r, -6, 9), c = a * (x0 + b);
+    return exNum(`Resuelve: <b>${pNg(a)}(${v} ${b < 0 ? '−' : '+'} ${Math.abs(b)}) = ${pNg(c)}</b>`, Q(x0), `Distribuye: ${pLin(a, a * b, v)} = ${pNg(c)}. Luego despeja: ${v} = ${pNg(x0)}.`);
+  };
+  const both = (r, i) => {
+    const v = prPick(r, VARS); let a, c; do { a = prInt(r, 2, 9); c = prInt(r, 2, 9); } while (a === c);
+    const b = prInt(r, 1, 9) * (r() < .5 ? -1 : 1), x0 = prInt(r, -5, 9), d = a * x0 + b - c * x0;
+    return exNum(`Resuelve: <b>${pLin(a, b, v)} = ${pLin(c, d, v)}</b>`, Q(x0), `Junta las letras restando ${Math.min(a, c)}${v} a los dos lados, luego despeja: ${v} = ${pNg(x0)}.`);
+  };
+  const comb = (r, i) => {
+    const v = prPick(r, VARS), p = prInt(r, 2, 8), q = prInt(r, 2, 5), rr = prInt(r, 1, 8) * (r() < .5 ? -1 : 1), x0 = prInt(r, -4, 8), s = p * x0 + q * (x0 + rr);
+    return exNum(`Resuelve: <b>${p}${v} + ${q}(${v} ${rr < 0 ? '−' : '+'} ${Math.abs(rr)}) = ${pNg(s)}</b>`, Q(x0), `Distribuye y combina: ${pLin(p + q, q * rr, v)} = ${pNg(s)}. Despeja: ${v} = ${pNg(x0)}.`);
+  };
+  const ineq = (r, i) => {
+    const v = prPick(r, VARS), rel = prPick(r, ['<', '>', '≤', '≥']); let a, c; do { a = prInt(r, 2, 8); c = prInt(r, 2, 8); } while (a === c);
+    const b = prInt(r, 1, 8) * (r() < .5 ? -1 : 1), x0 = prInt(r, -5, 8), d = a * x0 + b - c * x0, fin = a - c < 0 ? FLIP[rel] : rel;
+    return ineqChoice(r, `Resuelve: <b>${pLin(a, b, v)} ${rel} ${pLin(c, d, v)}</b>`, v, fin, x0, -x0 || 1, `Junta las letras: (${a} − ${c})${v} ${rel} ${pNg(d - b)}. ${a - c < 0 ? 'Dividir entre un negativo voltea el signo. ' : ''}Resultado: ${v} ${fin} ${pNg(x0)}.`);
+  };
+  const frac = (r, i) => {
+    const v = prPick(r, VARS), q = prPick(r, [2, 3, 4, 5]), p = prInt(r, 1, 5), a = prInt(r, 2, 5), x0 = prInt(r, -4, 7), k = prInt(r, -3, 5), b = q * k - a * x0;
+    return exNum(`Resuelve: <b>(${p}/${q})(${pLin(a, b, v)}) = ${pNg(p * k)}</b>`, Q(x0), `Multiplica por ${q}/${p}: ${pLin(a, b, v)} = ${pNg(q * k)}. Despeja: ${v} = ${pNg(x0)}.`);
+  };
+  return prBuild(r, [[10, par], [10, both], [6, comb], [6, ineq], [4, frac]]);
+}
+
+/* ======================================================
+   5 · PENDIENTE E INTERCEPTO
+   ====================================================== */
+function bankPendiente(r) {
+  const two = (r, i) => {
+    let x1, x2, y1, y2; do { x1 = prInt(r, -6, 6); x2 = prInt(r, -6, 6); y1 = prInt(r, -6, 8); y2 = prInt(r, -6, 8); } while (x1 === x2 || (i % 5 !== 0 && y1 === y2));
+    const m = Q(y2 - y1, x2 - x1);
+    return exNum(`¿Cuál es la pendiente de la recta que pasa por <b>(${pNg(x1)}, ${pNg(y1)})</b> y <b>(${pNg(x2)}, ${pNg(y2)})</b>?`, m, `m = (y₂ − y₁)/(x₂ − x₁) = (${pNg(y2)} − ${pNg(y1)})/(${pNg(x2)} − ${pNg(x1)}) = ${pNg(y2 - y1)}/${pNg(x2 - x1)} = ${qs(m)}.`, { red: true });
+  };
+  const read = (r, i) => {
+    const m = r() < .5 ? Q(prInt(r, 1, 6) * (r() < .5 ? -1 : 1)) : Q(prInt(r, 1, 5) * (r() < .5 ? -1 : 1), prInt(r, 2, 5)), b = Q(prInt(r, -9, 9));
+    const askB = i % 2 === 1, line = lineText(m, b);
+    return exNum(`En la recta <b>${line}</b>, ¿cuál es ${askB ? 'el intercepto con el eje y (b)' : 'la pendiente (m)'}?`, askB ? b : m, askB ? `En y = mx + b, b es el término sin x: ${qs(b)}.` : `En y = mx + b, m es el número que multiplica a x: ${qs(m)}.`, { red: true });
+  };
+  const findB = (r, i) => {
+    const q = i % 2 ? prPick(r, [2, 3, 4]) : 1, p = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), m = Q(p, q), x1 = q * prInt(r, -3, 4), y1 = prInt(r, -7, 9), b = Q(y1).sub(m.mul(Q(x1)));
+    return exNum(`Una recta tiene pendiente <b>${qs(m)}</b> y pasa por <b>(${pNg(x1)}, ${pNg(y1)})</b>. En y = mx + b, ¿cuánto vale b?`, b, `Sustituye en y = mx + b: ${pNg(y1)} = ${qs(m)}·(${pNg(x1)}) + b. Despeja b = ${qs(b)}.`);
+  };
+  const evalY = (r, i) => {
+    const m = prInt(r, 2, 6) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), x = prInt(r, -5, 7);
+    return exNum(`Si la recta es <b>${lineText(Q(m), Q(b))}</b>, ¿cuánto vale y cuando x = ${pNg(x)}?`, Q(m * x + b), `y = ${pNg(m)}·(${pNg(x)}) + ${pNg(b)} = ${pNg(m * x + b)}.`);
+  };
+  const steep = (r, i) => {
+    let m1, m2; do { m1 = prInt(r, 1, 7) * (r() < .5 ? -1 : 1); m2 = prInt(r, 1, 7) * (r() < .5 ? -1 : 1); } while (Math.abs(m1) === Math.abs(m2));
+    const b1 = prInt(r, -5, 5), b2 = prInt(r, -5, 5), l1 = lineText(Q(m1), Q(b1)), l2 = lineText(Q(m2), Q(b2));
+    const e = exChoice(r, `¿Cuál de estas rectas es más empinada: <b>${l1}</b> o <b>${l2}</b>?`, Math.abs(m1) > Math.abs(m2) ? [l1, l2] : [l2, l1], `La inclinación depende del valor absoluto de m: |${m1}| = ${Math.abs(m1)} y |${m2}| = ${Math.abs(m2)}.`);
+    return e;
+  };
+  return prBuild(r, [[12, two], [8, read], [8, findB], [4, evalY], [4, steep]]);
+}
+
+/* ======================================================
+   6 · FORMA ESTÁNDAR
+   ====================================================== */
+function stdCanon(m, b) {
+  let A, B, C;
+  if (m.isZero()) { A = 0; B = 1; C = b.n; }
+  else if (m.n > 0) { A = m.n; B = -m.d; C = -m.d * b.n; }
+  else { A = -m.n; B = m.d; C = m.d * b.n; }
+  const g = gcd(gcd(Math.abs(A), Math.abs(B)), Math.abs(C)) || 1;
+  return [A / g, B / g, C / g];
+}
+function bankEstandar(r) {
+  const conv = (r, i) => {
+    const bI = prInt(r, -8, 8);
+    const m = i % 2 === 0 ? Q(prInt(r, 1, 6) * (r() < .5 ? -1 : 1)) : Q(prInt(r, 1, 5) * (r() < .5 ? -1 : 1), prPick(r, [2, 3, 4, 5]));
+    const b = Q(bI), [A, B, C] = stdCanon(m, b), line = lineText(m, b);
+    return {
+      q: `Escribe <b>${line}</b> en forma estándar Ax + By = C, con A, B y C enteros y A positivo.`, fields: [{ label: 'A' }, { label: 'B' }, { label: 'C' }], canon: `${A}, ${B}, ${C}  →  ${pStd(A, B, C)}`, kind: 'std', line: { m, b },
+      expl: `Pasa la x al lado izquierdo y elimina las fracciones multiplicando. Una forma correcta es ${pStd(A, B, C)}.`,
+      check: v => {
+        const a = parseQ(v[0]), bb = parseQ(v[1]), c = parseQ(v[2]);
+        if (!a || !bb || !c) return pNo('Escribe A, B y C como números.');
+        if (![a, bb, c].every(x => x.isInt())) return pNo('A, B y C deben ser enteros, sin fracciones.');
+        if (!(bb.mul(b).eq(c) && a.add(bb.mul(m.add(b))).eq(c))) return pNo('Esa ecuación no representa la misma recta. Comprueba con el punto (0, b).');
+        if (a.n < 0 || (a.n === 0 && bb.n < 0)) return pNo('La recta es correcta, pero A debe ser positivo. Multiplica todo por −1.');
+        if (gcd(gcd(Math.abs(a.n), Math.abs(bb.n)), Math.abs(c.n)) !== 1) return pNo('Casi. Se puede simplificar: divide A, B y C entre su factor común.');
+        return pOk();
+      }
+    };
+  };
+  const inter = (r, i) => {
+    const A = prInt(r, 2, 9), B = prInt(r, 2, 9) * (r() < .4 ? -1 : 1), C = (i % 3 === 0 ? A * Math.abs(B) : prInt(r, 2, 36)) * (r() < .3 ? -1 : 1), askX = i < 4;
+    const ans = askX ? Q(C, A) : Q(C, B);
+    return exNum(`En la recta <b>${pStd(A, B, C)}</b>, ¿en qué valor corta el ${askX ? 'eje x (haz y = 0)' : 'eje y (haz x = 0)'}?`, ans, askX ? `Con y = 0: ${A}x = ${pNg(C)}, así que x = ${qs(ans)}.` : `Con x = 0: ${pNg(B)}y = ${pNg(C)}, así que y = ${qs(ans)}.`, { red: true });
+  };
+  const onLine = (r, i) => {
+    const A = prInt(r, 2, 7), B = prInt(r, 2, 7) * (r() < .4 ? -1 : 1), x = prInt(r, -4, 6), yy = prInt(r, -4, 6), C = A * x + B * yy;
+    const yes = i % 2 === 0, py = yes ? yy : yy + prPick(r, [-2, -1, 1, 2]), val = A * x + B * py;
+    return exChoice(r, `¿Está el punto <b>(${pNg(x)}, ${pNg(py)})</b> en la recta <b>${pStd(A, B, C)}</b>?`, yes ? ['Sí está', 'No está'] : ['No está', 'Sí está'], `Sustituye: ${A}(${pNg(x)}) ${B < 0 ? '−' : '+'} ${Math.abs(B)}(${pNg(py)}) = ${pNg(val)}. ${val === C ? 'Es igual' : 'No es igual'} a ${pNg(C)}.`, true);
+  };
+  const word = (r, i) => {
+    const A = prInt(r, 2, 6), B = prInt(r, 2, 6), k = prInt(r, 1, 5), j = prInt(r, 1, 6), C = A * k + B * j;
+    return exNum(`Una espada cuesta ${A} monedas y una poción cuesta ${B}. Tienes ${C} monedas. Si compras ${k} espada${k > 1 ? 's' : ''} y gastas todo, ¿cuántas pociones compras? (La ecuación es ${A}x + ${B}y = ${C}).`, Q(j), `${A}·${k} + ${B}y = ${C}. Entonces ${B}y = ${C - A * k} y y = ${j}.`);
+  };
+  const slope = (r, i) => {
+    const A = prInt(r, 2, 9), B = prInt(r, 2, 9) * (r() < .5 ? -1 : 1), C = prInt(r, 1, 20), m = Q(-A, B);
+    return exNum(`¿Cuál es la pendiente de la recta <b>${pStd(A, B, C)}</b>?`, m, `Despeja y: ${pNg(B)}y = ${pNg(-A)}x + ${pNg(C)}. La pendiente es −${pNg(A)}/${pNg(B)} = ${qs(m)}.`, { red: true });
+  };
+  return prBuild(r, [[12, conv], [8, inter], [6, onLine], [6, word], [4, slope]]);
+}
+
+/* ======================================================
+   7 · RECTAS PARALELAS Y PERPENDICULARES
+   ====================================================== */
+function ppLine(r, perpOK) {
+  const kind = r();
+  if (kind < .3) { const A = prInt(r, 2, 8), B = prInt(r, 2, 8) * (r() < .5 ? -1 : 1), C = prInt(r, 1, 20); return { txt: pStd(A, B, C), m: Q(-A, B), std: true }; }
+  const m = r() < .5 ? Q(prInt(r, 1, 6) * (r() < .5 ? -1 : 1)) : Q(prInt(r, 1, 5) * (r() < .5 ? -1 : 1), prInt(r, 2, 5)), b = Q(prInt(r, -8, 8));
+  return { txt: lineText(m, b), m, b };
+}
+function bankRectas(r) {
+  const par = (r, i) => {
+    const L = ppLine(r);
+    return exNum(`¿Cuál es la pendiente de cualquier recta <b>paralela</b> a <b>${L.txt}</b>?`, L.m, `Las paralelas tienen la misma pendiente que la recta original: ${qs(L.m)}.`, { red: true });
+  };
+  const perp = (r, i) => {
+    const L = ppLine(r), ans = Q(-1).div(L.m);
+    return exNum(`¿Cuál es la pendiente de cualquier recta <b>perpendicular</b> a <b>${L.txt}</b>?`, ans, `La perpendicular tiene pendiente recíproca y de signo contrario: −1/(${qs(L.m)}) = ${qs(ans)}.`, { red: true });
+  };
+  const parPt = (r, i) => {
+    const m = i % 2 ? Q(prInt(r, 1, 4) * (r() < .5 ? -1 : 1), prPick(r, [2, 3])) : Q(prInt(r, 1, 6) * (r() < .5 ? -1 : 1)), b1 = prInt(r, -6, 6);
+    const x0 = m.d * prInt(r, -3, 3), y0 = prInt(r, -6, 8), b = Q(y0).sub(m.mul(Q(x0)));
+    return exTwo(`Halla la recta paralela a <b>${lineText(m, Q(b1))}</b> que pasa por <b>(${pNg(x0)}, ${pNg(y0)})</b>. Escribe m y b de y = mx + b.`, ['m', 'b'], [m, b], `La pendiente es la misma: m = ${qs(m)}. Para b: ${pNg(y0)} = ${qs(m)}·(${pNg(x0)}) + b, entonces b = ${qs(b)}.`);
+  };
+  const perpPt = (r, i) => {
+    const m1 = i % 2 ? Q(prInt(r, 1, 3) * (r() < .5 ? -1 : 1), prPick(r, [2, 3, 4])) : Q(prInt(r, 1, 5) * (r() < .5 ? -1 : 1)), b1 = prInt(r, -6, 6), m2 = Q(-1).div(m1);
+    const x0 = m2.d * prInt(r, -3, 3), y0 = prInt(r, -6, 8), b = Q(y0).sub(m2.mul(Q(x0)));
+    return exTwo(`Halla la recta perpendicular a <b>${lineText(m1, Q(b1))}</b> que pasa por <b>(${pNg(x0)}, ${pNg(y0)})</b>. Escribe m y b de y = mx + b.`, ['m', 'b'], [m2, b], `La pendiente es el recíproco opuesto: m = ${qs(m2)}. Para b: ${pNg(y0)} = ${qs(m2)}·(${pNg(x0)}) + b, entonces b = ${qs(b)}.`);
+  };
+  const cls = (r, i) => {
+    const kind = i % 4; let a, b;
+    if (kind === 0) { a = Q(prInt(r, 1, 6) * (r() < .5 ? -1 : 1)); b = a; }
+    else if (kind === 1) { a = Q(prInt(r, 1, 5) * (r() < .5 ? -1 : 1), prInt(r, 2, 4)); b = Q(-1).div(a); }
+    else if (kind === 2) { a = Q(prInt(r, 2, 5), prInt(r, 2, 4)); b = ONE.div(a); }
+    else { a = Q(prInt(r, 2, 6)); b = Q(prInt(r, 1, 6) * (r() < .5 ? -1 : 1)); if (a.eq(b) || a.mul(b).eq(Q(-1))) b = a.add(Q(1)); }
+    const prod = a.mul(b), ans = a.eq(b) ? 0 : prod.eq(Q(-1)) ? 1 : 2;
+    const names = ['Paralelas', 'Perpendiculares', 'Ninguna de las dos'], why = ['Misma pendiente: paralelas.', `${qs(a)} · ${qs(b)} = −1: perpendiculares.`, `${qs(a)} · ${qs(b)} = ${qs(prod)}, no es −1, y las pendientes no son iguales.`];
+    const e = exChoice(r, `Dos rectas tienen pendientes <b>${qs(a)}</b> y <b>${qs(b)}</b>. ¿Cómo son?`, [names[ans], ...names.filter((_, k) => k !== ans)], why[ans]);
+    return e;
+  };
+  return prBuild(r, [[10, par], [10, perp], [6, parPt], [6, perpPt], [4, cls]]);
+}
+
+/* ======================================================
+   8 · ORDEN DE OPERACIONES
+   ====================================================== */
+const ORD_T = [
+  r => { const a = prInt(r, 2, 20), b = prInt(r, 2, 9), c = prInt(r, 2, 9); return [`${a} + ${b} * ${c}`, a + b * c, `Primero la multiplicación: ${b} × ${c} = ${b * c}. Luego la suma: ${a} + ${b * c} = ${a + b * c}.`]; },
+  r => { const a = prInt(r, 10, 40), b = prInt(r, 2, 9), c = prInt(r, 2, 15); return [`${a} - ${b} + ${c}`, a - b + c, `Resta y suma van de izquierda a derecha: ${a} − ${b} = ${a - b}; luego + ${c} = ${a - b + c}.`]; },
+  r => { const a = prInt(r, 2, 12), b = prInt(r, 2, 12), c = prInt(r, 2, 9); return [`(${a} + ${b}) * ${c}`, (a + b) * c, `Primero el paréntesis: ${a + b}. Luego × ${c} = ${(a + b) * c}.`]; },
+  r => { const c = prInt(r, 2, 8), b = c + prInt(r, 2, 9), a = prInt(r, 2, 9); return [`${a} * (${b} - ${c})`, a * (b - c), `Primero el paréntesis: ${b} − ${c} = ${b - c}. Luego ${a} × ${b - c} = ${a * (b - c)}.`]; },
+  r => { const a = prInt(r, 2, 9), b = prInt(r, 2, 9), c = prInt(r, 2, 9); return [`${a}^2 + ${b} * ${c}`, a * a + b * c, `Potencia: ${a}² = ${a * a}. Multiplicación: ${b} × ${c} = ${b * c}. Suma: ${a * a + b * c}.`]; },
+  r => { const a = prInt(r, 2, 5), b = prInt(r, 2, 20); return [`${a}^3 - ${b}`, a ** 3 - b, `Potencia: ${a}³ = ${a ** 3}. Resta: ${a ** 3} − ${b} = ${a ** 3 - b}.`]; },
+  r => { const b = prInt(r, 2, 9), k = prInt(r, 2, 9), c = prInt(r, 2, 20), a = b * k; return [`${a} / ${b} + ${c}`, k + c, `División primero: ${a} ÷ ${b} = ${k}. Luego suma: ${k} + ${c} = ${k + c}.`]; },
+  r => { const c = prInt(r, 2, 6), k = prInt(r, 2, 6), d = prInt(r, 2, 6), a = prInt(r, 20, 60), b = c * k; return [`${a} - ${b} / ${c} * ${d}`, a - k * d, `Divide y multiplica de izquierda a derecha: ${b} ÷ ${c} = ${k}; ${k} × ${d} = ${k * d}. Resta: ${a} − ${k * d} = ${a - k * d}.`]; },
+  r => { const a = prInt(r, 1, 6), b = prInt(r, 1, 9 - a), c = prInt(r, 2, 20); const s = a + b; return [`(${a} + ${b})^2 - ${c}`, s * s - c, `Paréntesis: ${s}. Potencia: ${s}² = ${s * s}. Resta: ${s * s} − ${c} = ${s * s - c}.`]; },
+  r => { const c = prInt(r, 2, 6), b = c + prInt(r, 1, 4), d = prInt(r, 2, 6), a = prInt(r, 2, 20); const s = b - c; return [`${a} + (${b} - ${c})^2 * ${d}`, a + s * s * d, `Paréntesis: ${s}. Potencia: ${s}² = ${s * s}. Multiplicación: ${s * s} × ${d} = ${s * s * d}. Suma: ${a + s * s * d}.`]; },
+  r => { let a, b, c; do { a = prInt(r, 2, 12); b = prInt(r, 2, 9); c = prInt(r, 2, 9); } while ((a * b) % c); return [`${a} * ${b} / ${c}`, a * b / c, `Multiplicación y división de izquierda a derecha: ${a} × ${b} = ${a * b}; ${a * b} ÷ ${c} = ${a * b / c}.`]; },
+  r => { let a, b, c, d, e; do { a = prInt(r, 20, 60); b = prInt(r, 2, 8); c = prInt(r, 1, 6); d = prInt(r, 1, 6); e = prInt(r, 2, 6); } while ((b * (c + d)) % e); return [`${a} - ${b} * (${c} + ${d}) / ${e}`, a - b * (c + d) / e, `Paréntesis: ${c + d}. Luego × y ÷ de izquierda a derecha: ${b} × ${c + d} = ${b * (c + d)}; ÷ ${e} = ${b * (c + d) / e}. Resta: ${a - b * (c + d) / e}.`]; }
+];
+function ordDisplay(s) { return s.replace(/\*/g, '×').replace(/\//g, '÷').replace(/ - /g, ' − ').replace(/\^(\d+)/g, (m, d) => supN(d)); }
+function bankOrden(r) {
+  const gen = (r, i) => {
+    const [ascii, val, ex] = ORD_T[i % ORD_T.length](r);
+    const e = exNum(`Calcula respetando el orden de las operaciones: <b>${ordDisplay(ascii)}</b>`, Q(val), ex); e.ascii = ascii; e.val = val; return e;
+  };
+  const rr = prRng(0); void rr;
+  return prBuild(r, [[36, (r, i) => gen(r, i)]]);
+}
+
+/* ======================================================
+   9 · EXPONENTES Y NOTACIÓN CIENTÍFICA
+   ====================================================== */
+function bankExponentes(r) {
+  const combos = prShuf(r, [[2, 5], [3, 3], [4, 3], [5, 3], [6, 2], [7, 2], [8, 2], [9, 3], [10, 4], [11, 2], [12, 2], [2, 8], [3, 4], [5, 4], [4, 4], [6, 3], [2, 6], [7, 3]]);
+  const calc = (r, i) => { const [b, e] = combos[i]; return exNum(`Calcula <b>${b}<sup>${e}</sup></b>.`, Q(b ** e), `${Array(e).fill(b).join(' × ')} = ${commas(b ** e)}.`); };
+  const asPow = (r, i) => { const b = prInt(r, 2, 9), e = prInt(r, 3, 7); return exTwo(`Escribe como potencia: <b>${Array(e).fill(b).join(' × ')}</b>. Indica la base y el exponente.`, ['Base', 'Exponente'], [Q(b), Q(e)], `El número que se repite es la base (${b}) y aparece ${e} veces: ${b}<sup>${e}</sup>.`); };
+  const coefs = ['1.2', '3.5', '4.7', '5.46', '2.712', '9.3', '6.08', '8.25', '1.9', '7.4', '3.06', '2.5'];
+  const mkStd = (c, n) => { const [ip, fp = ''] = c.split('.'); return (ip + fp + '0'.repeat(n - fp.length)).replace(/^0+/, ''); };
+  const toSci = (r, i) => {
+    const c = coefs[(i * 5 + 1) % coefs.length], n = prInt(r, 4, 9), std = mkStd(c, n);
+    const e = exTwo(`Escribe <b>${commas(std)}</b> en notación científica a × 10<sup>n</sup>. Indica a (entre 1 y 10) y n.`, ['a', 'n'], [parseQ(c), Q(n)], `Mueve el punto ${n} lugares a la izquierda hasta dejar un solo dígito antes del punto: ${c} × 10<sup>${n}</sup>.`); e.canon = `${c}  y  ${n}`; return e;
+  };
+  const toStd = (r, i) => {
+    const c = coefs[(i * 7 + 3) % coefs.length], n = prInt(r, 3, 9), std = mkStd(c, n);
+    return exDigits(`Escribe <b>${c} × 10<sup>${n}</sup></b> en forma estándar (sin notación científica).`, std, `Mueve el punto ${n} lugares a la derecha, agregando ceros: ${commas(std)}.`);
+  };
+  return prBuild(r, [[12, calc], [6, asPow], [9, toSci], [9, toStd]]);
+}
+
+/* ======================================================
+   10 · CONJUNTOS
+   ====================================================== */
+function bankConjuntos(r) {
+  const sorted = a => [...a].sort((x, y) => x - y), fmt = a => '{' + sorted(a).join(', ') + '}';
+  const mkSets = (r, max, disjoint = false) => {
+    const pool = prShuf(r, Array.from({ length: max }, (_, i) => i + 1));
+    const sh = disjoint ? 0 : prInt(r, 1, 3), na = prInt(r, 3, 5), nb = prInt(r, 3, 5);
+    const shared = pool.slice(0, sh), restA = pool.slice(sh, sh + na), restB = pool.slice(sh + na, sh + na + nb);
+    return [sorted([...shared, ...restA]), sorted([...shared, ...restB])];
+  };
+  const head = (A, B) => `A = ${fmt(A)}   B = ${fmt(B)}`;
+  const uni = (r, i) => { const [A, B] = mkSets(r, 15); const U = [...new Set([...A, ...B])]; return exSet(`${head(A, B)}. Escribe <b>A ∪ B</b>.`, U, `La unión junta todos los elementos de A y de B, sin repetir: ${fmt(U)}.`); };
+  const inter = (r, i) => { const [A, B] = mkSets(r, 15, i >= 6); const I = A.filter(x => B.includes(x)); return exSet(`${head(A, B)}. Escribe <b>A ∩ B</b>.`, I, I.length ? `La intersección son los elementos que están en los dos: ${fmt(I)}.` : 'No hay ningún elemento en común: la intersección es el conjunto vacío.'); };
+  const diff = (r, i) => { const [A, B] = mkSets(r, 15); const rev = i % 2 === 1, D = rev ? B.filter(x => !A.includes(x)) : A.filter(x => !B.includes(x)); return exSet(`${head(A, B)}. Escribe <b>${rev ? 'B − A' : 'A − B'}</b>.`, D, `${rev ? 'B − A' : 'A − B'} son los elementos de ${rev ? 'B' : 'A'} que no están en ${rev ? 'A' : 'B'}: ${fmt(D)}.`); };
+  const count = (r, i) => { const [A, B] = mkSets(r, 15); const n = new Set([...A, ...B]).size, k = A.filter(x => B.includes(x)).length; return exNum(`${head(A, B)}. ¿Cuántos elementos tiene <b>A ∪ B</b>?`, Q(n), `n(A) + n(B) − n(A ∩ B) = ${A.length} + ${B.length} − ${k} = ${n}.`); };
+  const comp = (r, i) => { const [A] = mkSets(r, 10); const U = Array.from({ length: 10 }, (_, k) => k + 1), C = U.filter(x => !A.includes(x)); return exSet(`U = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}   A = ${fmt(A)}. Escribe el complemento <b>A′</b>.`, C, `El complemento son los elementos de U que no están en A: ${fmt(C)}.`); };
+  const member = (r, i) => {
+    const [A, B] = mkSets(r, 15), op = ['A ∩ B', 'A ∪ B', 'A − B', 'A ∩ B'][i % 4];
+    const pool = [...new Set([...A, ...B])]; const x = r() < .75 ? prPick(r, pool) : prInt(r, 1, 15);
+    const inA = A.includes(x), inB = B.includes(x), ok = op === 'A ∩ B' ? inA && inB : op === 'A ∪ B' ? inA || inB : inA && !inB;
+    return exChoice(r, `${head(A, B)}. ¿El ${x} pertenece a <b>${op}</b>?`, ok ? ['Sí pertenece', 'No pertenece'] : ['No pertenece', 'Sí pertenece'], `${x} ${inA ? 'está' : 'no está'} en A y ${inB ? 'está' : 'no está'} en B.`, true);
+  };
+  return prBuild(r, [[8, uni], [8, inter], [6, diff], [6, count], [4, comp], [4, member]]);
+}
+
+/* ======================================================
+   11 · RACIONALES Y PROPORCIONES
+   ====================================================== */
+function bankRacionales(r) {
+  const coprime = (r, lo, hi) => { let p, q; do { p = prInt(r, lo, hi); q = prInt(r, 2, 12); } while (gcd(p, q) !== 1); return [p, q]; };
+  const simp = (r, i) => { const [p, q] = coprime(r, 1, 9), g = prInt(r, 2, 9), s = r() < .35 ? -1 : 1; return exNum(`Simplifica la fracción <b>${pFrac(s * p * g, q * g)}</b>.`, Q(s * p, q), `Divide numerador y denominador entre ${g}: ${pFrac(s * p, q)}.`, { red: true }); };
+  const decs = ['0.5', '0.25', '0.75', '0.6', '0.8', '0.125', '0.35', '1.5', '2.4', '3.35', '0.45', '4.2', '1.25', '0.04', '0.375', '2.75'];
+  const d2f = (r, i) => { const d = decs[(i * 3 + 2) % decs.length], v = parseQ(d); return exNum(`Escribe <b>${d}</b> como fracción reducida.`, v, `${d} = ${d.replace('.', '')}/${10 ** (d.split('.')[1].length)} y se simplifica a ${qs(v)}.`, { red: true }); };
+  const f2d = (r, i) => { const d = prPick(r, [2, 4, 5, 8, 10, 20, 25]), n = prInt(r, 1, d * 3 - 1); const v = Q(n, d); return exNum(`Escribe <b>${n}/${d}</b> como decimal.`, v, `Divide ${n} ÷ ${d} = ${(n / d).toString()}.`, { ph: 'decimal' }); };
+  const addf = (r, i) => { const d = prInt(r, 5, 20), a = prInt(r, 1, d), b = prInt(r, 1, d), sub = i % 2 === 1, sa = r() < .4 ? -1 : 1, sb = r() < .4 ? -1 : 1, v = Q(sa * a + (sub ? -1 : 1) * sb * b, d);
+    const t = `${pFrac(sa * a, d)} ${sub ? '−' : '+'} ${sb < 0 ? '(' + pFrac(sb * b, d) + ')' : pFrac(b, d)}`;
+    return exNum(`Calcula y simplifica: <b>${t}</b>`, v, `Con el mismo denominador se operan solo los numeradores: ${sa * a} ${sub ? '−' : '+'} (${sb * b}) = ${sa * a + (sub ? -1 : 1) * sb * b}. Resultado ${qs(v)}.`, { red: true }); };
+  const prop = (r, i) => {
+    const [p, q] = coprime(r, 1, 7); let s = prInt(r, 2, 6), t; do { t = prInt(r, 2, 6); } while (t === s);
+    const a = p * s, b = q * s, c = p * t, d = q * t, form = i % 4; let txt, ans;
+    if (i >= 6) { const k = prInt(r, 1, 6), x0 = p * s - k; txt = `(x + ${k})/${b} = ${c}/${d === 0 ? 1 : d}`; ans = x0; const left = b, right = d; return exNum(`Resuelve la proporción: <b>(x + ${k})/${left * 1} = ${(p * t)}/${(q * t) * 1 * (left / b)}</b>`.replace(`${left}`, `${b}`), Q(p * s * (q * t) / (q * t) - k + 0), `Multiplica en cruz y despeja: primero halla x + ${k}, luego resta ${k}.`); }
+    if (form === 0) { txt = `x/${b} = ${c}/${d}`; ans = a; } if (form === 1) { txt = `${a}/${b} = x/${d}`; ans = c; } if (form === 2) { txt = `${a}/${b} = ${c}/x`; ans = d; } if (form === 3) { txt = `${a}/x = ${c}/${d}`; ans = b; }
+    return exNum(`Resuelve la proporción: <b>${txt}</b>`, Q(ans), `Multiplica en cruz y despeja: x = ${ans}.`);
+  };
+  return prBuild(r, [[8, simp], [6, d2f], [6, f2d], [8, addf], [8, prop]]);
+}
+
+/* ---------- registro ---------- */
+const BANKS = {
+  desigualdades: bankDesigualdades(prRng(1101)), ecuaciones: bankEcuaciones(prRng(1202)), funciones: bankFunciones(prRng(1303)),
+  varios: bankVarios(prRng(1404)), pendiente: bankPendiente(prRng(1505)), estandar: bankEstandar(prRng(1606)),
+  rectas: bankRectas(prRng(1707)), orden: bankOrden(prRng(1808)), exponentes: bankExponentes(prRng(1909)),
+  conjuntos: bankConjuntos(prRng(2010)), racionales: bankRacionales(prRng(2111))
+};
+
+</script>
+<script>
+'use strict';
+/* ======================================================
+   INTERFAZ DE PRÁCTICA
+   Una tarjeta por misión (<div class="card practice" id="pr-KEY">).
+   Los ejercicios resueltos se guardan con regSet('pr-KEY').
+   ====================================================== */
+const PR = {};
+function initPractice(key) {
+  const root = $('#pr-' + key), bank = BANKS[key];
+  if (!root || !bank) return;
+  const solved = regSet('pr-' + key);
+  let cur = 0, shown = false;
+  root.innerHTML = `
+    <h3>Práctica · ${bank.length} ejercicios</h3>
+    <p class="muted" style="margin-bottom:10px">Resueltos: <b class="pr-count"></b>. Cada uno vale +2 XP la primera vez.</p>
+    <div class="pr-chips" role="tablist"></div>
+    <div class="pr-body">
+      <div class="pr-q"></div>
+      <div class="pr-in"></div>
+      <div class="row pr-act">
+        <button class="btn pr-check">Comprobar</button>
+        <button class="btn ghost pr-sol">Ver solución</button>
+        <button class="btn ghost pr-prev" aria-label="Anterior">←</button>
+        <button class="btn ghost pr-next" aria-label="Siguiente">→</button>
+      </div>
+      <p class="msg pr-msg" aria-live="polite"></p>
+    </div>`;
+  const chips = $('.pr-chips', root), qEl = $('.pr-q', root), inEl = $('.pr-in', root), msg = $('.pr-msg', root), cnt = $('.pr-count', root);
+  chips.innerHTML = bank.map((_, i) => `<button class="pr-chip" data-i="${i}">${i + 1}</button>`).join('');
+  const setMsg = (t, c) => { msg.textContent = t; msg.className = 'msg pr-msg ' + (c || ''); };
+  function paintChips() {
+    $$('.pr-chip', root).forEach((b, i) => { b.classList.toggle('done', solved.has(i)); b.classList.toggle('cur', i === cur); });
+    cnt.textContent = solved.size + ' de ' + bank.length;
+  }
+  function show(i) {
+    cur = Math.max(0, Math.min(bank.length - 1, i)); shown = false;
+    const ex = bank[cur];
+    qEl.innerHTML = `<span class="pr-n">${cur + 1}.</span> ${ex.q}`;
+    if (ex.choices) {
+      inEl.innerHTML = '<div class="pr-choices">' + ex.choices.map((c, k) => `<button class="btn ghost pr-opt" data-k="${k}">${c}</button>`).join('') + '</div>';
+      $$('.pr-opt', inEl).forEach(b => b.addEventListener('click', () => { $$('.pr-opt', inEl).forEach(x => x.classList.remove('sel')); b.classList.add('sel'); inEl.dataset.sel = b.dataset.k; }));
+      inEl.dataset.sel = '';
+    } else {
+      inEl.innerHTML = '<div class="row">' + ex.fields.map((f, k) => `<label class="pr-f">${f.label ? `<span>${f.label}</span>` : ''}<input type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${f.ph || ''}" data-k="${k}"></label>`).join('') + '</div>';
+      $$('input', inEl).forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') check(); }));
+    }
+    setMsg(solved.has(cur) ? 'Ya lo resolviste. Puedes repetirlo o pasar al siguiente.' : '', solved.has(cur) ? 'ok' : '');
+    paintChips();
+  }
+  function values() { const ex = bank[cur]; return ex.choices ? [inEl.dataset.sel] : $$('input', inEl).map(i => i.value); }
+  function check() {
+    const ex = bank[cur], v = values();
+    if (ex.choices ? v[0] === '' : v.every(x => !String(x).trim())) { setMsg('Escribe o elige una respuesta primero.', 'bad'); return; }
+    const res = ex.check(v);
+    if (res.ok) {
+      const first = !solved.has(cur);
+      solved.add(cur);
+      setMsg((shown ? 'Correcto, pero ya viste la solución. ' : '') + res.msg + (first && !shown ? ' +2 XP' : ''), 'ok');
+      if (first && !shown) addXP(2);
+      paintChips();
+    } else setMsg(res.msg, 'bad');
+  }
+  $('.pr-check', root).addEventListener('click', check);
+  $('.pr-sol', root).addEventListener('click', () => {
+    const ex = bank[cur]; shown = true;
+    setMsg('Respuesta: ' + ex.canon + '. ' + ex.expl.replace(/<[^>]+>/g, ''), '');
+  });
+  $('.pr-prev', root).addEventListener('click', () => show(cur - 1));
+  $('.pr-next', root).addEventListener('click', () => show(cur + 1));
+  chips.addEventListener('click', e => { const b = e.target.closest('.pr-chip'); if (b) show(+b.dataset.i); });
+  const first = bank.findIndex((_, i) => !solved.has(i));
+  show(first < 0 ? 0 : first);
+  PR[key] = { bank, solved, show, check, values: () => values() };
+}
+Object.keys(BANKS).forEach(initPractice);
+
+/* sumar la práctica al avance del menú */
+MENU.forEach(m => {
+  const g = m.get, n = BANKS[m.tab].length;
+  m.tot += n; m.get = () => g() + psz('pr-' + m.tab);
+});
+renderMenu();
+
+</script>
+<script>
+'use strict';
+/* ---------- reiniciar todo ---------- */
+$('#reset-ask').addEventListener('click', () => { $('#reset-box').hidden = false; $('#reset-msg').textContent = ''; });
+$('#reset-no').addEventListener('click', () => { $('#reset-box').hidden = true; });
+$('#reset-yes').addEventListener('click', () => {
+  try { localStorage.removeItem(PROG_KEY); localStorage.removeItem(XP_KEY); } catch (e) {}
+  const m = $('#reset-msg'); m.textContent = 'Avances borrados. Empezando de cero…'; m.className = 'msg ok';
+  try { location.hash = 'inicio'; } catch (e) {}
+  setTimeout(() => { try { location.reload(); } catch (e) {} }, 350);
+  setTimeout(() => { m.textContent = 'Avances borrados. Si no ves todo en cero, recarga la página.'; }, 2500);
+});
+renderMenu();
+
+</script>
+</body>
+</html>

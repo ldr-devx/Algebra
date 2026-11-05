@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Taller de Álgebra</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&family=JetBrains+Mono:wght@500;700&family=Silkscreen:wght@400;700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Taller de Álgebra</h1>
+      <p>Misiones interactivas para entender álgebra jugando. Se prueba, se falla y se entiende. Los ejercicios salen de los exámenes cortos y de los temas del libro.</p>
+    </div>
+    <div class="xp" aria-live="polite">
+      <div class="lbl"><span id="lvl">Nivel 1</span><span id="xpn">0 XP</span></div>
+      <div class="bar"><i id="xpbar"></i></div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Misiones">
+    <button class="tab" role="tab" data-tab="inicio">Menú</button>
+    <button class="tab" role="tab" data-tab="desigualdades">1 · Desigualdades</button>
+    <button class="tab" role="tab" data-tab="ecuaciones">2 · Ecuaciones</button>
+    <button class="tab" role="tab" data-tab="funciones">3 · Funciones</button>
+    <button class="tab" role="tab" data-tab="varios">4 · Varios pasos</button>
+    <button class="tab" role="tab" data-tab="pendiente">5 · Pendiente</button>
+    <button class="tab" role="tab" data-tab="estandar">6 · Forma estándar</button>
+    <button class="tab" role="tab" data-tab="rectas">7 · Paralelas y perpendiculares</button>
+    <button class="tab" role="tab" data-tab="orden">8 · Orden de operaciones</button>
+    <button class="tab" role="tab" data-tab="exponentes">9 · Exponentes</button>
+    <button class="tab" role="tab" data-tab="conjuntos">10 · Conjuntos</button>
+    <button class="tab" role="tab" data-tab="racionales">11 · Racionales</button>
+  </nav>
+
+  <!-- ============ MENÚ ============ -->
+  <section class="mission" data-tab="inicio">
+    <div class="mhead">
+      <p class="eyebrow">Menú principal</p>
+      <h2>Elige tu misión</h2>
+      <p class="lede">Cada misión convierte un tema en un juego. Gana XP resolviendo niveles y sigue tu avance desde aquí. El avance se guarda en este navegador.</p>
+    </div>
+    <div class="card">
+      <div class="xp" style="width:100%"><div class="lbl"><span>Avance total</span><span id="menu-pct">0%</span></div><div class="bar"><i id="menu-bar"></i></div></div>
+    </div>
+    <div class="menu" id="menu-grid"></div>
+    <div class="card">
+      <h3>Empezar de cero</h3>
+      <p class="sub">Borra el XP y el avance de todas las misiones para repetirlo todo desde el principio.</p>
+      <div class="row" style="margin-top:12px"><button class="btn" id="reset-ask">Reiniciar todos los avances</button></div>
+      <div class="ask" id="reset-box" hidden>
+        <b>¿Seguro? Se borran el XP y todos los niveles completados.</b>
+        <div class="row" style="margin-top:10px"><button class="btn primary" id="reset-yes">Sí, empezar de cero</button><button class="btn" id="reset-no">Cancelar</button></div>
+        <p class="msg" id="reset-msg" aria-live="polite" style="margin-top:8px"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MISIÓN 1 ============ -->
+  <section class="mission" data-tab="funciones" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 3 · Funciones</p>
+      <h2>La mesa de crafteo</h2>
+      <p class="lede">Pones ingredientes, aplicas la receta y sale un objeto. Si pones lo mismo, sale lo mismo. Esa mesa es una función: entra <b>x</b>, sale <b>y</b>.</p>
+      <p class="exam">Examen corto 1 · 9.º ej. 3 (hacer la tabla de la función) · Examen corto 2 · 6.º ej. 1 (completar tablas)</p>
+    </div>
+
+    <div class="card">
+      <h3>1 · Elige una receta</h3>
+      <div class="rules" id="fn-rules" role="group" aria-label="Recetas"></div>
+      <p class="sub" style="margin-top:14px">Inventario. Solo entra lo que está en el dominio de esta receta. Toca un ingrediente.</p>
+      <div class="hotbar" id="fn-hotbar"></div>
+      <div class="machine" id="fn-machine" aria-label="Máquina de la función"></div>
+      <div class="row">
+        <label class="fld">Tu predicción de la salida (opcional)
+          <input type="text" id="fn-guess" inputmode="text" autocomplete="off" placeholder="¿cuánto sale?">
+        </label>
+        <button class="btn primary" id="fn-go" style="align-self:flex-end">Craftear</button>
+      </div>
+      <p class="msg" id="fn-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>2 · La tabla se llena sola</h3>
+        <table class="tbl" id="fn-table"></table>
+        <p class="sub" id="fn-insight" style="margin-top:10px"></p>
+      </div>
+      <div class="card">
+        <h3>Cada craft es un punto</h3>
+        <svg class="plot" id="fn-plot" viewBox="0 0 360 250" role="img" aria-label="Plano con los puntos crafteados"></svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>3 · ¿Máquina o cápsula sorpresa?</h3>
+      <p>Mete el número <b>3</b> varias veces en cada máquina y mira qué pasa.</p>
+      <div class="caps" style="margin-top:12px">
+        <div class="cap"><h4>Máquina A · receta 2x + 1</h4><button class="btn" id="cap-a">Meter el 3</button><div class="logchips" id="cap-a-log"></div><p class="sub" id="cap-a-v"></p></div>
+        <div class="cap"><h4>Máquina B · cápsula sorpresa</h4><button class="btn" id="cap-b">Meter el 3</button><div class="logchips" id="cap-b-log"></div><p class="sub" id="cap-b-v"></p></div>
+      </div>
+      <p style="margin-top:16px"><b>Regla de oro:</b> una misma entrada nunca puede dar dos salidas. Dos entradas distintas sí pueden dar la misma. ¿Cuáles de estas son funciones?</p>
+      <div class="quiz" id="fn-quiz" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <h3>4 · Modo reversa</h3>
+      <p>La máquina escupió un resultado. ¿Qué número entró? Piensa en deshacer cada estación en orden contrario.</p>
+      <div class="machine" id="rev-machine"></div>
+      <div class="row">
+        <label class="fld">Entró el número
+          <input type="text" id="rev-in" inputmode="text" autocomplete="off" placeholder="x = ?">
+        </label>
+        <button class="btn primary" id="rev-check" style="align-self:flex-end">Comprobar</button>
+        <button class="btn ghost" id="rev-new" style="align-self:flex-end">Otra máquina</button>
+      </div>
+      <p class="msg" id="rev-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+
+    <div class="card practice" id="pr-funciones"></div>
+
+  </section>
+
+  <!-- ============ MISIÓN 2 ============ -->
+  <section class="mission" data-tab="ecuaciones" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 2 · Ecuaciones lineales</p>
+      <h2>La balanza perfectamente equilibrada</h2>
+      <p class="lede">Una ecuación es una balanza en equilibrio. Lo que haces en un plato lo haces en el otro, o la rompes. Tu misión: dejar la caja misteriosa sola en un plato.</p>
+      <p class="exam">Examen corto 2 · 8.º ej. 1 y 2 · 9.º ej. 1 y 2 (ecuaciones de uno y dos pasos)</p>
+    </div>
+    <div class="card" id="eq-root"></div>
+
+    <div class="card practice" id="pr-ecuaciones"></div>
+
+  </section>
+
+  <!-- ============ MISIÓN 3 ============ -->
+  <section class="mission" data-tab="desigualdades" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 1 · Desigualdades (5-1, 5-2)</p>
+      <h2>La zona segura y el espejo</h2>
+      <p class="lede">Una ecuación pide un valor. Una desigualdad pide una zona. Explora la recta, descubre dónde se cumple y dibújala. Con números negativos todo se voltea, como en el Mundo del Revés.</p>
+      <p class="exam">Examen corto 2 · 8.º ej. 3 (inecuaciones y recta numérica) · Temas 5-1, 5-2 y 5-3</p>
+    </div>
+
+    <div class="card" id="mirror">
+      <h3>Calentamiento · el espejo</h3>
+      <p>Elige dos números y un multiplicador. Mira qué le pasa al orden.</p>
+      <div class="row" style="margin-top:10px">
+        <label class="fld">a<input type="number" id="mr-a" value="-3" min="-5" max="5" step="1"></label>
+        <label class="fld">b<input type="number" id="mr-b" value="2" min="-5" max="5" step="1"></label>
+        <label class="fld">Multiplicar por
+          <select id="mr-m"><option value="2">2</option><option value="-1" selected>−1</option><option value="-2">−2</option><option value="-3">−3</option></select>
+        </label>
+      </div>
+      <svg class="mirror-svg" id="mr-svg" viewBox="0 0 640 200" role="img" aria-label="Dos rectas numéricas, antes y después de multiplicar"></svg>
+      <p class="readout" id="mr-out" aria-live="polite"></p>
+    </div>
+
+    <div class="card" id="iq-root"></div>
+
+    <div class="card practice" id="pr-desigualdades"></div>
+
+  </section>
+
+  <!-- ============ 5-3 VARIOS PASOS ============ -->
+  <section class="mission" data-tab="varios" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 4 · Tema 5-3</p>
+      <h2>Varios pasos: paréntesis y letras en los dos platos</h2>
+      <p class="lede">Ahora la caja misteriosa está en los dos platos y hay paréntesis que estorban. Primero se limpia cada lado, luego se juntan las letras en un solo plato y al final se resuelve como siempre.</p>
+      <p class="exam">Examen corto 2 · 9.º ej. 3 y 4 · Examen corto 2 · 10.º ej. 4 · Tema 5-3 con desigualdades</p>
+    </div>
+    <div class="card" id="mp-root"></div>
+
+    <div class="card practice" id="pr-varios"></div>
+
+  </section>
+
+  <!-- ============ PENDIENTE ============ -->
+  <section class="mission" data-tab="pendiente" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 5 · Pendiente e intercepto (3.4 y 3.5)</p>
+      <h2>La rampa y el punto de aparición</h2>
+      <p class="lede">Una recta tiene dos datos: dónde aparece el personaje sobre el eje y (el intercepto b) y qué tan empinada es la rampa (la pendiente m). Mueve los controles hasta encajar con la recta punteada.</p>
+      <p class="exam">Libro 3.4 forma pendiente-intercepto · 3.5 forma punto-pendiente</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Controles</h3>
+        <label class="fld">Pendiente m <input type="range" id="pt-m" min="-8" max="8" step="1" value="1"></label>
+        <label class="fld" style="margin-top:10px">Intercepto b <input type="range" id="pt-b" min="-8" max="8" step="1" value="0"></label>
+        <p class="eqn" id="pt-eq" style="margin-top:12px" aria-live="polite"></p>
+        <p class="sub" id="pt-info" style="margin-top:6px"></p>
+        <div class="levels" id="pt-levels" style="margin-top:14px" role="group" aria-label="Retos"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="pt-check">Comprobar con la punteada</button>
+          <label class="fld" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="pt-free"> Modo libre</label>
+        </div>
+        <p class="msg" id="pt-msg" aria-live="polite" style="margin-top:8px"></p>
+        <h3 style="margin-top:14px">Punto-pendiente</h3>
+        <label class="fld">Elige un punto de tu recta, x₁ <input type="number" id="pt-x1" min="-5" max="5" step="1" value="2"></label>
+        <p class="readout" id="pt-ps"></p>
+      </div>
+      <div class="card"><h3>El plano</h3><svg class="pl" id="pt-svg" viewBox="0 0 360 360" role="img" aria-label="Plano con la recta"></svg></div>
+    </div>
+
+    <div class="card practice" id="pr-pendiente"></div>
+
+  </section>
+
+  <!-- ============ FORMA ESTÁNDAR ============ -->
+  <section class="mission" data-tab="estandar" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 6 · Tema 4-4</p>
+      <h2>La tienda y la forma estándar</h2>
+      <p class="lede">Tienes un presupuesto exacto y dos objetos con precio. Todas las compras que gastan justo el presupuesto forman una recta: Ax + By = C.</p>
+      <p class="exam">Tema 4-4 · Escribir ecuaciones lineales en forma estándar</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>1 · Gasta el presupuesto exacto</h3>
+        <div class="levels" id="st-shops" role="group" aria-label="Tiendas"></div>
+        <p id="st-rule" style="margin-top:10px;font-weight:600"></p>
+        <div class="row" style="margin-top:10px">
+          <div class="cap" style="min-width:140px"><h4>Espadas (x)</h4><div class="row"><button class="btn" data-st="x-" aria-label="una espada menos">−</button><b id="st-xv" style="font:700 22px var(--f-mono);min-width:28px;text-align:center">0</b><button class="btn" data-st="x+" aria-label="una espada más">+</button></div></div>
+          <div class="cap" style="min-width:140px"><h4>Pociones (y)</h4><div class="row"><button class="btn" data-st="y-" aria-label="una poción menos">−</button><b id="st-yv" style="font:700 22px var(--f-mono);min-width:28px;text-align:center">0</b><button class="btn" data-st="y+" aria-label="una poción más">+</button></div></div>
+        </div>
+        <p class="readout" id="st-spend"></p>
+        <div class="row"><button class="btn primary" id="st-buy">Guardar compra</button><button class="btn" id="st-ext">Ver los extremos</button></div>
+        <p class="msg" id="st-msg" aria-live="polite" style="margin-top:8px"></p>
+      </div>
+      <div class="card"><h3>Todas las compras exactas</h3><svg class="pl" id="st-svg" viewBox="0 0 360 360" role="img" aria-label="Plano con las compras"></svg></div>
+    </div>
+    <div class="card">
+      <h3>2 · Escribe en forma estándar</h3>
+      <div class="levels" id="sf-levels" role="group" aria-label="Ejercicios"></div>
+      <div class="eqcard"><div class="tag">Reglas: A, B y C enteros · A positivo · sin factor común</div><div class="eqn" id="sf-given" aria-live="polite"></div></div>
+      <div class="row" style="margin-top:12px;justify-content:center">
+        <label class="fld">A<input type="text" id="sf-a" inputmode="text" autocomplete="off"></label>
+        <label class="fld">B<input type="text" id="sf-b" inputmode="text" autocomplete="off"></label>
+        <label class="fld">C<input type="text" id="sf-c" inputmode="text" autocomplete="off"></label>
+        <button class="btn primary" id="sf-check" style="align-self:flex-end">Comprobar Ax + By = C</button>
+        <button class="btn" id="sf-hint" style="align-self:flex-end">Pista</button>
+      </div>
+      <p class="msg" id="sf-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+
+    <div class="card practice" id="pr-estandar"></div>
+
+  </section>
+
+  <!-- ============ PARALELAS Y PERPENDICULARES ============ -->
+  <section class="mission" data-tab="rectas" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 7 · Tema 4-5</p>
+      <h2>Rieles y esquinas de noventa grados</h2>
+      <p class="lede">Dos rieles que nunca se tocan tienen la misma pendiente. Dos calles que se cruzan en ángulo recto tienen pendientes que son recíprocas y de signo contrario.</p>
+      <p class="exam">Tema 4-5 · Escribir ecuaciones de rectas paralelas y perpendiculares</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Reto</h3>
+        <div class="levels" id="pp-levels" role="group" aria-label="Retos"></div>
+        <p id="pp-task" style="margin-top:10px;font-weight:600"></p>
+        <label class="fld" style="margin-top:10px">Pendiente de tu recta, m₂ <input type="range" id="pp-m" min="-8" max="8" step="1" value="1"></label>
+        <label class="fld" style="margin-top:10px">Intercepto de tu recta, b₂ <input type="range" id="pp-b" min="-8" max="8" step="1" value="0"></label>
+        <p class="eqn" id="pp-eq" style="margin-top:12px"></p>
+        <p class="readout" id="pp-rel"></p>
+        <div class="row" style="margin-top:8px"><button class="btn primary" id="pp-check">Comprobar</button></div>
+        <p class="msg" id="pp-msg" aria-live="polite" style="margin-top:8px"></p>
+      </div>
+      <div class="card"><h3>El plano</h3><svg class="pl" id="pp-svg" viewBox="0 0 360 360" role="img" aria-label="Dos rectas en el plano"></svg></div>
+    </div>
+    <div class="card">
+      <h3>Clasifica por las pendientes</h3>
+      <div class="quiz" id="pp-quiz"></div>
+    </div>
+
+    <div class="card practice" id="pr-rectas"></div>
+
+  </section>
+
+  <!-- ============ ORDEN DE OPERACIONES ============ -->
+  <section class="mission" data-tab="orden" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 8 · Orden de operaciones (libro 1.4)</p>
+      <h2>La pelea de jefes por niveles</h2>
+      <p class="lede">Cada expresión es un jefe. Solo se le puede pegar en el orden correcto: paréntesis, potencias, multiplicar y dividir, sumar y restar. Toca la operación que va primero.</p>
+      <p class="exam">Exámenes cortos 1 · 6.º ej. 4 · 7.º ej. 5 · 9.º ej. 2 · 10.º ej. 4</p>
+    </div>
+    <div class="card">
+      <div class="levels" id="or-levels" role="group" aria-label="Jefes"></div>
+      <div class="ladder" id="or-ladder"></div>
+      <div class="eqcard"><div class="tag" id="or-tag"></div><div class="expr" id="or-expr" aria-live="polite"></div></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="or-hint">Pista</button><button class="btn ghost" id="or-reset">Reiniciar jefe</button><span class="sub" id="or-count"></span></div>
+      <p class="msg" id="or-msg" aria-live="polite" style="margin-top:10px"></p>
+      <ol class="log" id="or-log"></ol>
+    </div>
+
+    <div class="card practice" id="pr-orden"></div>
+
+  </section>
+
+  <!-- ============ EXPONENTES ============ -->
+  <section class="mission" data-tab="exponentes" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 9 · Exponentes y notación científica (1.5 y 1.6)</p>
+      <h2>El rumor viral y el reino cuántico</h2>
+      <p class="lede">Un exponente cuenta cuántas veces se multiplica la base. Y la notación científica es mover el punto decimal y contar los saltos.</p>
+      <p class="exam">Examen corto 1 · 6.º ej. 2 y 3 · 7.º ej. 2 y 3</p>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>1 · Constructor de potencias</h3>
+        <div class="row">
+          <label class="fld">Base<input type="number" id="ex-b" min="1" max="12" step="1" value="2"></label>
+          <label class="fld">Exponente (cuántas veces) <input type="range" id="ex-e" min="1" max="8" step="1" value="4"></label>
+        </div>
+        <div class="logchips" id="ex-chips" style="margin-top:12px"></div>
+        <p class="eqn" id="ex-out" aria-live="polite"></p>
+        <h3 style="margin-top:16px">El rumor viral</h3>
+        <label class="fld">Día <input type="range" id="ex-d" min="0" max="9" step="1" value="3"></label>
+        <p class="readout" id="ex-day"></p>
+        <div class="dots" id="ex-dots" aria-hidden="true"></div>
+      </div>
+      <div class="card">
+        <h3>Escribe como potencia y calcula</h3>
+        <div class="quiz" id="ex-quiz"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>2 · Notación científica: mueve el punto</h3>
+      <div class="levels" id="nc-levels" role="group" aria-label="Retos"></div>
+      <p id="nc-task" style="margin-top:10px;font-weight:600"></p>
+      <div class="eqcard"><div class="eqn" id="nc-num" aria-live="polite"></div><div class="sub" id="nc-exp" style="margin-top:6px"></div></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="nc-left">◀ Mover el punto a la izquierda</button><button class="btn" id="nc-right">Mover a la derecha ▶</button><button class="btn primary" id="nc-check">Listo</button></div>
+      <p class="msg" id="nc-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+
+    <div class="card practice" id="pr-exponentes"></div>
+
+  </section>
+
+  <!-- ============ CONJUNTOS ============ -->
+  <section class="mission" data-tab="conjuntos" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 10 · Conjuntos (libro 1.2)</p>
+      <h2>Los inventarios de dos jugadores</h2>
+      <p class="lede">Cada jugador guarda objetos con cierta regla. Lo que tienen los dos es la intersección. Todo lo que tiene al menos uno es la unión.</p>
+      <p class="exam">Libro 1.2 · Conjuntos y otros conceptos básicos</p>
+    </div>
+    <div class="card">
+      <h3>1 · Clasifica las tarjetas</h3>
+      <div class="levels" id="cj-pairs" role="group" aria-label="Pares de conjuntos"></div>
+      <p id="cj-rules" style="margin-top:10px"></p>
+      <p class="sub" style="margin-top:8px">Toca una tarjeta de la bandeja y luego su región.</p>
+      <div class="logchips" id="cj-tray"></div>
+      <div class="row">
+        <button class="btn" data-reg="A">Solo A</button><button class="btn" data-reg="AB">A y B</button><button class="btn" data-reg="B">Solo B</button><button class="btn" data-reg="N">Ninguno</button>
+      </div>
+      <svg class="venn" id="cj-svg" viewBox="0 0 560 270" role="img" aria-label="Diagrama de Venn"></svg>
+      <p class="msg" id="cj-msg" aria-live="polite"></p>
+    </div>
+    <div class="card">
+      <h3>2 · Operaciones</h3>
+      <div class="row" id="cj-ops" role="group" aria-label="Operaciones"></div>
+      <p class="readout" id="cj-out" aria-live="polite"></p>
+    </div>
+
+    <div class="card practice" id="pr-conjuntos"></div>
+
+  </section>
+
+  <!-- ============ RACIONALES ============ -->
+  <section class="mission" data-tab="racionales" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 11 · Racionales y proporciones</p>
+      <h2>Fracciones, decimales y recetas a escala</h2>
+      <p class="lede">Simplificar es agrupar porciones iguales. Una proporción es una receta a escala: lo que escalas arriba lo escalas abajo.</p>
+      <p class="exam">Examen corto 2 · 8.º ej. 4 y 5 · 9.º ej. 5</p>
+    </div>
+    <div class="card">
+      <h3>1 · Simplifica agrupando</h3>
+      <div class="levels" id="rf-levels" role="group" aria-label="Fracciones"></div>
+      <div class="eqcard"><div class="eqn" id="rf-frac"></div><div class="cells" id="rf-cells" aria-hidden="true"></div></div>
+      <div class="row" style="margin-top:12px">
+        <label class="fld">Dividir numerador y denominador entre<input type="text" id="rf-g" inputmode="numeric" autocomplete="off" placeholder="g"></label>
+        <button class="btn primary" id="rf-go" style="align-self:flex-end">Agrupar</button>
+        <button class="btn ghost" id="rf-reset" style="align-self:flex-end">Reiniciar</button>
+      </div>
+      <p class="msg" id="rf-msg" aria-live="polite" style="margin-top:10px"></p>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>2 · Decimales y fracciones</h3><div class="quiz" id="rd-quiz"></div></div>
+      <div class="card"><h3>3 · Suma de fracciones</h3><div class="quiz" id="rs-quiz"></div></div>
+    </div>
+    <div class="card"><h3>4 · Compara en la recta</h3><div class="quiz" id="rc-quiz"></div></div>
+    <div class="card">
+      <h3>5 · Proporciones: multiplica en cruz</h3>
+      <div id="rp-root"></div>
+    </div>
+
+    <div class="card practice" id="pr-racionales"></div>
+
+  </section>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="js/00-core.js"></script>
+<script src="js/10-funciones.js"></script>
+<script src="js/20-motor.js"></script>
+<script src="js/21-ecuaciones.js"></script>
+<script src="js/22-desigualdades.js"></script>
+<script src="js/30-motor-varios-plano.js"></script>
+<script src="js/31-pendiente.js"></script>
+<script src="js/32-estandar.js"></script>
+<script src="js/33-rectas.js"></script>
+<script src="js/34-varios.js"></script>
+<script src="js/40-orden.js"></script>
+<script src="js/41-exponentes.js"></script>
+<script src="js/42-conjuntos.js"></script>
+<script src="js/43-racionales.js"></script>
+<script src="js/60-practice-banks.js"></script>
+<script src="js/61-practice-ui.js"></script>
+<script src="js/50-reset.js"></script>
+</body>
+</html>
