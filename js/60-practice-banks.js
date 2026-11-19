@@ -485,3 +485,19 @@ const BANKS = {
   rectas: bankRectas(prRng(1707)), orden: bankOrden(prRng(1808)), exponentes: bankExponentes(prRng(1909)),
   conjuntos: bankConjuntos(prRng(2010)), racionales: bankRacionales(prRng(2111))
 };
+
+/* ======================================================
+   REPASO 1 · mezcla de los temas 1 a 6
+   Toma 6 ejercicios de cada banco (ya mezclados y únicos) y los
+   intercala para que el tema cambie en cada pregunta.
+   ====================================================== */
+function bankRepaso1() {
+  const topics = ['desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar'];
+  const names = { desigualdades: '1 · Desigualdades', ecuaciones: '2 · Ecuaciones', funciones: '3 · Funciones', varios: '4 · Varios pasos', pendiente: '5 · Pendiente', estandar: '6 · Estándar' };
+  const r = prRng(3112), perTopic = 6;
+  const picked = topics.map(t => prShuf(r, BANKS[t]).slice(0, perTopic).map(ex => ({ ...ex, tema: names[t] })));
+  const out = [];
+  for (let i = 0; i < perTopic; i++) topics.forEach((t, k) => out.push(picked[k][i]));
+  return out;
+}
+BANKS.repaso1 = bankRepaso1();

@@ -67,10 +67,11 @@ const psz = k => PROG[k] ? PROG[k].size : 0;
 const MENU = [
   { tab: 'desigualdades', n: 1, t: 'Desigualdades', s: 'Temas 5-1 y 5-2', tot: 7, get: () => psz('s-iq') },
   { tab: 'ecuaciones', n: 2, t: 'Ecuaciones', s: 'Uno y dos pasos', tot: 9, get: () => psz('s-eq') },
-  { tab: 'funciones', n: 3, t: 'Funciones', s: 'La mesa de crafteo', tot: 5, get: () => psz('fn-full') },
+  { tab: 'funciones', n: 3, t: 'Funciones', s: 'La mesa de crafteo y la máquina expendedora', tot: 9, get: () => psz('fn-full') + psz('vm-full') },
   { tab: 'varios', n: 4, t: 'Varios pasos', s: 'Tema 5-3', tot: 7, get: () => psz('m-mp') },
   { tab: 'pendiente', n: 5, t: 'Pendiente e intercepto', s: 'Libro 3.4 y 3.5', tot: 6, get: () => psz('pt') },
   { tab: 'estandar', n: 6, t: 'Forma estándar', s: 'Tema 4-4', tot: 8, get: () => psz('sf') + psz('st') },
+  { tab: 'repaso1', n: '★', t: 'Repaso 1', s: 'Temas 1 a 6 mezclados', tot: 0, get: () => 0 },
   { tab: 'rectas', n: 7, t: 'Paralelas y perpendiculares', s: 'Tema 4-5', tot: 5, get: () => psz('pp') },
   { tab: 'orden', n: 8, t: 'Orden de operaciones', s: 'Libro 1.4', tot: 8, get: () => psz('or') },
   { tab: 'exponentes', n: 9, t: 'Exponentes y notación científica', s: 'Libro 1.5 y 1.6', tot: 6, get: () => psz('nc') },
@@ -82,7 +83,7 @@ function renderMenu() {
   let c = 0, t = 0;
   grid.innerHTML = MENU.map(m => {
     const g = Math.min(m.get(), m.tot); c += g; t += m.tot;
-    return `<button class="mcard${g >= m.tot ? ' full' : ''}" data-go="${m.tab}"><span class="num">${m.n}</span><span class="tt">${m.t}</span><span class="st">${m.s}</span><span class="bar"><i style="width:${g / m.tot * 100}%"></i></span><span class="cnt">${g} de ${m.tot} actividades</span></button>`;
+    return `<button class="mcard${m.tot && g >= m.tot ? ' full' : ''}" data-go="${m.tab}"><span class="num">${m.n}</span><span class="tt">${m.t}</span><span class="st">${m.s}</span><span class="bar"><i style="width:${m.tot ? g / m.tot * 100 : 0}%"></i></span><span class="cnt">${g} de ${m.tot} actividades</span></button>`;
   }).join('');
   $$('#menu-grid .mcard').forEach(b => b.addEventListener('click', () => { location.hash = b.dataset.go; showTab(b.dataset.go); window.scrollTo(0, 0); }));
   const pct = Math.round(c / t * 100);
@@ -90,7 +91,7 @@ function renderMenu() {
 }
 
 /* ---------- pestañas ---------- */
-const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales'];
+const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'repaso1', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales'];
 function showTab(id) {
   if (!TABS.includes(id)) id = 'inicio';
   if (id === 'inicio') renderMenu();
@@ -98,5 +99,6 @@ function showTab(id) {
   $$('.mission').forEach(m => { m.hidden = m.dataset.tab !== id; });
 }
 $$('.tab').forEach(t => t.addEventListener('click', () => { location.hash = t.dataset.tab; showTab(t.dataset.tab); }));
+$$('.recap-tile').forEach(b => b.addEventListener('click', () => { const t = b.dataset.go; location.hash = t; showTab(t); window.scrollTo(0, 0); }));
 addEventListener('hashchange', () => showTab(location.hash.slice(1)));
 showTab(location.hash.slice(1));

@@ -115,6 +115,23 @@ label.fld{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--
 .q{border:2px solid var(--line);padding:12px;background:var(--panel2)}
 .q .fb{margin-top:6px;font-size:14px}
 
+/* misión 1: máquina expendedora */
+.vm-wrap{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px}
+.vm{width:230px;flex-shrink:0;background:linear-gradient(180deg,#2a3344,#1a202a);border:4px solid #0a0d12;border-radius:10px;padding:10px;box-shadow:0 6px 0 #0008}
+.vm-screen{background:#0c1017;border:3px solid var(--line);border-radius:4px;padding:10px;text-align:center;transition:box-shadow .3s}
+.vm.working .vm-screen{box-shadow:0 0 0 4px #52d9ff40}
+.vm-rule{font:700 13px var(--f-body);color:var(--cyan)}
+.vm-code{margin-top:4px;font:700 12px var(--f-mono);color:var(--lime)}
+.vm-slotrow{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;position:relative;height:36px}
+.vm-slot{width:40px;height:14px;background:#000;border:2px solid var(--muted);border-radius:2px;position:relative;overflow:visible}
+.vm-coin{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:18px;animation:coinfall .38s ease-in forwards;pointer-events:none}
+@keyframes coinfall{from{bottom:40px;opacity:1}to{bottom:0;opacity:0}}
+.vm-display{min-width:42px;height:34px;display:grid;place-items:center;font:700 20px var(--f-mono);color:var(--amber);background:#000;border:2px solid var(--line);border-radius:4px}
+.vm-tray{min-height:54px;margin-top:10px;background:#0c1017;border:3px dashed var(--line);border-radius:4px;display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start;padding:6px;max-height:112px;overflow-y:auto}
+.vm-item{font-size:22px;animation:pop .4s}
+.vm-controls{flex:1 1 220px;min-width:0}
+.slot.coin{font-size:14px;gap:0}
+
 /* misión 2: balanza */
 .levels{display:flex;flex-wrap:wrap;gap:6px}
 .lv{min-width:42px;font:700 15px var(--f-mono);padding:7px 10px;background:var(--panel2);color:var(--fg);border:2px solid var(--line);border-radius:4px;cursor:pointer;position:relative}
@@ -241,8 +258,17 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
 .mcard .cnt{font:600 12px var(--f-mono);color:var(--muted)}
 .mcard.full{border-color:var(--lime)}
 
+/* repaso */
+.recap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:10px}
+.recap-tile{display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:var(--fg);background:var(--panel2);border:2px solid var(--line);border-radius:6px;padding:14px;cursor:pointer;box-shadow:0 4px 0 #0008;min-width:0}
+.recap-tile:hover{border-color:var(--cyan)}
+.rt-ico{font-size:26px}
+.rt-tt{font:800 15px var(--f-body);color:var(--lime)}
+.rt-sub{font-size:13px;color:var(--muted)}
+
 /* práctica */
 .practice{margin-top:18px;border-color:var(--amber)}
+.pr-tag{display:inline-block;font:700 11px var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--lime-ink);background:var(--lime);padding:3px 8px;border-radius:3px;margin-right:6px;vertical-align:middle}
 .practice .muted{color:var(--muted);font-size:14px}
 .pr-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
 .pr-chip{font:700 12px var(--f-mono);min-width:34px;height:30px;padding:0 4px;background:var(--panel2);color:var(--muted);border:2px solid var(--line);border-radius:3px;cursor:pointer}

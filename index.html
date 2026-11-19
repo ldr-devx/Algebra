@@ -31,6 +31,7 @@
     <button class="tab" role="tab" data-tab="varios">4 · Varios pasos</button>
     <button class="tab" role="tab" data-tab="pendiente">5 · Pendiente</button>
     <button class="tab" role="tab" data-tab="estandar">6 · Forma estándar</button>
+    <button class="tab" role="tab" data-tab="repaso1">🔁 Repaso 1</button>
     <button class="tab" role="tab" data-tab="rectas">7 · Paralelas y perpendiculares</button>
     <button class="tab" role="tab" data-tab="orden">8 · Orden de operaciones</button>
     <button class="tab" role="tab" data-tab="exponentes">9 · Exponentes</button>
@@ -68,6 +69,39 @@
       <h2>La mesa de crafteo</h2>
       <p class="lede">Pones ingredientes, aplicas la receta y sale un objeto. Si pones lo mismo, sale lo mismo. Esa mesa es una función: entra <b>x</b>, sale <b>y</b>.</p>
       <p class="exam">Examen corto 1 · 9.º ej. 3 (hacer la tabla de la función) · Examen corto 2 · 6.º ej. 1 (completar tablas)</p>
+    </div>
+
+    <div class="card">
+      <h3>La máquina expendedora</h3>
+      <p>Metes dinero y la máquina te da un producto. El dinero que metes es <b>x</b>, el producto que sale es <b>y</b>. Lo que decide cuánto producto sale es el <b>programa</b> de la máquina: en matemáticas, eso es la función.</p>
+      <div class="row" style="margin-top:12px">
+        <label class="fld">Programa de la máquina
+          <select id="vm-program" aria-label="Elige el programa de la máquina"></select>
+        </label>
+        <label class="fld" style="flex-direction:row;align-items:center;gap:8px;margin-top:18px">
+          <input type="checkbox" id="vm-broken"> Modo máquina descompuesta
+        </label>
+      </div>
+      <div class="vm-wrap">
+        <div class="vm" id="vm-box">
+          <div class="vm-screen">
+            <p class="vm-rule" id="vm-rule"></p>
+            <p class="vm-code" id="vm-code"></p>
+            <div class="vm-slotrow">
+              <div class="vm-slot" id="vm-slot" aria-label="Ranura de monedas"></div>
+              <div class="vm-display" id="vm-display">?</div>
+            </div>
+          </div>
+          <div class="vm-tray" id="vm-tray" aria-label="Bandeja de productos" aria-live="polite"></div>
+        </div>
+        <div class="vm-controls">
+          <p class="sub">¿Cuánto dinero metes (x)?</p>
+          <div class="hotbar" id="vm-coins"></div>
+          <button class="btn primary" id="vm-insert" style="margin-top:10px">Insertar monedas</button>
+          <p class="msg" id="vm-msg" aria-live="polite" style="margin-top:10px"></p>
+        </div>
+      </div>
+      <table class="tbl" id="vm-table" style="margin-top:14px"></table>
     </div>
 
     <div class="card">
@@ -253,6 +287,55 @@
     </div>
 
     <div class="card practice" id="pr-estandar"></div>
+
+  </section>
+
+  <!-- ============ REPASO 1 ============ -->
+  <section class="mission" data-tab="repaso1" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Repaso general</p>
+      <h2>Repaso 1 · Temas 1 a 6</h2>
+      <p class="lede">Un repaso mezclado de las primeras seis misiones: desigualdades, ecuaciones, funciones, varios pasos, pendiente e intercepto, y forma estándar. Primero repasa el mapa, con un recordatorio rápido de cada idea, y después resuelve la práctica mezclada: en cada pregunta cambia el tema.</p>
+    </div>
+
+    <div class="card">
+      <h3>Mapa de repaso</h3>
+      <div class="recap-grid" id="recap-grid">
+        <button class="recap-tile" data-go="desigualdades">
+          <span class="rt-ico">🔀</span>
+          <span class="rt-tt">1 · Desigualdades</span>
+          <span class="rt-sub">Una desigualdad define una zona, no un solo punto. Si multiplicas o divides entre un número negativo, el signo se voltea.</span>
+        </button>
+        <button class="recap-tile" data-go="ecuaciones">
+          <span class="rt-ico">⚖️</span>
+          <span class="rt-tt">2 · Ecuaciones</span>
+          <span class="rt-sub">Una ecuación es una balanza equilibrada. Lo que haces en un plato, lo tienes que hacer en el otro.</span>
+        </button>
+        <button class="recap-tile" data-go="funciones">
+          <span class="rt-ico">🥤</span>
+          <span class="rt-tt">3 · Funciones</span>
+          <span class="rt-sub">x entra, y sale, y el programa de la máquina es la función. La misma entrada siempre da la misma salida.</span>
+        </button>
+        <button class="recap-tile" data-go="varios">
+          <span class="rt-ico">🧩</span>
+          <span class="rt-tt">4 · Varios pasos</span>
+          <span class="rt-sub">Primero reparte lo que está en paréntesis, luego junta las letras en un solo lado y al final despeja.</span>
+        </button>
+        <button class="recap-tile" data-go="pendiente">
+          <span class="rt-ico">📈</span>
+          <span class="rt-tt">5 · Pendiente e intercepto</span>
+          <span class="rt-sub">En y = mx + b: m es la inclinación de la recta y b es dónde cruza el eje y.</span>
+        </button>
+        <button class="recap-tile" data-go="estandar">
+          <span class="rt-ico">🛒</span>
+          <span class="rt-tt">6 · Forma estándar</span>
+          <span class="rt-sub">Ax + By = C junta todas las compras que gastan exactamente el mismo presupuesto.</span>
+        </button>
+      </div>
+      <p class="sub" style="margin-top:12px">Toca una tarjeta para repasar esa misión a fondo, o sigue aquí abajo con la práctica mezclada.</p>
+    </div>
+
+    <div class="card practice" id="pr-repaso1"></div>
 
   </section>
 

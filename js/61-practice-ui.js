@@ -35,7 +35,7 @@ function initPractice(key) {
   function show(i) {
     cur = Math.max(0, Math.min(bank.length - 1, i)); shown = false;
     const ex = bank[cur];
-    qEl.innerHTML = `<span class="pr-n">${cur + 1}.</span> ${ex.q}`;
+    qEl.innerHTML = `<span class="pr-n">${cur + 1}.</span> ${ex.tema ? `<span class="pr-tag">${ex.tema}</span> ` : ''}${ex.q}`;
     if (ex.choices) {
       inEl.innerHTML = '<div class="pr-choices">' + ex.choices.map((c, k) => `<button class="btn ghost pr-opt" data-k="${k}">${c}</button>`).join('') + '</div>';
       $$('.pr-opt', inEl).forEach(b => b.addEventListener('click', () => { $$('.pr-opt', inEl).forEach(x => x.classList.remove('sel')); b.classList.add('sel'); inEl.dataset.sel = b.dataset.k; }));

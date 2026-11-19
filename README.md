@@ -1,6 +1,6 @@
 # Taller de Álgebra
 
-Misiones interactivas de álgebra (11 temas) con práctica de 36 ejercicios por misión.
+Misiones interactivas de álgebra (11 temas) con práctica de 36 ejercicios por misión, más un repaso general ("Repaso 1") que mezcla los temas 1 a 6.
 
 ## Cómo usarlo
 Abre `index.html` con doble clic en cualquier navegador. No necesita internet (salvo las fuentes de Google, que son opcionales) ni instalar nada.

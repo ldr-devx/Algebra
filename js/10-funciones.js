@@ -192,3 +192,86 @@ $('#rev-check').addEventListener('click', checkRev);
 $('#rev-in').addEventListener('keydown', e => { if (e.key === 'Enter') checkRev(); });
 $('#rev-new').addEventListener('click', newRev);
 newRev();
+
+/* ======================================================
+   LA MÁQUINA EXPENDEDORA
+   x = dinero que metes, y = producto que sale.
+   El programa de la máquina (la regla) decide y a partir de x: eso es la función.
+   ====================================================== */
+const VM_PROGRAMS = [
+  { id: 'galletas', label: '1 moneda → 1 galleta', emoji: '🍪', code: 'y = x', dom: [1, 2, 3, 4, 5, 6], f: x => x },
+  { id: 'choco', label: 'cada moneda da 2 chocolates', emoji: '🍫', code: 'y = 2x', dom: [1, 2, 3, 4, 5], f: x => 2 * x },
+  { id: 'refresco', label: '2 monedas → 1 refresco (solo monedas pares)', emoji: '🥤', code: 'y = x ÷ 2', dom: [2, 4, 6, 8], f: x => x / 2 },
+  { id: 'regalo', label: '3 galletas de regalo + 1 por moneda', emoji: '🍪', code: 'y = x + 3', dom: [1, 2, 3, 4, 5, 6], f: x => x + 3 }
+];
+const VM = { program: VM_PROGRAMS[0], x: null, busy: false, broken: false, seen: new Map(), full: regSet('vm-full'), brokenSeen: false };
+
+function vmMsg(t, cls = '') { const m = $('#vm-msg'); m.textContent = t; m.className = 'msg ' + cls; }
+function renderVmSelect() {
+  $('#vm-program').innerHTML = VM_PROGRAMS.map(p => `<option value="${p.id}">${p.emoji} ${p.label}</option>`).join('');
+  $('#vm-program').value = VM.program.id;
+}
+function renderVmCoins() {
+  const hb = $('#vm-coins');
+  hb.innerHTML = VM.program.dom.map(x => `<button class="slot coin${VM.x === x ? ' sel' : ''}" data-x="${x}" aria-label="meter ${x} monedas">🪙${x}</button>`).join('');
+  $$('.slot', hb).forEach(b => b.addEventListener('click', () => {
+    if (VM.busy) return;
+    VM.x = +b.dataset.x; renderVmCoins(); vmMsg('Dinero listo. Pulsa Insertar.', '');
+  }));
+}
+function renderVmRule() {
+  $('#vm-rule').textContent = VM.program.label;
+  $('#vm-code').textContent = VM.broken ? 'programa dañado: y ya no sigue una regla fija' : 'programa: ' + VM.program.code;
+}
+function renderVmTable() {
+  const dom = VM.program.dom;
+  $('#vm-table').innerHTML = `<tr><th>x · monedas</th><th>y · ${VM.program.emoji}</th></tr>` + dom.map(x => {
+    const ys = VM.seen.get(x);
+    const txt = !ys || !ys.size ? '?' : [...ys].join(' / ');
+    return `<tr class="${ys && ys.size > 1 ? 'now' : ''}"><td>${x}</td><td class="${ys && ys.size ? '' : 'q'}">${txt}</td></tr>`;
+  }).join('');
+}
+function resetVm() {
+  VM.x = null; VM.busy = false; VM.seen = new Map();
+  $('#vm-tray').innerHTML = ''; $('#vm-display').textContent = '?';
+  renderVmRule(); renderVmCoins(); renderVmTable();
+  vmMsg('Elige cuánto dinero metes y pulsa Insertar.', '');
+}
+async function vmInsert() {
+  if (VM.busy) return;
+  if (VM.x == null) { vmMsg('Primero elige cuánto dinero metes.', 'info'); return; }
+  VM.busy = true; $('#vm-insert').disabled = true;
+  const x = VM.x;
+  const coin = document.createElement('span'); coin.className = 'vm-coin'; coin.textContent = '🪙';
+  $('#vm-slot').appendChild(coin);
+  await sleep(380); coin.remove();
+  $('#vm-display').textContent = '…';
+  $('#vm-box').classList.add('working'); await sleep(480); $('#vm-box').classList.remove('working');
+  const y = VM.broken ? 1 + Math.floor(Math.random() * 4) : VM.program.f(x);
+  $('#vm-display').textContent = y;
+  for (let k = 0; k < y; k++) {
+    const it = document.createElement('span'); it.className = 'vm-item'; it.textContent = VM.program.emoji;
+    $('#vm-tray').appendChild(it); await sleep(140);
+  }
+  if (!VM.seen.has(x)) VM.seen.set(x, new Set());
+  VM.seen.get(x).add(y);
+  renderVmTable();
+  if (VM.broken) {
+    if (VM.seen.get(x).size > 1) {
+      vmMsg(`Metiste ${x} monedas y esta vez salieron ${y}. ¡Antes, con el mismo dinero, salió otra cantidad distinta! Por eso esta máquina NO es función: una misma entrada no puede dar dos salidas.`, 'bad');
+      if (!VM.brokenSeen) { VM.brokenSeen = true; addXP(6); }
+    } else vmMsg(`Salieron ${y} ${VM.program.emoji}. Vuelve a meter ${x} monedas y mira si se repite la cantidad.`, 'info');
+  } else {
+    vmMsg(`Metiste ${x} monedas y salieron ${y} ${VM.program.emoji}. Mete ${x} otra vez: siempre va a dar lo mismo, porque es una función.`, 'ok');
+    if (VM.program.dom.every(xx => VM.seen.has(xx)) && !VM.full.has(VM.program.id)) { VM.full.add(VM.program.id); addXP(10); }
+  }
+  VM.busy = false; $('#vm-insert').disabled = false;
+}
+$('#vm-program').addEventListener('change', e => { VM.program = VM_PROGRAMS.find(p => p.id === e.target.value); resetVm(); });
+$('#vm-insert').addEventListener('click', vmInsert);
+$('#vm-broken').addEventListener('change', e => {
+  VM.broken = e.target.checked; VM.seen = new Map(); $('#vm-tray').innerHTML = ''; $('#vm-display').textContent = '?';
+  renderVmRule(); renderVmTable();
+  vmMsg(VM.broken ? 'Modo descompuesto: ahora la cantidad sale al azar. Mete la misma cantidad de dinero varias veces y compara.' : 'Modo normal: la máquina vuelve a seguir su programa.', 'info');
+});
+renderVmSelect(); resetVm();

@@ -126,6 +126,23 @@ label.fld{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--
 .q{border:2px solid var(--line);padding:12px;background:var(--panel2)}
 .q .fb{margin-top:6px;font-size:14px}
 
+/* misión 1: máquina expendedora */
+.vm-wrap{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px}
+.vm{width:230px;flex-shrink:0;background:linear-gradient(180deg,#2a3344,#1a202a);border:4px solid #0a0d12;border-radius:10px;padding:10px;box-shadow:0 6px 0 #0008}
+.vm-screen{background:#0c1017;border:3px solid var(--line);border-radius:4px;padding:10px;text-align:center;transition:box-shadow .3s}
+.vm.working .vm-screen{box-shadow:0 0 0 4px #52d9ff40}
+.vm-rule{font:700 13px var(--f-body);color:var(--cyan)}
+.vm-code{margin-top:4px;font:700 12px var(--f-mono);color:var(--lime)}
+.vm-slotrow{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;position:relative;height:36px}
+.vm-slot{width:40px;height:14px;background:#000;border:2px solid var(--muted);border-radius:2px;position:relative;overflow:visible}
+.vm-coin{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:18px;animation:coinfall .38s ease-in forwards;pointer-events:none}
+@keyframes coinfall{from{bottom:40px;opacity:1}to{bottom:0;opacity:0}}
+.vm-display{min-width:42px;height:34px;display:grid;place-items:center;font:700 20px var(--f-mono);color:var(--amber);background:#000;border:2px solid var(--line);border-radius:4px}
+.vm-tray{min-height:54px;margin-top:10px;background:#0c1017;border:3px dashed var(--line);border-radius:4px;display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start;padding:6px;max-height:112px;overflow-y:auto}
+.vm-item{font-size:22px;animation:pop .4s}
+.vm-controls{flex:1 1 220px;min-width:0}
+.slot.coin{font-size:14px;gap:0}
+
 /* misión 2: balanza */
 .levels{display:flex;flex-wrap:wrap;gap:6px}
 .lv{min-width:42px;font:700 15px var(--f-mono);padding:7px 10px;background:var(--panel2);color:var(--fg);border:2px solid var(--line);border-radius:4px;cursor:pointer;position:relative}
@@ -252,8 +269,17 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
 .mcard .cnt{font:600 12px var(--f-mono);color:var(--muted)}
 .mcard.full{border-color:var(--lime)}
 
+/* repaso */
+.recap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:10px}
+.recap-tile{display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:var(--fg);background:var(--panel2);border:2px solid var(--line);border-radius:6px;padding:14px;cursor:pointer;box-shadow:0 4px 0 #0008;min-width:0}
+.recap-tile:hover{border-color:var(--cyan)}
+.rt-ico{font-size:26px}
+.rt-tt{font:800 15px var(--f-body);color:var(--lime)}
+.rt-sub{font-size:13px;color:var(--muted)}
+
 /* práctica */
 .practice{margin-top:18px;border-color:var(--amber)}
+.pr-tag{display:inline-block;font:700 11px var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--lime-ink);background:var(--lime);padding:3px 8px;border-radius:3px;margin-right:6px;vertical-align:middle}
 .practice .muted{color:var(--muted);font-size:14px}
 .pr-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
 .pr-chip{font:700 12px var(--f-mono);min-width:34px;height:30px;padding:0 4px;background:var(--panel2);color:var(--muted);border:2px solid var(--line);border-radius:3px;cursor:pointer}
@@ -294,6 +320,7 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
     <button class="tab" role="tab" data-tab="varios">4 · Varios pasos</button>
     <button class="tab" role="tab" data-tab="pendiente">5 · Pendiente</button>
     <button class="tab" role="tab" data-tab="estandar">6 · Forma estándar</button>
+    <button class="tab" role="tab" data-tab="repaso1">🔁 Repaso 1</button>
     <button class="tab" role="tab" data-tab="rectas">7 · Paralelas y perpendiculares</button>
     <button class="tab" role="tab" data-tab="orden">8 · Orden de operaciones</button>
     <button class="tab" role="tab" data-tab="exponentes">9 · Exponentes</button>
@@ -331,6 +358,39 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
       <h2>La mesa de crafteo</h2>
       <p class="lede">Pones ingredientes, aplicas la receta y sale un objeto. Si pones lo mismo, sale lo mismo. Esa mesa es una función: entra <b>x</b>, sale <b>y</b>.</p>
       <p class="exam">Examen corto 1 · 9.º ej. 3 (hacer la tabla de la función) · Examen corto 2 · 6.º ej. 1 (completar tablas)</p>
+    </div>
+
+    <div class="card">
+      <h3>La máquina expendedora</h3>
+      <p>Metes dinero y la máquina te da un producto. El dinero que metes es <b>x</b>, el producto que sale es <b>y</b>. Lo que decide cuánto producto sale es el <b>programa</b> de la máquina: en matemáticas, eso es la función.</p>
+      <div class="row" style="margin-top:12px">
+        <label class="fld">Programa de la máquina
+          <select id="vm-program" aria-label="Elige el programa de la máquina"></select>
+        </label>
+        <label class="fld" style="flex-direction:row;align-items:center;gap:8px;margin-top:18px">
+          <input type="checkbox" id="vm-broken"> Modo máquina descompuesta
+        </label>
+      </div>
+      <div class="vm-wrap">
+        <div class="vm" id="vm-box">
+          <div class="vm-screen">
+            <p class="vm-rule" id="vm-rule"></p>
+            <p class="vm-code" id="vm-code"></p>
+            <div class="vm-slotrow">
+              <div class="vm-slot" id="vm-slot" aria-label="Ranura de monedas"></div>
+              <div class="vm-display" id="vm-display">?</div>
+            </div>
+          </div>
+          <div class="vm-tray" id="vm-tray" aria-label="Bandeja de productos" aria-live="polite"></div>
+        </div>
+        <div class="vm-controls">
+          <p class="sub">¿Cuánto dinero metes (x)?</p>
+          <div class="hotbar" id="vm-coins"></div>
+          <button class="btn primary" id="vm-insert" style="margin-top:10px">Insertar monedas</button>
+          <p class="msg" id="vm-msg" aria-live="polite" style="margin-top:10px"></p>
+        </div>
+      </div>
+      <table class="tbl" id="vm-table" style="margin-top:14px"></table>
     </div>
 
     <div class="card">
@@ -516,6 +576,55 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
     </div>
 
     <div class="card practice" id="pr-estandar"></div>
+
+  </section>
+
+  <!-- ============ REPASO 1 ============ -->
+  <section class="mission" data-tab="repaso1" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Repaso general</p>
+      <h2>Repaso 1 · Temas 1 a 6</h2>
+      <p class="lede">Un repaso mezclado de las primeras seis misiones: desigualdades, ecuaciones, funciones, varios pasos, pendiente e intercepto, y forma estándar. Primero repasa el mapa, con un recordatorio rápido de cada idea, y después resuelve la práctica mezclada: en cada pregunta cambia el tema.</p>
+    </div>
+
+    <div class="card">
+      <h3>Mapa de repaso</h3>
+      <div class="recap-grid" id="recap-grid">
+        <button class="recap-tile" data-go="desigualdades">
+          <span class="rt-ico">🔀</span>
+          <span class="rt-tt">1 · Desigualdades</span>
+          <span class="rt-sub">Una desigualdad define una zona, no un solo punto. Si multiplicas o divides entre un número negativo, el signo se voltea.</span>
+        </button>
+        <button class="recap-tile" data-go="ecuaciones">
+          <span class="rt-ico">⚖️</span>
+          <span class="rt-tt">2 · Ecuaciones</span>
+          <span class="rt-sub">Una ecuación es una balanza equilibrada. Lo que haces en un plato, lo tienes que hacer en el otro.</span>
+        </button>
+        <button class="recap-tile" data-go="funciones">
+          <span class="rt-ico">🥤</span>
+          <span class="rt-tt">3 · Funciones</span>
+          <span class="rt-sub">x entra, y sale, y el programa de la máquina es la función. La misma entrada siempre da la misma salida.</span>
+        </button>
+        <button class="recap-tile" data-go="varios">
+          <span class="rt-ico">🧩</span>
+          <span class="rt-tt">4 · Varios pasos</span>
+          <span class="rt-sub">Primero reparte lo que está en paréntesis, luego junta las letras en un solo lado y al final despeja.</span>
+        </button>
+        <button class="recap-tile" data-go="pendiente">
+          <span class="rt-ico">📈</span>
+          <span class="rt-tt">5 · Pendiente e intercepto</span>
+          <span class="rt-sub">En y = mx + b: m es la inclinación de la recta y b es dónde cruza el eje y.</span>
+        </button>
+        <button class="recap-tile" data-go="estandar">
+          <span class="rt-ico">🛒</span>
+          <span class="rt-tt">6 · Forma estándar</span>
+          <span class="rt-sub">Ax + By = C junta todas las compras que gastan exactamente el mismo presupuesto.</span>
+        </button>
+      </div>
+      <p class="sub" style="margin-top:12px">Toca una tarjeta para repasar esa misión a fondo, o sigue aquí abajo con la práctica mezclada.</p>
+    </div>
+
+    <div class="card practice" id="pr-repaso1"></div>
 
   </section>
 
@@ -746,10 +855,11 @@ const psz = k => PROG[k] ? PROG[k].size : 0;
 const MENU = [
   { tab: 'desigualdades', n: 1, t: 'Desigualdades', s: 'Temas 5-1 y 5-2', tot: 7, get: () => psz('s-iq') },
   { tab: 'ecuaciones', n: 2, t: 'Ecuaciones', s: 'Uno y dos pasos', tot: 9, get: () => psz('s-eq') },
-  { tab: 'funciones', n: 3, t: 'Funciones', s: 'La mesa de crafteo', tot: 5, get: () => psz('fn-full') },
+  { tab: 'funciones', n: 3, t: 'Funciones', s: 'La mesa de crafteo y la máquina expendedora', tot: 9, get: () => psz('fn-full') + psz('vm-full') },
   { tab: 'varios', n: 4, t: 'Varios pasos', s: 'Tema 5-3', tot: 7, get: () => psz('m-mp') },
   { tab: 'pendiente', n: 5, t: 'Pendiente e intercepto', s: 'Libro 3.4 y 3.5', tot: 6, get: () => psz('pt') },
   { tab: 'estandar', n: 6, t: 'Forma estándar', s: 'Tema 4-4', tot: 8, get: () => psz('sf') + psz('st') },
+  { tab: 'repaso1', n: '★', t: 'Repaso 1', s: 'Temas 1 a 6 mezclados', tot: 0, get: () => 0 },
   { tab: 'rectas', n: 7, t: 'Paralelas y perpendiculares', s: 'Tema 4-5', tot: 5, get: () => psz('pp') },
   { tab: 'orden', n: 8, t: 'Orden de operaciones', s: 'Libro 1.4', tot: 8, get: () => psz('or') },
   { tab: 'exponentes', n: 9, t: 'Exponentes y notación científica', s: 'Libro 1.5 y 1.6', tot: 6, get: () => psz('nc') },
@@ -761,7 +871,7 @@ function renderMenu() {
   let c = 0, t = 0;
   grid.innerHTML = MENU.map(m => {
     const g = Math.min(m.get(), m.tot); c += g; t += m.tot;
-    return `<button class="mcard${g >= m.tot ? ' full' : ''}" data-go="${m.tab}"><span class="num">${m.n}</span><span class="tt">${m.t}</span><span class="st">${m.s}</span><span class="bar"><i style="width:${g / m.tot * 100}%"></i></span><span class="cnt">${g} de ${m.tot} actividades</span></button>`;
+    return `<button class="mcard${m.tot && g >= m.tot ? ' full' : ''}" data-go="${m.tab}"><span class="num">${m.n}</span><span class="tt">${m.t}</span><span class="st">${m.s}</span><span class="bar"><i style="width:${m.tot ? g / m.tot * 100 : 0}%"></i></span><span class="cnt">${g} de ${m.tot} actividades</span></button>`;
   }).join('');
   $$('#menu-grid .mcard').forEach(b => b.addEventListener('click', () => { location.hash = b.dataset.go; showTab(b.dataset.go); window.scrollTo(0, 0); }));
   const pct = Math.round(c / t * 100);
@@ -769,7 +879,7 @@ function renderMenu() {
 }
 
 /* ---------- pestañas ---------- */
-const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales'];
+const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'repaso1', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales'];
 function showTab(id) {
   if (!TABS.includes(id)) id = 'inicio';
   if (id === 'inicio') renderMenu();
@@ -777,6 +887,7 @@ function showTab(id) {
   $$('.mission').forEach(m => { m.hidden = m.dataset.tab !== id; });
 }
 $$('.tab').forEach(t => t.addEventListener('click', () => { location.hash = t.dataset.tab; showTab(t.dataset.tab); }));
+$$('.recap-tile').forEach(b => b.addEventListener('click', () => { const t = b.dataset.go; location.hash = t; showTab(t); window.scrollTo(0, 0); }));
 addEventListener('hashchange', () => showTab(location.hash.slice(1)));
 showTab(location.hash.slice(1));
 
@@ -976,6 +1087,89 @@ $('#rev-check').addEventListener('click', checkRev);
 $('#rev-in').addEventListener('keydown', e => { if (e.key === 'Enter') checkRev(); });
 $('#rev-new').addEventListener('click', newRev);
 newRev();
+
+/* ======================================================
+   LA MÁQUINA EXPENDEDORA
+   x = dinero que metes, y = producto que sale.
+   El programa de la máquina (la regla) decide y a partir de x: eso es la función.
+   ====================================================== */
+const VM_PROGRAMS = [
+  { id: 'galletas', label: '1 moneda → 1 galleta', emoji: '🍪', code: 'y = x', dom: [1, 2, 3, 4, 5, 6], f: x => x },
+  { id: 'choco', label: 'cada moneda da 2 chocolates', emoji: '🍫', code: 'y = 2x', dom: [1, 2, 3, 4, 5], f: x => 2 * x },
+  { id: 'refresco', label: '2 monedas → 1 refresco (solo monedas pares)', emoji: '🥤', code: 'y = x ÷ 2', dom: [2, 4, 6, 8], f: x => x / 2 },
+  { id: 'regalo', label: '3 galletas de regalo + 1 por moneda', emoji: '🍪', code: 'y = x + 3', dom: [1, 2, 3, 4, 5, 6], f: x => x + 3 }
+];
+const VM = { program: VM_PROGRAMS[0], x: null, busy: false, broken: false, seen: new Map(), full: regSet('vm-full'), brokenSeen: false };
+
+function vmMsg(t, cls = '') { const m = $('#vm-msg'); m.textContent = t; m.className = 'msg ' + cls; }
+function renderVmSelect() {
+  $('#vm-program').innerHTML = VM_PROGRAMS.map(p => `<option value="${p.id}">${p.emoji} ${p.label}</option>`).join('');
+  $('#vm-program').value = VM.program.id;
+}
+function renderVmCoins() {
+  const hb = $('#vm-coins');
+  hb.innerHTML = VM.program.dom.map(x => `<button class="slot coin${VM.x === x ? ' sel' : ''}" data-x="${x}" aria-label="meter ${x} monedas">🪙${x}</button>`).join('');
+  $$('.slot', hb).forEach(b => b.addEventListener('click', () => {
+    if (VM.busy) return;
+    VM.x = +b.dataset.x; renderVmCoins(); vmMsg('Dinero listo. Pulsa Insertar.', '');
+  }));
+}
+function renderVmRule() {
+  $('#vm-rule').textContent = VM.program.label;
+  $('#vm-code').textContent = VM.broken ? 'programa dañado: y ya no sigue una regla fija' : 'programa: ' + VM.program.code;
+}
+function renderVmTable() {
+  const dom = VM.program.dom;
+  $('#vm-table').innerHTML = `<tr><th>x · monedas</th><th>y · ${VM.program.emoji}</th></tr>` + dom.map(x => {
+    const ys = VM.seen.get(x);
+    const txt = !ys || !ys.size ? '?' : [...ys].join(' / ');
+    return `<tr class="${ys && ys.size > 1 ? 'now' : ''}"><td>${x}</td><td class="${ys && ys.size ? '' : 'q'}">${txt}</td></tr>`;
+  }).join('');
+}
+function resetVm() {
+  VM.x = null; VM.busy = false; VM.seen = new Map();
+  $('#vm-tray').innerHTML = ''; $('#vm-display').textContent = '?';
+  renderVmRule(); renderVmCoins(); renderVmTable();
+  vmMsg('Elige cuánto dinero metes y pulsa Insertar.', '');
+}
+async function vmInsert() {
+  if (VM.busy) return;
+  if (VM.x == null) { vmMsg('Primero elige cuánto dinero metes.', 'info'); return; }
+  VM.busy = true; $('#vm-insert').disabled = true;
+  const x = VM.x;
+  const coin = document.createElement('span'); coin.className = 'vm-coin'; coin.textContent = '🪙';
+  $('#vm-slot').appendChild(coin);
+  await sleep(380); coin.remove();
+  $('#vm-display').textContent = '…';
+  $('#vm-box').classList.add('working'); await sleep(480); $('#vm-box').classList.remove('working');
+  const y = VM.broken ? 1 + Math.floor(Math.random() * 4) : VM.program.f(x);
+  $('#vm-display').textContent = y;
+  for (let k = 0; k < y; k++) {
+    const it = document.createElement('span'); it.className = 'vm-item'; it.textContent = VM.program.emoji;
+    $('#vm-tray').appendChild(it); await sleep(140);
+  }
+  if (!VM.seen.has(x)) VM.seen.set(x, new Set());
+  VM.seen.get(x).add(y);
+  renderVmTable();
+  if (VM.broken) {
+    if (VM.seen.get(x).size > 1) {
+      vmMsg(`Metiste ${x} monedas y esta vez salieron ${y}. ¡Antes, con el mismo dinero, salió otra cantidad distinta! Por eso esta máquina NO es función: una misma entrada no puede dar dos salidas.`, 'bad');
+      if (!VM.brokenSeen) { VM.brokenSeen = true; addXP(6); }
+    } else vmMsg(`Salieron ${y} ${VM.program.emoji}. Vuelve a meter ${x} monedas y mira si se repite la cantidad.`, 'info');
+  } else {
+    vmMsg(`Metiste ${x} monedas y salieron ${y} ${VM.program.emoji}. Mete ${x} otra vez: siempre va a dar lo mismo, porque es una función.`, 'ok');
+    if (VM.program.dom.every(xx => VM.seen.has(xx)) && !VM.full.has(VM.program.id)) { VM.full.add(VM.program.id); addXP(10); }
+  }
+  VM.busy = false; $('#vm-insert').disabled = false;
+}
+$('#vm-program').addEventListener('change', e => { VM.program = VM_PROGRAMS.find(p => p.id === e.target.value); resetVm(); });
+$('#vm-insert').addEventListener('click', vmInsert);
+$('#vm-broken').addEventListener('change', e => {
+  VM.broken = e.target.checked; VM.seen = new Map(); $('#vm-tray').innerHTML = ''; $('#vm-display').textContent = '?';
+  renderVmRule(); renderVmTable();
+  vmMsg(VM.broken ? 'Modo descompuesto: ahora la cantidad sale al azar. Mete la misma cantidad de dinero varias veces y compara.' : 'Modo normal: la máquina vuelve a seguir su programa.', 'info');
+});
+renderVmSelect(); resetVm();
 
 </script>
 <script>
@@ -2451,6 +2645,22 @@ const BANKS = {
   conjuntos: bankConjuntos(prRng(2010)), racionales: bankRacionales(prRng(2111))
 };
 
+/* ======================================================
+   REPASO 1 · mezcla de los temas 1 a 6
+   Toma 6 ejercicios de cada banco (ya mezclados y únicos) y los
+   intercala para que el tema cambie en cada pregunta.
+   ====================================================== */
+function bankRepaso1() {
+  const topics = ['desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar'];
+  const names = { desigualdades: '1 · Desigualdades', ecuaciones: '2 · Ecuaciones', funciones: '3 · Funciones', varios: '4 · Varios pasos', pendiente: '5 · Pendiente', estandar: '6 · Estándar' };
+  const r = prRng(3112), perTopic = 6;
+  const picked = topics.map(t => prShuf(r, BANKS[t]).slice(0, perTopic).map(ex => ({ ...ex, tema: names[t] })));
+  const out = [];
+  for (let i = 0; i < perTopic; i++) topics.forEach((t, k) => out.push(picked[k][i]));
+  return out;
+}
+BANKS.repaso1 = bankRepaso1();
+
 </script>
 <script>
 'use strict';
@@ -2490,7 +2700,7 @@ function initPractice(key) {
   function show(i) {
     cur = Math.max(0, Math.min(bank.length - 1, i)); shown = false;
     const ex = bank[cur];
-    qEl.innerHTML = `<span class="pr-n">${cur + 1}.</span> ${ex.q}`;
+    qEl.innerHTML = `<span class="pr-n">${cur + 1}.</span> ${ex.tema ? `<span class="pr-tag">${ex.tema}</span> ` : ''}${ex.q}`;
     if (ex.choices) {
       inEl.innerHTML = '<div class="pr-choices">' + ex.choices.map((c, k) => `<button class="btn ghost pr-opt" data-k="${k}">${c}</button>`).join('') + '</div>';
       $$('.pr-opt', inEl).forEach(b => b.addEventListener('click', () => { $$('.pr-opt', inEl).forEach(x => x.classList.remove('sel')); b.classList.add('sel'); inEl.dataset.sel = b.dataset.k; }));
