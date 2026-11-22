@@ -501,3 +501,20 @@ function bankRepaso1() {
   return out;
 }
 BANKS.repaso1 = bankRepaso1();
+
+/* ======================================================
+   EXAMEN 1 · mezcla de los temas 1 a 6 (set distinto a Repaso 1)
+   Misma dinámica que Repaso 1 (6 ejercicios de cada banco,
+   intercalados), pero con otra semilla para que las preguntas
+   no coincidan con las ya vistas en el repaso.
+   ====================================================== */
+function bankExamen1() {
+  const topics = ['desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar'];
+  const names = { desigualdades: '1 · Desigualdades', ecuaciones: '2 · Ecuaciones', funciones: '3 · Funciones', varios: '4 · Varios pasos', pendiente: '5 · Pendiente', estandar: '6 · Estándar' };
+  const r = prRng(3113), perTopic = 6;
+  const picked = topics.map(t => prShuf(r, BANKS[t]).slice(0, perTopic).map(ex => ({ ...ex, tema: names[t] })));
+  const out = [];
+  for (let i = 0; i < perTopic; i++) topics.forEach((t, k) => out.push(picked[k][i]));
+  return out;
+}
+BANKS.examen1 = bankExamen1();

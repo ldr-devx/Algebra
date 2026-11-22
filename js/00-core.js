@@ -72,6 +72,7 @@ const MENU = [
   { tab: 'pendiente', n: 5, t: 'Pendiente e intercepto', s: 'Libro 3.4 y 3.5', tot: 6, get: () => psz('pt') },
   { tab: 'estandar', n: 6, t: 'Forma estándar', s: 'Tema 4-4', tot: 8, get: () => psz('sf') + psz('st') },
   { tab: 'repaso1', n: '★', t: 'Repaso 1', s: 'Temas 1 a 6 mezclados', tot: 0, get: () => 0 },
+  { tab: 'examen1', n: '📝', t: 'Examen 1', s: 'Temas 1 a 6, al estilo examen', tot: 0, get: () => 0 },
   { tab: 'rectas', n: 7, t: 'Paralelas y perpendiculares', s: 'Tema 4-5', tot: 5, get: () => psz('pp') },
   { tab: 'orden', n: 8, t: 'Orden de operaciones', s: 'Libro 1.4', tot: 8, get: () => psz('or') },
   { tab: 'exponentes', n: 9, t: 'Exponentes y notación científica', s: 'Libro 1.5 y 1.6', tot: 6, get: () => psz('nc') },
@@ -91,7 +92,7 @@ function renderMenu() {
 }
 
 /* ---------- pestañas ---------- */
-const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'repaso1', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales'];
+const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'repaso1', 'examen1', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales'];
 function showTab(id) {
   if (!TABS.includes(id)) id = 'inicio';
   if (id === 'inicio') renderMenu();
