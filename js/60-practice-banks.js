@@ -102,6 +102,12 @@ function ineqChoice(r, q, v, rel, x0, w, expl) {
   const opts = [`${v} ${rel} ${pNg(x0)}`, `${v} ${FLIP[rel]} ${pNg(x0)}`, `${v} ${TOG[rel]} ${pNg(x0)}`, `${v} ${rel} ${pNg(w === x0 ? x0 + 2 : w)}`];
   const e = exChoice(r, q, opts, expl); e.kind = 'ineq'; e.sol = { v, rel, x0 }; return e;
 }
+function cpChoice(r, q, v, type, loVal, loRel, hiVal, hiRel, expl) {
+  const build = (lo, lr, hi, hr) => type === 'and' ? `${pNg(lo)} ${lr} ${v} ${hr} ${pNg(hi)}` : `${v} ${lr} ${pNg(lo)} o ${v} ${hr} ${pNg(hi)}`;
+  const opts = [build(loVal, loRel, hiVal, hiRel), build(loVal, FLIP[loRel], hiVal, hiRel), build(hiVal, loRel, loVal, hiRel), build(loVal, loRel, hiVal, FLIP[hiRel])];
+  return exChoice(r, q, opts, expl);
+}
+const sysCoefText = (A, B) => `${pLin(A, 0, 'x')} ${B < 0 ? '−' : '+'} ${Math.abs(B) === 1 ? '' : Math.abs(B)}y`;
 
 /* ---------- generador con unicidad ---------- */
 function prBuild(r, plan) {
@@ -478,12 +484,146 @@ function bankRacionales(r) {
   return prBuild(r, [[8, simp], [6, d2f], [6, f2d], [8, addf], [8, prop]]);
 }
 
+/* ======================================================
+   12 · DESIGUALDADES COMPUESTAS
+   ====================================================== */
+function bankCompuestas(r) {
+  const andGen = (r, i) => {
+    const v = prPick(r, VARS), relLo = prPick(r, ['<', '≤']), relHi = prPick(r, ['<', '≤']);
+    const a = prInt(r, 1, 5) * (i % 4 === 3 ? -1 : 1), b = prInt(r, -9, 9);
+    const fLo = prInt(r, -7, 2), fHi = fLo + prInt(r, 3, 8);
+    const lo = a > 0 ? a * fLo + b : a * fHi + b, hi = a > 0 ? a * fHi + b : a * fLo + b;
+    const q = `Resuelve: <b>${pNg(lo)} ${relLo} ${pLin(a, b, v)} ${relHi} ${pNg(hi)}</b>`;
+    const steps = a < 0 ? `Resta ${pNg(b)} a las tres partes, luego divide entre ${pNg(a)} (negativo: las cercas cruzan y el signo se voltea).` : `Resta ${pNg(b)} a las tres partes, luego divide entre ${pNg(a)}.`;
+    return cpChoice(r, q, v, 'and', fLo, relLo, fHi, relHi, `${steps} Resultado: ${pNg(fLo)} ${relLo} ${v} ${relHi} ${pNg(fHi)}.`);
+  };
+  const orGen = (r, i) => {
+    const v = prPick(r, VARS), relLo = prPick(r, ['<', '≤']), relHi = prPick(r, ['>', '≥']);
+    const a = prInt(r, 1, 5), b = prInt(r, -9, 9);
+    const fLo = prInt(r, -8, -1), fHi = fLo + prInt(r, 3, 10);
+    const lo = a * fLo + b, hi = a * fHi + b;
+    const q = `Resuelve: <b>${pLin(a, b, v)} ${relLo} ${pNg(lo)}</b> &nbsp;o&nbsp; <b>${pLin(a, b, v)} ${relHi} ${pNg(hi)}</b>`;
+    return cpChoice(r, q, v, 'or', fLo, relLo, fHi, relHi, `Resuelve cada parte por separado restando ${pNg(b)} y dividiendo entre ${a}: ${v} ${relLo} ${pNg(fLo)} o ${v} ${relHi} ${pNg(fHi)}.`);
+  };
+  const isSolGen = (r, i) => {
+    const type = i % 2 === 0 ? 'and' : 'or', v = prPick(r, VARS);
+    const relLo = type === 'and' ? prPick(r, ['<', '≤']) : prPick(r, ['<', '≤']);
+    const relHi = type === 'and' ? prPick(r, ['<', '≤']) : prPick(r, ['>', '≥']);
+    const fLo = prInt(r, -6, 0), fHi = fLo + prInt(r, 3, 7);
+    const t = fLo + prPick(r, [-3, -1, 0, 1, 2, 3, 4, 5, 6]);
+    const holdLo = relLo === '<' ? fLo < t : fLo <= t, holdHi = relHi === '<' ? t < fHi : relHi === '≤' ? t <= fHi : relHi === '>' ? t > fHi : t >= fHi;
+    const truth = type === 'and' ? (holdLo && holdHi) : ((relLo === '<' ? t < fLo : t <= fLo) || holdHi);
+    const txt = type === 'and' ? `${pNg(fLo)} ${relLo} ${v} ${relHi} ${pNg(fHi)}` : `${v} ${relLo} ${pNg(fLo)} o ${v} ${relHi} ${pNg(fHi)}`;
+    return exChoice(r, `¿Es ${v} = ${pNg(t)} solución de <b>${txt}</b>?`, truth ? ['Sí es solución', 'No es solución'] : ['No es solución', 'Sí es solución'], `Sustituye ${v} = ${pNg(t)} en cada parte y revisa si se cumple. ${truth ? 'Sí cumple.' : 'No cumple.'}`, true);
+  };
+  return prBuild(r, [[12, andGen], [12, orGen], [12, isSolGen]]);
+}
+
+/* ======================================================
+   13 · ECUACIONES DE VALOR ABSOLUTO
+   ====================================================== */
+function bankAbsEcuaciones(r) {
+  const eqTwoSol = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 4) * (r() < .5 ? -1 : 1), k = prInt(r, -6, 6), m = prInt(r, 2, 9), b = -a * k, c = Math.abs(a) * m;
+    const solPos = (c - b) / a, solNeg = (-c - b) / a;
+    return exTwo(`Resuelve: <b>|${pLin(a, b, v)}| = ${c}</b>`, [`Caso + (= ${c})`, `Caso − (= ${pNg(-c)})`], [Q(solPos), Q(solNeg)], `Caso +: ${pLin(a, b, v)} = ${c} → ${v} = ${pNg(solPos)}. Caso −: ${pLin(a, b, v)} = ${pNg(-c)} → ${v} = ${pNg(solNeg)}.`);
+  };
+  const eqZero = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), k = prInt(r, -8, 8), b = -a * k;
+    return exNum(`Resuelve: <b>|${pLin(a, b, v)}| = 0</b>`, Q(k), `La distancia es 0 solo cuando la expresión misma es 0: ${pLin(a, b, v)} = 0 → ${v} = ${pNg(k)}.`);
+  };
+  const howMany = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), kind = i % 3;
+    const c = kind === 0 ? prInt(r, 1, 12) : kind === 1 ? 0 : -prInt(r, 1, 12), n = kind === 0 ? 2 : kind === 1 ? 1 : 0;
+    const opts = ['Ninguna solución', 'Una solución', 'Dos soluciones'];
+    const expl = kind === 0 ? 'El lado derecho es positivo: hay un caso + y un caso −, dos soluciones.' : kind === 1 ? 'El lado derecho es 0: los dos casos coinciden, una sola solución.' : 'El lado derecho es negativo: ninguna distancia puede ser negativa, no hay solución.';
+    return exChoice(r, `¿Cuántas soluciones reales tiene <b>|${pLin(a, b, v)}| = ${pNg(c)}</b>?`, [opts[n], ...opts.filter((_, idx) => idx !== n)], expl);
+  };
+  return prBuild(r, [[16, eqTwoSol], [8, eqZero], [12, howMany]]);
+}
+
+/* ======================================================
+   14 · DESIGUALDADES DE VALOR ABSOLUTO
+   ====================================================== */
+function bankAbsDesigualdades(r) {
+  const absAnd = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5), b = prInt(r, -9, 9), rel = prPick(r, ['<', '≤']);
+    const fHi = prInt(r, 2, 9), fLo = -fHi, c = a * fHi;
+    return cpChoice(r, `Resuelve: <b>|${pLin(a, b, v)}| ${rel} ${c}</b>`, v, 'and', fLo, rel, fHi, rel, `Se convierte en ${pNg(-c)} ${rel} ${pLin(a, b, v)} ${rel} ${c}. Resta ${pNg(b)} y divide entre ${a}: ${pNg(fLo)} ${rel} ${v} ${rel} ${pNg(fHi)}.`);
+  };
+  const absOr = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5), b = prInt(r, -9, 9), rel = prPick(r, ['>', '≥']);
+    const fHi = prInt(r, 2, 9), fLo = -fHi, c = a * fHi, relLo = rel === '>' ? '<' : '≤';
+    return cpChoice(r, `Resuelve: <b>|${pLin(a, b, v)}| ${rel} ${c}</b>`, v, 'or', fLo, relLo, fHi, rel, `Se convierte en ${pLin(a, b, v)} ${relLo} ${pNg(-c)} o ${pLin(a, b, v)} ${rel} ${c}. Resta ${pNg(b)} y divide entre ${a}: ${v} ${relLo} ${pNg(fLo)} o ${v} ${rel} ${pNg(fHi)}.`);
+  };
+  const predictYO = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), c = prInt(r, 1, 12), rel = prPick(r, ['<', '≤', '>', '≥']);
+    const isAnd = rel === '<' || rel === '≤';
+    return exChoice(r, `<b>|${pLin(a, b, v)}| ${rel} ${c}</b> se convierte en una compuesta... ¿Y o O?`, isAnd ? ['Y (intersección)', 'O (unión)'] : ['O (unión)', 'Y (intersección)'], `${rel === '<' || rel === '≤' ? '< y ≤' : '> y ≥'} siempre dan ${isAnd ? 'Y' : 'O'}.`, true);
+  };
+  const isSolGen = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), c = prInt(r, 2, 12), rel = prPick(r, ['<', '≤', '>', '≥']), t = prInt(r, -9, 9);
+    const val = Math.abs(a * t + b), truth = rel === '<' ? val < c : rel === '≤' ? val <= c : rel === '>' ? val > c : val >= c;
+    return exChoice(r, `¿Es ${v} = ${pNg(t)} solución de <b>|${pLin(a, b, v)}| ${rel} ${c}</b>?`, truth ? ['Sí es solución', 'No es solución'] : ['No es solución', 'Sí es solución'], `Sustituye: |${pLin(a, b, '(' + pNg(t) + ')')}| = ${val}. ¿${val} ${rel} ${c}? ${truth ? 'Sí' : 'No'}.`, true);
+  };
+  return prBuild(r, [[10, absAnd], [10, absOr], [6, predictYO], [10, isSolGen]]);
+}
+
+/* ======================================================
+   15 · SISTEMAS LINEALES POR ELIMINACIÓN
+   ====================================================== */
+function sysSolveEx(r, i) {
+  let A1, B1, A2, B2, det;
+  do { A1 = prInt(r, 1, 5) * (r() < .5 ? -1 : 1); B1 = prInt(r, 1, 5) * (r() < .5 ? -1 : 1); A2 = prInt(r, 1, 5) * (r() < .5 ? -1 : 1); B2 = prInt(r, 1, 5) * (r() < .5 ? -1 : 1); det = A1 * B2 - A2 * B1; } while (det === 0);
+  const x0 = prInt(r, -6, 6), y0 = prInt(r, -6, 6), C1 = A1 * x0 + B1 * y0, C2 = A2 * x0 + B2 * y0;
+  return exTwo(`Resuelve el sistema:<br><b>${sysCoefText(A1, B1)} = ${pNg(C1)}</b><br><b>${sysCoefText(A2, B2)} = ${pNg(C2)}</b>`, ['x', 'y'], [Q(x0), Q(y0)], `La solución es x = ${pNg(x0)}, y = ${pNg(y0)}. Verifica sustituyendo en las dos ecuaciones.`);
+}
+function bankSistElim(r) {
+  const sysElimPick = (r, i) => {
+    const kind = i % 4, p = () => prInt(r, 2, 8) * (r() < .5 ? -1 : 1);
+    let A1 = p(), A2 = p(), B1 = p(), B2 = p();
+    if (kind === 0) A2 = -A1; else if (kind === 1) B2 = -B1; else if (kind === 2) A2 = A1; else B2 = B1;
+    const opts = ['Sumarlas cancela la x', 'Sumarlas cancela la y', 'Restarlas cancela la x', 'Restarlas cancela la y'], label = opts[kind];
+    const why = kind < 2 ? `Al sumar, los coeficientes de ${kind === 0 ? 'x' : 'y'} son opuestos y se cancelan.` : `Al restar, los coeficientes de ${kind === 2 ? 'x' : 'y'} son iguales y se cancelan.`;
+    return exChoice(r, `Sin multiplicar nada, ¿qué logras al combinar estas dos filas?<br><b>${sysCoefText(A1, B1)} = …</b><br><b>${sysCoefText(A2, B2)} = …</b>`, [label, ...opts.filter(o => o !== label)], why);
+  };
+  const sysScale = (r, i) => {
+    const A = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), B = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), C = prInt(r, -12, 12), k = prInt(r, 2, 4) * (r() < .5 ? -1 : 1);
+    return exTwo(`Multiplica toda la ecuación <b>${sysCoefText(A, B)} = ${pNg(C)}</b> por ${pNg(k)}. ¿En qué queda el coeficiente de x y el de y?`, ['coeficiente de x', 'coeficiente de y'], [Q(A * k), Q(B * k)], `Multiplica cada término: ${pNg(A * k)}x ${B * k < 0 ? '−' : '+'} ${Math.abs(B * k)}y = ${pNg(C * k)}.`);
+  };
+  return prBuild(r, [[16, sysSolveEx], [10, sysElimPick], [10, sysScale]]);
+}
+
+/* ======================================================
+   16 · SISTEMAS LINEALES POR SUSTITUCIÓN
+   ====================================================== */
+function bankSistSust(r) {
+  const subReady = (r, i) => {
+    const A1 = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), B1 = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), C1 = prInt(r, -10, 10);
+    const A2 = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), B2 = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), C2 = prInt(r, -10, 10);
+    return exChoice(r, `Para resolver por sustitución:<br><b>${sysCoefText(A1, B1)} = ${pNg(C1)}</b><br><b>${sysCoefText(A2, B2)} = ${pNg(C2)}</b><br>¿qué haces primero?`, ['Despejar una letra en una de las dos ecuaciones', 'Sumar las dos ecuaciones', 'Graficar las dos rectas', 'Multiplicar las ecuaciones entre sí'], 'La sustitución necesita primero una expresión tipo "letra = ..." para poder enchufarla en la otra ecuación.');
+  };
+  const subPlug = (r, i) => {
+    const m = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), A = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), B = prInt(r, 1, 5) * (r() < .5 ? -1 : 1);
+    const K = A + B * m, L = B * b;
+    return exTwo(`Si y = ${pLin(m, b, 'x')} y lo sustituyes en <b>${sysCoefText(A, B)} = C</b>, ¿cuál queda el coeficiente de x y cuál la constante (antes de pasar la C)?`, ['coeficiente de x', 'constante'], [Q(K), Q(L)], `${pLin(A, 0, 'x')} ${B < 0 ? '−' : '+'} ${Math.abs(B)}(${pLin(m, b, 'x')}) se distribuye y agrupa en ${pLin(K, L, 'x')}: coeficiente ${pNg(K)}, constante ${pNg(L)}.`);
+  };
+  const subSolveFull = (r, i) => {
+    const m = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), A = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), B = prInt(r, 1, 5) * (r() < .5 ? -1 : 1);
+    const x0 = prInt(r, -6, 6), y0 = m * x0 + b, C = A * x0 + B * y0;
+    return exTwo(`Resuelve por sustitución:<br><b>y = ${pLin(m, b, 'x')}</b><br><b>${sysCoefText(A, B)} = ${pNg(C)}</b>`, ['x', 'y'], [Q(x0), Q(y0)], `Sustituye y en la segunda ecuación y despeja x = ${pNg(x0)}; luego y = ${pNg(m)}(${pNg(x0)}) ${b < 0 ? '−' : '+'} ${Math.abs(b)} = ${pNg(y0)}.`);
+  };
+  return prBuild(r, [[16, sysSolveEx], [8, subReady], [6, subPlug], [6, subSolveFull]]);
+}
+
 /* ---------- registro ---------- */
 const BANKS = {
   desigualdades: bankDesigualdades(prRng(1101)), ecuaciones: bankEcuaciones(prRng(1202)), funciones: bankFunciones(prRng(1303)),
   varios: bankVarios(prRng(1404)), pendiente: bankPendiente(prRng(1505)), estandar: bankEstandar(prRng(1606)),
   rectas: bankRectas(prRng(1707)), orden: bankOrden(prRng(1808)), exponentes: bankExponentes(prRng(1909)),
-  conjuntos: bankConjuntos(prRng(2010)), racionales: bankRacionales(prRng(2111))
+  conjuntos: bankConjuntos(prRng(2010)), racionales: bankRacionales(prRng(2111)),
+  compuestas: bankCompuestas(prRng(2212)), abseq: bankAbsEcuaciones(prRng(2313)), absineq: bankAbsDesigualdades(prRng(2414)),
+  sistelim: bankSistElim(prRng(2515)), sistsust: bankSistSust(prRng(2616))
 };
 
 /* ======================================================

@@ -38,6 +38,11 @@
     <button class="tab" role="tab" data-tab="exponentes">9 · Exponentes</button>
     <button class="tab" role="tab" data-tab="conjuntos">10 · Conjuntos</button>
     <button class="tab" role="tab" data-tab="racionales">11 · Racionales</button>
+    <button class="tab" role="tab" data-tab="compuestas">12 · Compuestas</button>
+    <button class="tab" role="tab" data-tab="abseq">13 · Ecuaciones con valor absoluto</button>
+    <button class="tab" role="tab" data-tab="absineq">14 · Desigualdades con valor absoluto</button>
+    <button class="tab" role="tab" data-tab="sistelim">15 · Sistemas: eliminación</button>
+    <button class="tab" role="tab" data-tab="sistsust">16 · Sistemas: sustitución</button>
   </nav>
 
   <!-- ============ MENÚ ============ -->
@@ -506,6 +511,81 @@
     <div class="card practice" id="pr-racionales"></div>
 
   </section>
+
+  <!-- ============ COMPUESTAS ============ -->
+  <section class="mission" data-tab="compuestas" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 12 · Desigualdades compuestas</p>
+      <h2>Las dos cercas</h2>
+      <p class="lede">Una desigualdad compuesta junta dos condiciones con "y" o con "o". Con "y" (intersección), la zona segura es el pasillo <b>entre</b> dos cercas. Con "o" (unión), hay dos salidas: todo lo que queda <b>fuera</b> de las cercas.</p>
+      <p class="exam">Tema 6 · Desigualdades compuestas</p>
+    </div>
+    <div class="card" id="cp-root"></div>
+
+    <div class="card practice" id="pr-compuestas"></div>
+
+  </section>
+
+  <!-- ============ ECUACIONES DE VALOR ABSOLUTO ============ -->
+  <section class="mission" data-tab="abseq" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 13 · Ecuaciones de valor absoluto</p>
+      <h2>El espejo de las dos puertas</h2>
+      <p class="lede">El valor absoluto es una distancia hasta el 0, y una distancia nunca es negativa. Por eso |algo| = c abre dos puertas espejo: el caso donde la expresión vale c, y el caso donde vale −c. Resuelve las dos por separado.</p>
+      <p class="exam">Tema 6 · Ecuaciones de valor absoluto</p>
+    </div>
+    <div class="card" id="ae-root"></div>
+
+    <div class="card practice" id="pr-abseq"></div>
+
+  </section>
+
+  <!-- ============ DESIGUALDADES DE VALOR ABSOLUTO ============ -->
+  <section class="mission" data-tab="absineq" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 14 · Desigualdades de valor absoluto</p>
+      <h2>La frontera con eco</h2>
+      <p class="lede">Una desigualdad con valor absoluto se convierte siempre en una compuesta: <b>&lt;</b> y <b>≤</b> son "y" (el pasillo entre −c y c), mientras que <b>&gt;</b> y <b>≥</b> son "o" (las dos salidas, antes de −c y después de c). Luego se resuelve igual que en la Misión 12.</p>
+      <p class="exam">Tema 6 · Desigualdades de valor absoluto</p>
+    </div>
+    <div class="card">
+      <h3>¿Y si c no es positivo?</h3>
+      <p>Como una distancia nunca es negativa, hay dos casos especiales que no aparecen en los niveles de abajo pero vale la pena conocer: con <b>&lt;</b> o <b>≤</b> y c negativo, no hay ninguna solución (nada puede tener distancia negativa). Con <b>&gt;</b> o <b>≥</b> y c negativo, <b>cualquier</b> número es solución (toda distancia ya es mayor que un negativo). Si c = 0, "&lt;" no tiene solución, "≤" da un solo punto, y "&gt;"/"≥" casi siempre se cumplen.</p>
+    </div>
+    <div id="ad-predict"></div>
+    <div class="card" id="ad-root"></div>
+
+    <div class="card practice" id="pr-absineq"></div>
+
+  </section>
+
+  <!-- ============ SISTEMAS: ELIMINACIÓN ============ -->
+  <section class="mission" data-tab="sistelim" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 15 · Sistemas lineales por eliminación</p>
+      <h2>Cancelar el ingrediente</h2>
+      <p class="lede">Dos ecuaciones son dos recetas con los mismos dos ingredientes (x, y). Si multiplicas una receta entera por un número sigue siendo la misma receta. El truco: multiplica una o las dos para que un ingrediente quede con el mismo peso pero signo opuesto, súmalas, y ese ingrediente se cancela.</p>
+      <p class="exam">Sistemas de ecuaciones lineales · Método de eliminación</p>
+    </div>
+    <div class="card" id="se-root"></div>
+
+    <div class="card practice" id="pr-sistelim"></div>
+
+  </section>
+
+  <!-- ============ SISTEMAS: SUSTITUCIÓN ============ -->
+  <section class="mission" data-tab="sistsust" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 16 · Sistemas lineales por sustitución</p>
+      <h2>La pieza que entra en la otra máquina</h2>
+      <p class="lede">Si ya sabes qué es "y" en una ecuación, esa pieza encaja directo en el lugar de la y de la otra ecuación. Al enchufarla, la otra ecuación se queda con una sola letra, y eso ya sabes resolverlo.</p>
+      <p class="exam">Sistemas de ecuaciones lineales · Método de sustitución</p>
+    </div>
+    <div class="card" id="ss-root"></div>
+
+    <div class="card practice" id="pr-sistsust"></div>
+
+  </section>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -514,11 +594,16 @@
 <script src="js/20-motor.js"></script>
 <script src="js/21-ecuaciones.js"></script>
 <script src="js/22-desigualdades.js"></script>
+<script src="js/23-compuestas.js"></script>
+<script src="js/24-abs-ecuaciones.js"></script>
+<script src="js/25-abs-desigualdades.js"></script>
 <script src="js/30-motor-varios-plano.js"></script>
 <script src="js/31-pendiente.js"></script>
 <script src="js/32-estandar.js"></script>
 <script src="js/33-rectas.js"></script>
 <script src="js/34-varios.js"></script>
+<script src="js/35-sistemas-eliminacion.js"></script>
+<script src="js/36-sistemas-sustitucion.js"></script>
 <script src="js/40-orden.js"></script>
 <script src="js/41-exponentes.js"></script>
 <script src="js/42-conjuntos.js"></script>

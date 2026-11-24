@@ -297,6 +297,17 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
 .pr-act{gap:8px;flex-wrap:wrap}
 .pr-msg{margin-top:10px;min-height:1.4em}
 
+/* misiones 12-14: segunda frontera en la recta numérica (compuestas, valor absoluto) */
+.nl .zone2{fill:var(--pink);opacity:.2}
+.nl .zr2{stroke:var(--pink);stroke-width:7;stroke-linecap:butt}
+.nl .ar2{stroke:var(--amber);stroke-width:7}
+
+/* misión 15: término cancelado al sumar las ecuaciones */
+.cancel{text-decoration:line-through;opacity:.45}
+
+/* misión 16: ficha que se enchufa en la otra ecuación */
+.plugchip{display:inline-block;font:700 16px var(--f-mono);padding:3px 10px;background:var(--panel2);border:3px solid var(--cyan);border-radius:4px;box-shadow:0 0 0 4px #52d9ff33}
+
 </style>
 </head>
 <body>
@@ -321,11 +332,17 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
     <button class="tab" role="tab" data-tab="pendiente">5 · Pendiente</button>
     <button class="tab" role="tab" data-tab="estandar">6 · Forma estándar</button>
     <button class="tab" role="tab" data-tab="repaso1">🔁 Repaso 1</button>
+    <button class="tab" role="tab" data-tab="examen1">📝 Examen 1</button>
     <button class="tab" role="tab" data-tab="rectas">7 · Paralelas y perpendiculares</button>
     <button class="tab" role="tab" data-tab="orden">8 · Orden de operaciones</button>
     <button class="tab" role="tab" data-tab="exponentes">9 · Exponentes</button>
     <button class="tab" role="tab" data-tab="conjuntos">10 · Conjuntos</button>
     <button class="tab" role="tab" data-tab="racionales">11 · Racionales</button>
+    <button class="tab" role="tab" data-tab="compuestas">12 · Compuestas</button>
+    <button class="tab" role="tab" data-tab="abseq">13 · Ecuaciones con valor absoluto</button>
+    <button class="tab" role="tab" data-tab="absineq">14 · Desigualdades con valor absoluto</button>
+    <button class="tab" role="tab" data-tab="sistelim">15 · Sistemas: eliminación</button>
+    <button class="tab" role="tab" data-tab="sistsust">16 · Sistemas: sustitución</button>
   </nav>
 
   <!-- ============ MENÚ ============ -->
@@ -628,6 +645,18 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
 
   </section>
 
+  <!-- ============ EXAMEN 1 ============ -->
+  <section class="mission" data-tab="examen1" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Evaluación</p>
+      <h2>Examen 1 · Temas 1 a 6</h2>
+      <p class="lede">Las mismas seis misiones de Repaso 1 (desigualdades, ecuaciones, funciones, varios pasos, pendiente e intercepto, y forma estándar), pero sin mapa de repaso: aquí se resuelve directo, como en un examen real. Las preguntas son distintas a las de Repaso 1.</p>
+    </div>
+
+    <div class="card practice" id="pr-examen1"></div>
+
+  </section>
+
   <!-- ============ PARALELAS Y PERPENDICULARES ============ -->
   <section class="mission" data-tab="rectas" hidden>
     <div class="mhead">
@@ -782,6 +811,81 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
     <div class="card practice" id="pr-racionales"></div>
 
   </section>
+
+  <!-- ============ COMPUESTAS ============ -->
+  <section class="mission" data-tab="compuestas" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 12 · Desigualdades compuestas</p>
+      <h2>Las dos cercas</h2>
+      <p class="lede">Una desigualdad compuesta junta dos condiciones con "y" o con "o". Con "y" (intersección), la zona segura es el pasillo <b>entre</b> dos cercas. Con "o" (unión), hay dos salidas: todo lo que queda <b>fuera</b> de las cercas.</p>
+      <p class="exam">Tema 6 · Desigualdades compuestas</p>
+    </div>
+    <div class="card" id="cp-root"></div>
+
+    <div class="card practice" id="pr-compuestas"></div>
+
+  </section>
+
+  <!-- ============ ECUACIONES DE VALOR ABSOLUTO ============ -->
+  <section class="mission" data-tab="abseq" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 13 · Ecuaciones de valor absoluto</p>
+      <h2>El espejo de las dos puertas</h2>
+      <p class="lede">El valor absoluto es una distancia hasta el 0, y una distancia nunca es negativa. Por eso |algo| = c abre dos puertas espejo: el caso donde la expresión vale c, y el caso donde vale −c. Resuelve las dos por separado.</p>
+      <p class="exam">Tema 6 · Ecuaciones de valor absoluto</p>
+    </div>
+    <div class="card" id="ae-root"></div>
+
+    <div class="card practice" id="pr-abseq"></div>
+
+  </section>
+
+  <!-- ============ DESIGUALDADES DE VALOR ABSOLUTO ============ -->
+  <section class="mission" data-tab="absineq" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 14 · Desigualdades de valor absoluto</p>
+      <h2>La frontera con eco</h2>
+      <p class="lede">Una desigualdad con valor absoluto se convierte siempre en una compuesta: <b>&lt;</b> y <b>≤</b> son "y" (el pasillo entre −c y c), mientras que <b>&gt;</b> y <b>≥</b> son "o" (las dos salidas, antes de −c y después de c). Luego se resuelve igual que en la Misión 12.</p>
+      <p class="exam">Tema 6 · Desigualdades de valor absoluto</p>
+    </div>
+    <div class="card">
+      <h3>¿Y si c no es positivo?</h3>
+      <p>Como una distancia nunca es negativa, hay dos casos especiales que no aparecen en los niveles de abajo pero vale la pena conocer: con <b>&lt;</b> o <b>≤</b> y c negativo, no hay ninguna solución (nada puede tener distancia negativa). Con <b>&gt;</b> o <b>≥</b> y c negativo, <b>cualquier</b> número es solución (toda distancia ya es mayor que un negativo). Si c = 0, "&lt;" no tiene solución, "≤" da un solo punto, y "&gt;"/"≥" casi siempre se cumplen.</p>
+    </div>
+    <div id="ad-predict"></div>
+    <div class="card" id="ad-root"></div>
+
+    <div class="card practice" id="pr-absineq"></div>
+
+  </section>
+
+  <!-- ============ SISTEMAS: ELIMINACIÓN ============ -->
+  <section class="mission" data-tab="sistelim" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 15 · Sistemas lineales por eliminación</p>
+      <h2>Cancelar el ingrediente</h2>
+      <p class="lede">Dos ecuaciones son dos recetas con los mismos dos ingredientes (x, y). Si multiplicas una receta entera por un número sigue siendo la misma receta. El truco: multiplica una o las dos para que un ingrediente quede con el mismo peso pero signo opuesto, súmalas, y ese ingrediente se cancela.</p>
+      <p class="exam">Sistemas de ecuaciones lineales · Método de eliminación</p>
+    </div>
+    <div class="card" id="se-root"></div>
+
+    <div class="card practice" id="pr-sistelim"></div>
+
+  </section>
+
+  <!-- ============ SISTEMAS: SUSTITUCIÓN ============ -->
+  <section class="mission" data-tab="sistsust" hidden>
+    <div class="mhead">
+      <p class="eyebrow">Misión 16 · Sistemas lineales por sustitución</p>
+      <h2>La pieza que entra en la otra máquina</h2>
+      <p class="lede">Si ya sabes qué es "y" en una ecuación, esa pieza encaja directo en el lugar de la y de la otra ecuación. Al enchufarla, la otra ecuación se queda con una sola letra, y eso ya sabes resolverlo.</p>
+      <p class="exam">Sistemas de ecuaciones lineales · Método de sustitución</p>
+    </div>
+    <div class="card" id="ss-root"></div>
+
+    <div class="card practice" id="pr-sistsust"></div>
+
+  </section>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -860,11 +964,17 @@ const MENU = [
   { tab: 'pendiente', n: 5, t: 'Pendiente e intercepto', s: 'Libro 3.4 y 3.5', tot: 6, get: () => psz('pt') },
   { tab: 'estandar', n: 6, t: 'Forma estándar', s: 'Tema 4-4', tot: 8, get: () => psz('sf') + psz('st') },
   { tab: 'repaso1', n: '★', t: 'Repaso 1', s: 'Temas 1 a 6 mezclados', tot: 0, get: () => 0 },
+  { tab: 'examen1', n: '📝', t: 'Examen 1', s: 'Temas 1 a 6, al estilo examen', tot: 0, get: () => 0 },
   { tab: 'rectas', n: 7, t: 'Paralelas y perpendiculares', s: 'Tema 4-5', tot: 5, get: () => psz('pp') },
   { tab: 'orden', n: 8, t: 'Orden de operaciones', s: 'Libro 1.4', tot: 8, get: () => psz('or') },
   { tab: 'exponentes', n: 9, t: 'Exponentes y notación científica', s: 'Libro 1.5 y 1.6', tot: 6, get: () => psz('nc') },
   { tab: 'conjuntos', n: 10, t: 'Conjuntos', s: 'Libro 1.2', tot: 3, get: () => psz('cj') },
-  { tab: 'racionales', n: 11, t: 'Racionales y proporciones', s: 'Exámenes 8.º y 9.º', tot: 8, get: () => psz('rf') + psz('m-rp') }
+  { tab: 'racionales', n: 11, t: 'Racionales y proporciones', s: 'Exámenes 8.º y 9.º', tot: 8, get: () => psz('rf') + psz('m-rp') },
+  { tab: 'compuestas', n: 12, t: 'Desigualdades compuestas', s: 'Y / O en la recta numérica', tot: 8, get: () => psz('cp') },
+  { tab: 'abseq', n: 13, t: 'Ecuaciones de valor absoluto', s: 'Las dos puertas espejo', tot: 8, get: () => psz('ae') },
+  { tab: 'absineq', n: 14, t: 'Desigualdades de valor absoluto', s: 'La frontera con eco', tot: 8, get: () => psz('ad') },
+  { tab: 'sistelim', n: 15, t: 'Sistemas lineales: eliminación', s: 'Cancelar el ingrediente', tot: 7, get: () => psz('se') },
+  { tab: 'sistsust', n: 16, t: 'Sistemas lineales: sustitución', s: 'La pieza que entra en la otra máquina', tot: 7, get: () => psz('ss') }
 ];
 function renderMenu() {
   const grid = $('#menu-grid'); if (!grid) return;
@@ -879,7 +989,7 @@ function renderMenu() {
 }
 
 /* ---------- pestañas ---------- */
-const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'repaso1', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales'];
+const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'repaso1', 'examen1', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales', 'compuestas', 'abseq', 'absineq', 'sistelim', 'sistsust'];
 function showTab(id) {
   if (!TABS.includes(id)) id = 'inicio';
   if (id === 'inicio') renderMenu();
@@ -1549,6 +1659,416 @@ drawMirror();
 <script>
 'use strict';
 /* ======================================================
+   MOTOR COMPARTIDO: DESIGUALDADES COMPUESTAS (Y / O)
+   Lo reutiliza también la misión 14 (valor absoluto).
+   ====================================================== */
+const cpIsClosed = rel => rel === '≤' || rel === '≥';
+function cpApply(s, op, n) {
+  let { a, b, lo, hi, relLo, relHi, type } = s;
+  if (op === 'add') { b = b.add(n); lo = lo.add(n); hi = hi.add(n); }
+  else if (op === 'sub') { b = b.sub(n); lo = lo.sub(n); hi = hi.sub(n); }
+  else {
+    const f = op === 'mul' ? n : ONE.div(n);
+    a = a.mul(f); b = b.mul(f);
+    if (type === 'and') {
+      if (f.n < 0) { const nl = hi.mul(f), nh = lo.mul(f); lo = nl; hi = nh; const t = relLo; relLo = relHi; relHi = t; }
+      else { lo = lo.mul(f); hi = hi.mul(f); }
+    } else {
+      lo = lo.mul(f); hi = hi.mul(f);
+      if (f.n < 0) { relLo = FLIP[relLo]; relHi = FLIP[relHi]; }
+    }
+  }
+  return { ...s, a, b, lo, hi, relLo, relHi, steps: s.steps + 1 };
+}
+const cpSolved = s => s.a.eq(ONE) && s.b.isZero();
+function cpText(s, v) {
+  const L = expr(s.a, s.b, v), lo = `<span class="rel">${s.relLo}</span>`, hi = `<span class="rel">${s.relHi}</span>`;
+  return s.type === 'and' ? `${qh(s.lo)} ${lo} ${L} ${hi} ${qh(s.hi)}` : `${L} ${lo} ${qh(s.lo)} &nbsp;&nbsp;<b>o</b>&nbsp;&nbsp; ${L} ${hi} ${qh(s.hi)}`;
+}
+function cpHolds(l, t) {
+  const val = l.a.mul(Q(t)).add(l.b);
+  return l.type === 'and' ? relHolds(l.relLo, l.lo.sub(val)) && relHolds(l.relHi, val.sub(l.hi))
+    : relHolds(l.relLo, val.sub(l.lo)) || relHolds(l.relHi, val.sub(l.hi));
+}
+function cpDir(rel) { return (rel === '<' || rel === '≤') ? 'left' : 'right'; }
+
+function cpDrawLine(svg, V) {
+  const { lo, hi, W, PAD, SP } = V, X = v => PAD + (v - lo) * SP, Y = 56;
+  let g = `<line class="base" x1="6" y1="${Y}" x2="${W - 6}" y2="${Y}"/>
+    <path d="M6 ${Y} l10 -7 v14 z M${W - 6} ${Y} l-10 -7 v14 z" style="fill:var(--muted)"/>`;
+  const zoneRect = (x1, x2, cls) => `<rect class="${cls}" x="${x1}" y="30" width="${Math.max(0, x2 - x1)}" height="52"/>`;
+  const circle = (val, closed, colorVar) => closed
+    ? `<circle class="closed" cx="${X(val)}" cy="${Y}" r="10" style="fill:var(--${colorVar})"/>`
+    : `<circle class="open" cx="${X(val)}" cy="${Y}" r="9" style="stroke:var(--${colorVar})"/>`;
+  if (V.zone) {
+    const z = V.zone;
+    if (z.type === 'and') { g += zoneRect(X(z.loVal), X(z.hiVal), 'zone'); g += circle(z.loVal, z.loClosed, 'lime'); g += circle(z.hiVal, z.hiClosed, 'lime'); }
+    else {
+      const rectFor = (val, rel, cls) => cpDir(rel) === 'left' ? zoneRect(6, X(val), cls) : zoneRect(X(val), W - 6, cls);
+      g += rectFor(z.loVal, z.loRel, 'zone') + rectFor(z.hiVal, z.hiRel, 'zone2');
+      g += circle(z.loVal, z.loClosed, 'lime'); g += circle(z.hiVal, z.hiClosed, 'pink');
+    }
+  }
+  for (let v = lo; v <= hi; v++) g += `<line class="tick" x1="${X(v)}" y1="${Y - 9}" x2="${X(v)}" y2="${Y + 9}"/><text class="${v === 0 ? 'z' : ''}" x="${X(v)}" y="${Y + 34}">${v < 0 ? MIN + Math.abs(v) : v}</text>`;
+  (V.tests || []).forEach(t => { g += `<circle class="${t.ok ? 'ok' : 'no'}" cx="${X(t.v)}" cy="16" r="8"/>`; });
+  if (V.token != null) g += `<circle class="tok" cx="${X(V.token)}" cy="16" r="13"/>`;
+  svg.innerHTML = g;
+}
+
+function makeCompound(root, key, rawLevels, cfg = {}) {
+  const lv = rawLevels.map(l => ({ ...l, a: Q(l.a), b: Q(l.b), lo: Q(l.lo), hi: Q(l.hi) }));
+  root.innerHTML = `
+    <div class="levels" role="group" aria-label="Niveles"></div>
+    <div class="eqcard"><div class="tag"></div><div class="eqn" aria-live="polite"></div></div>
+    <svg class="nl" viewBox="0 0 584 118" role="img" aria-label="Recta numérica con dos fronteras"></svg>
+    <p class="readout" aria-live="polite"></p>
+    <div class="row" style="margin-top:6px">
+      <fieldset class="seg txt" style="border:0;padding:0"><legend class="vh">Modo</legend>
+        <label><input type="radio" name="cp-mode-${key}" value="probe" checked><span>Probar valores</span></label>
+        <label><input type="radio" name="cp-mode-${key}" value="draw"><span>Dibujar respuesta</span></label>
+      </fieldset>
+    </div>
+    <div class="row cp-draw" style="margin-top:10px" hidden>
+      <fieldset class="seg txt" style="border:0;padding:0"><legend class="vh">Cerca a colocar</legend>
+        <label><input type="radio" name="cp-cerca-${key}" value="lo" checked><span>Cerca izquierda</span></label>
+        <label><input type="radio" name="cp-cerca-${key}" value="hi"><span>Cerca derecha</span></label>
+      </fieldset>
+      <fieldset class="seg txt" style="border:0;padding:0"><legend class="vh">Círculo izquierda</legend>
+        <label><input type="radio" name="cp-clo-${key}" value="open" checked><span>Izq. vacío</span></label>
+        <label><input type="radio" name="cp-clo-${key}" value="closed"><span>Izq. lleno</span></label>
+      </fieldset>
+      <fieldset class="seg txt" style="border:0;padding:0"><legend class="vh">Círculo derecha</legend>
+        <label><input type="radio" name="cp-chi-${key}" value="open" checked><span>Der. vacío</span></label>
+        <label><input type="radio" name="cp-chi-${key}" value="closed"><span>Der. lleno</span></label>
+      </fieldset>
+      <button class="btn primary" type="button" data-check>Comprobar dibujo</button>
+    </div>
+    <form class="ops" autocomplete="off">
+      <div class="grp"><span>Operación</span>
+        <fieldset class="seg" style="border:0"><legend class="vh">Operación</legend>
+          ${['add', 'sub', 'mul', 'div'].map((o, i) => `<label><input type="radio" name="cp-op-${key}" value="${o}"${i === 1 ? ' checked' : ''}><span aria-label="${WORD[o]}">${SYM[o]}</span></label>`).join('')}
+        </fieldset></div>
+      <label class="fld">Número<input type="text" class="num" inputmode="text" placeholder="ej. 4 ó 2/3"></label>
+      <button class="btn primary" type="submit">Aplicar a toda la desigualdad</button>
+      <button class="btn" type="button" data-hint>Pista</button>
+      <button class="btn ghost" type="button" data-reset>Reiniciar nivel</button>
+    </form>
+    <p class="msg" aria-live="polite" style="margin-top:10px"></p>
+    <div class="win" hidden></div>
+    <ol class="log" aria-label="Registro de pasos"></ol>`;
+  const E = {
+    levels: $('.levels', root), tag: $('.tag', root), eq: $('.eqn', root), svg: $('svg', root), read: $('.readout', root),
+    drawRow: $('.cp-draw', root), form: $('.ops', root), num: $('.num', root), msg: $('.msg', root), win: $('.win', root), log: $('.log', root)
+  };
+  let idx = 0, st = null, busy = false, mode = 'probe'; const done = regSet(key);
+  const V = { lo: 0, hi: 10, W: 584, PAD: 28, SP: 44, tests: [], token: null, zone: null };
+  const ans = { cerca: 'lo', loVal: null, loClosed: false, hiVal: null, hiClosed: false };
+  const lvl = () => lv[idx];
+  const say = (t, c = '') => { E.msg.textContent = t; E.msg.className = 'msg ' + c; };
+  function renderLevels() {
+    E.levels.innerHTML = lv.map((l, i) => `<button class="lv${done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === idx}" aria-label="Nivel ${i + 1}">${i + 1}</button>`).join('');
+    $$('.lv', E.levels).forEach(b => b.addEventListener('click', () => init(+b.dataset.i)));
+  }
+  function renderEq() { E.eq.innerHTML = cpText(st, lvl().v); draw(); }
+  function draw() { cpDrawLine(E.svg, { ...V, tests: V.tests, token: V.token, zone: V.zone }); }
+  function init(i) {
+    idx = i; const l = lvl(), [dlo, dhi] = l.disp;
+    st = { a: l.a, b: l.b, lo: l.lo, hi: l.hi, relLo: l.relLo, relHi: l.relHi, type: l.type, steps: 0, hints: 0 };
+    V.lo = dlo; V.hi = dhi; V.tests = []; V.token = null; V.zone = null;
+    ans.cerca = 'lo'; ans.loVal = null; ans.loClosed = false; ans.hiVal = null; ans.hiClosed = false;
+    mode = 'probe'; $(`input[name="cp-mode-${key}"][value="probe"]`, root).checked = true; E.drawRow.hidden = true;
+    $(`input[name="cp-cerca-${key}"][value="lo"]`, root).checked = true;
+    $(`input[name="cp-clo-${key}"][value="open"]`, root).checked = true;
+    $(`input[name="cp-chi-${key}"][value="open"]`, root).checked = true;
+    E.log.innerHTML = ''; E.win.hidden = true; E.num.value = '';
+    E.tag.textContent = `Nivel ${i + 1} de ${lv.length} · ${l.tag}`;
+    E.read.textContent = 'Toca la recta para probar un valor. Verde cumple la desigualdad compuesta, rosa no.';
+    say('Aplica operaciones a toda la desigualdad hasta dejar la letra sola.');
+    renderLevels(); renderEq(); cfg.onLevel && cfg.onLevel(l);
+  }
+  function logLine(old, op, n, next, flipped) {
+    const l = lvl(), nt = n.n < 0 ? `(${qh(n)})` : qh(n);
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="ot">${WORD[op]} ${qh(n)} a toda la desigualdad</span><span class="res">${cpText(next, l.v)}</span>` + (flipped ? '<span class="mirror">Espejo: el signo se voltea</span>' : '');
+    E.log.prepend(li); void old; void nt;
+  }
+  async function commit(op, n) {
+    busy = true;
+    const old = st, next = cpApply(old, op, n), flipped = next.relLo !== old.relLo || next.relHi !== old.relHi;
+    logLine(old, op, n, next, flipped); st = next; renderEq();
+    if (cpSolved(st)) win();
+    else say(flipped ? 'El espejo se activó: multiplicar o dividir por un negativo voltea el signo.' : 'Bien. Sigue.', flipped ? 'info' : '');
+    busy = false;
+  }
+  function win() {
+    const first = !done.has(idx); done.add(idx); renderLevels();
+    E.drawRow.hidden = false;
+    E.read.textContent = 'Resuelta. Elige "Dibujar respuesta", toca la recta para poner cada cerca y marca los círculos.';
+    if (first) addXP(8);
+    E.win.hidden = false;
+    E.win.innerHTML = `<b class="big">Álgebra lista</b><p>Quedó ${cpText(st, lvl().v)}. Ahora dibuja la respuesta en la recta.</p>` +
+      (idx < lv.length - 1 ? '<button class="btn primary" type="button" data-next style="margin-top:10px">Siguiente nivel</button>' : '<p style="margin-top:8px">Último nivel completado.</p>');
+    const nb = $('[data-next]', E.win); if (nb) nb.addEventListener('click', () => init(idx + 1));
+    cfg.onSolved && cfg.onSolved(st, lvl());
+  }
+  function pointer(e) {
+    const r = E.svg.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * V.W;
+    return Math.max(V.lo, Math.min(V.hi, Math.round((x - V.PAD) / V.SP) + V.lo));
+  }
+  function act(v) {
+    if (mode === 'probe') {
+      V.token = v; const ok = cpHolds(lvl(), v);
+      if (!V.tests.find(t => t.v === v)) V.tests.push({ v, ok });
+      E.read.textContent = `${lvl().v} = ${v < 0 ? MIN + Math.abs(v) : v}: ${ok ? 'cumple la desigualdad compuesta ✓' : 'no cumple ✗'}.`;
+    } else {
+      if (!cpSolved(st)) { say('Primero resuelve la desigualdad con las operaciones.', 'info'); return; }
+      if (ans.cerca === 'lo') ans.loVal = v; else ans.hiVal = v;
+    }
+    draw();
+  }
+  function checkDraw() {
+    if (!cpSolved(st)) return;
+    if (ans.loVal == null || ans.hiVal == null) { say('Coloca las dos cercas primero (toca la recta con cada "cerca" seleccionada).', 'info'); return; }
+    const eLo = st.lo.n / st.lo.d, eHi = st.hi.n / st.hi.d, eLoC = cpIsClosed(st.relLo), eHiC = cpIsClosed(st.relHi);
+    const bad = [];
+    if (ans.loVal !== eLo || ans.hiVal !== eHi) bad.push('Las cercas no están en los valores a los que llegaste con el álgebra.');
+    if (ans.loClosed !== eLoC || ans.hiClosed !== eHiC) bad.push('Revisa qué círculos van llenos (incluye el valor) y cuáles vacíos.');
+    if (bad.length) { say(bad.join(' '), 'bad'); return; }
+    say('¡Zona correcta! Coincide con los valores que probaste.', 'ok');
+    V.zone = { type: st.type, loVal: eLo, loClosed: eLoC, hiVal: eHi, hiClosed: eHiC, loRel: st.relLo, hiRel: st.relHi };
+    draw();
+  }
+  $$(`input[name="cp-mode-${key}"]`).forEach(i => i.addEventListener('change', () => { mode = i.value; E.drawRow.hidden = mode !== 'draw'; }));
+  $$(`input[name="cp-cerca-${key}"]`).forEach(i => i.addEventListener('change', () => { ans.cerca = i.value; }));
+  $$(`input[name="cp-clo-${key}"]`).forEach(i => i.addEventListener('change', () => { ans.loClosed = i.value === 'closed'; }));
+  $$(`input[name="cp-chi-${key}"]`).forEach(i => i.addEventListener('change', () => { ans.hiClosed = i.value === 'closed'; }));
+  $('[data-check]', root).addEventListener('click', checkDraw);
+  let down = false;
+  E.svg.addEventListener('pointerdown', e => { down = true; act(pointer(e)); });
+  E.svg.addEventListener('pointermove', e => { if (down && mode === 'probe') act(pointer(e)); });
+  addEventListener('pointerup', () => { down = false; });
+  E.form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (busy || cpSolved(st)) return;
+    const op = $(`input[name="cp-op-${key}"]:checked`, root).value, n = parseQ(E.num.value);
+    if (!n) { say('Escribe un número entero o una fracción, por ejemplo 4 ó 2/3.', 'bad'); return; }
+    if (n.isZero() && op === 'div') { say('No se puede dividir entre 0.', 'bad'); return; }
+    if (n.isZero() && op === 'mul') { say('Multiplicar por 0 borra toda la información.', 'bad'); return; }
+    commit(op, n);
+  });
+  $('[data-reset]', root).addEventListener('click', () => init(idx));
+  $('[data-hint]', root).addEventListener('click', () => {
+    if (cpSolved(st)) return; st.hints++;
+    let t;
+    if (!st.b.isZero()) t = `Deshaz primero el ${st.b.n > 0 ? '+' : MIN} ${qs(absQ(st.b))}: ${st.b.n > 0 ? 'resta' : 'suma'} ${qs(absQ(st.b))} a toda la desigualdad.`;
+    else t = `La letra está multiplicada por ${qs(st.a)}. Divide entre ${qs(st.a)} a toda la desigualdad${st.a.n < 0 ? ' (es negativo: cuidado con el espejo)' : ''}.`;
+    say(t, 'info');
+  });
+  init(0);
+  return { get idx() { return idx; }, get lvl() { return lvl(); } };
+}
+
+const CP_LEVELS = [
+  { v: 'x', a: 1, b: 4, lo: 2, hi: 10, relLo: '<', relHi: '≤', type: 'and', tag: 'Suma · compuesta Y', disp: [-8, 12] },
+  { v: 'y', a: 1, b: -3, lo: -5, hi: 9, relLo: '≤', relHi: '<', type: 'and', tag: 'Resta · compuesta Y', disp: [-6, 14] },
+  { v: 'n', a: 3, b: 0, lo: -6, hi: 18, relLo: '<', relHi: '≤', type: 'and', tag: 'Dividir por positivo · Y', disp: [-8, 20] },
+  { v: 'x', a: -2, b: 0, lo: -8, hi: 10, relLo: '<', relHi: '<', type: 'and', tag: 'Dividir por negativo · Y (el espejo cruza)', disp: [-10, 10] },
+  { v: 'x', a: 2, b: 5, lo: -1, hi: 15, relLo: '≤', relHi: '<', type: 'and', tag: 'Dos pasos · Y', disp: [-5, 16] },
+  { v: 'x', a: 1, b: 3, lo: -2, hi: 4, relLo: '<', relHi: '>', type: 'or', tag: 'Resta · compuesta O', disp: [-9, 8] },
+  { v: 'k', a: -3, b: 0, lo: -9, hi: 9, relLo: '<', relHi: '>', type: 'or', tag: 'Dividir por negativo · O', disp: [-10, 10] },
+  { v: 'x', a: 2, b: -1, lo: -9, hi: 7, relLo: '≤', relHi: '>', type: 'or', tag: 'Dos pasos · O', disp: [-8, 8] }
+];
+makeCompound($('#cp-root'), 'cp', CP_LEVELS);
+
+</script>
+<script>
+'use strict';
+/* ======================================================
+   MISIÓN 13: ECUACIONES DE VALOR ABSOLUTO
+   "El espejo de las dos puertas"
+   ====================================================== */
+function aeApply(s, op, n) {
+  let { a, b, c } = s;
+  if (op === 'add') { b = b.add(n); c = c.add(n); }
+  else if (op === 'sub') { b = b.sub(n); c = c.sub(n); }
+  else { const f = op === 'mul' ? n : ONE.div(n); a = a.mul(f); b = b.mul(f); c = c.mul(f); }
+  return { ...s, a, b, c, steps: s.steps + 1 };
+}
+const aeSolved = s => s.a.eq(ONE) && s.b.isZero();
+
+function makeBranch(container, nameKey, v, st0, onSolved) {
+  const E = document.createElement('div');
+  E.innerHTML = `
+    <div class="eqcard"><div class="tag"></div><div class="eqn" aria-live="polite"></div></div>
+    <form class="ops" autocomplete="off">
+      <div class="grp"><span>Operación</span>
+        <fieldset class="seg" style="border:0"><legend class="vh">Operación</legend>
+          ${['add', 'sub', 'mul', 'div'].map((o, i) => `<label><input type="radio" name="ae-op-${nameKey}" value="${o}"${i === 1 ? ' checked' : ''}><span aria-label="${WORD[o]}">${SYM[o]}</span></label>`).join('')}
+        </fieldset></div>
+      <label class="fld">Número<input type="text" class="num" inputmode="text" placeholder="ej. 3 ó 1/2"></label>
+      <button class="btn primary" type="submit">Aplicar</button>
+    </form>
+    <p class="msg" aria-live="polite" style="margin-top:8px"></p>
+    <ol class="log" aria-label="Registro de pasos"></ol>`;
+  container.appendChild(E);
+  const eq = $('.eqn', E), tag = $('.tag', E), form = $('.ops', E), num = $('.num', E), msg = $('.msg', E), log = $('.log', E);
+  let st = st0;
+  const render = () => { eq.innerHTML = `${expr(st.a, st.b, v)} <span class="rel">=</span> ${qh(st.c)}`; };
+  tag.textContent = st0.label; render();
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (aeSolved(st)) return;
+    const op = $(`input[name="ae-op-${nameKey}"]:checked`, E).value, n = parseQ(num.value);
+    if (!n) { msg.textContent = 'Escribe un número entero o una fracción.'; msg.className = 'msg bad'; return; }
+    if (n.isZero() && (op === 'div' || op === 'mul')) { msg.textContent = 'No se puede usar 0 aquí.'; msg.className = 'msg bad'; return; }
+    const old = st; st = aeApply(st, op, n);
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="ot">${WORD[op]} ${qh(n)} a los dos lados</span><span class="res">${expr(st.a, st.b, v)} = ${qh(st.c)}</span>`;
+    log.prepend(li); void old; render();
+    if (aeSolved(st)) { msg.textContent = `Resuelto: ${v} = ${qh(st.c)}.`; msg.className = 'msg ok'; $$('input,button', form).forEach(x => x.disabled = true); onSolved(st.c); }
+    else { msg.textContent = 'Bien, sigue despejando.'; msg.className = ''; }
+  });
+  return { get solved() { return aeSolved(st); } };
+}
+
+function aeDrawLine(svg, lo, hi, c, pts) {
+  const W = 584, PAD = 28, SP = (W - 2 * PAD) / (hi - lo), X = v => PAD + (v - lo) * SP, Y = 56;
+  let g = `<line class="base" x1="6" y1="${Y}" x2="${W - 6}" y2="${Y}"/>`;
+  for (let v = Math.ceil(lo); v <= hi; v++) g += `<line class="tick" x1="${X(v)}" y1="${Y - 9}" x2="${X(v)}" y2="${Y + 9}"/><text class="${v === 0 ? 'z' : ''}" x="${X(v)}" y="${Y + 34}">${v < 0 ? MIN + Math.abs(v) : v}</text>`;
+  if (c > 0) {
+    g += `<line x1="${X(0)}" y1="${Y - 26}" x2="${X(c)}" y2="${Y - 26}" style="stroke:var(--amber);stroke-width:2;stroke-dasharray:4 4"/><text x="${(X(0) + X(c)) / 2}" y="${Y - 32}" style="fill:var(--amber)">dist ${c}</text>`;
+    g += `<line x1="${X(0)}" y1="${Y - 26}" x2="${X(-c)}" y2="${Y - 26}" style="stroke:var(--amber);stroke-width:2;stroke-dasharray:4 4"/>`;
+  }
+  (pts || []).forEach(p => { g += `<circle class="closed" cx="${X(p.x)}" cy="${Y}" r="10" style="fill:var(--${p.cls})"/><text x="${X(p.x)}" y="${Y - 14}" style="fill:var(--${p.cls})">${p.lab}</text>`; });
+  svg.innerHTML = g;
+}
+
+const AE_LEVELS = [
+  { v: 'x', a: 1, b: 0, c: 7, tag: 'La base: dos puertas espejo' },
+  { v: 'y', a: 1, b: 3, c: 10, tag: 'Un paso · suma dentro' },
+  { v: 'n', a: 1, b: -5, c: 4, tag: 'Un paso · resta dentro' },
+  { v: 'x', a: 2, b: 0, c: 16, tag: 'Un paso · coeficiente' },
+  { v: 'x', a: 3, b: 6, c: 9, tag: 'Dos pasos' },
+  { v: 'x', a: -2, b: 5, c: 9, tag: 'Dos pasos con coeficiente negativo' },
+  { v: 'k', a: 1, b: 6, c: 0, tag: 'c = 0 · una sola puerta' },
+  { v: 'm', a: 2, b: 1, c: -5, tag: 'c negativo · sin solución' }
+];
+
+function makeAbsEq(root, key, rawLevels) {
+  const lv = rawLevels;
+  root.innerHTML = `
+    <div class="levels" role="group" aria-label="Niveles"></div>
+    <div class="eqcard"><div class="tag"></div><div class="eqn" aria-live="polite"></div></div>
+    <p class="sub" id="ae-expl" style="margin-top:8px"></p>
+    <svg class="nl" viewBox="0 0 584 118" role="img" aria-label="Recta con las dos puertas espejo"></svg>
+    <div class="grid2" id="ae-branches" style="margin-top:14px"></div>
+    <div class="win" hidden></div>`;
+  const E = { levels: $('.levels', root), tag: $('.tag', root), eq: $('.eqn', root), expl: $('#ae-expl', root), svg: $('svg', root), branches: $('#ae-branches', root), win: $('.win', root) };
+  let idx = 0; const done = regSet(key);
+  let gotPos = null, gotNeg = null, n = 0;
+  function renderLevels() {
+    E.levels.innerHTML = lv.map((l, i) => `<button class="lv${done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === idx}" aria-label="Nivel ${i + 1}">${i + 1}</button>`).join('');
+    $$('.lv', E.levels).forEach(b => b.addEventListener('click', () => init(+b.dataset.i)));
+  }
+  function win() {
+    const first = !done.has(idx); done.add(idx); renderLevels();
+    if (first) addXP(8);
+    E.win.hidden = false;
+    E.win.innerHTML = `<b class="big">Nivel superado</b><p>Encontraste las dos distancias iguales a 0.</p>` +
+      (idx < lv.length - 1 ? '<button class="btn primary" type="button" data-next style="margin-top:10px">Siguiente nivel</button>' : '<p style="margin-top:8px">Último nivel completado.</p>');
+    const nb = $('[data-next]', E.win); if (nb) nb.addEventListener('click', () => init(idx + 1));
+  }
+  function init(i) {
+    idx = i; const l = lv[i], a = Q(l.a), b = Q(l.b), c = Q(l.c);
+    gotPos = null; gotNeg = null; n++; E.win.hidden = true;
+    E.tag.textContent = `Nivel ${i + 1} de ${lv.length} · ${l.tag}`;
+    E.eq.innerHTML = `|${expr(a, b, l.v)}| <span class="rel">=</span> ${qh(c)}`;
+    const cN = c.n / c.d, sol0 = -b.n / b.d / (a.n / a.d) || 0;
+    const lo = Math.min(-Math.abs(cN) - 2, sol0 - 6), hi = Math.max(Math.abs(cN) + 2, sol0 + 6);
+    E.branches.innerHTML = '';
+    if (cN < 0) {
+      E.expl.textContent = 'Una distancia nunca puede ser negativa: esta ecuación no tiene solución real.';
+      aeDrawLine(E.svg, lo, hi, 0, []);
+      E.branches.style.gridTemplateColumns = '1fr';
+      E.branches.innerHTML = '<div class="card"><p>No hay ningún número que, al calcular su distancia desde 0 después de las operaciones, dé un resultado negativo. <b>Sin solución.</b></p><button class="btn primary" type="button" id="ae-ack" style="margin-top:10px">Entendido</button></div>';
+      $('#ae-ack', E.branches).addEventListener('click', win);
+    } else if (cN === 0) {
+      E.expl.textContent = 'La distancia es 0: las dos puertas se juntan en una sola. Solo hay una solución.';
+      aeDrawLine(E.svg, lo, hi, 0, []);
+      const wrap = document.createElement('div'); wrap.className = 'card'; E.branches.appendChild(wrap); E.branches.style.gridTemplateColumns = '1fr';
+      makeBranch(wrap, 'solo' + n, l.v, { a, b, c, label: 'Única puerta: expresión = 0', steps: 0 }, val => { aeDrawLine(E.svg, lo, hi, 0, [{ x: val.n / val.d, cls: 'lime', lab: l.v + ' = ' + qh(val) }]); win(); });
+    } else {
+      E.expl.textContent = 'Esto son dos caminos con la misma distancia a 0: resuelve cada caso por separado.';
+      aeDrawLine(E.svg, lo, hi, cN, []);
+      E.branches.style.gridTemplateColumns = '';
+      const wPos = document.createElement('div'); wPos.className = 'card'; E.branches.appendChild(wPos);
+      const wNeg = document.createElement('div'); wNeg.className = 'card'; E.branches.appendChild(wNeg);
+      const check = () => { if (gotPos != null && gotNeg != null) win(); };
+      makeBranch(wPos, 'pos' + n, l.v, { a, b, c, label: 'Caso + : expresión = ' + qh(c), steps: 0 }, val => {
+        gotPos = val.n / val.d; aeDrawLine(E.svg, lo, hi, cN, [{ x: gotPos, cls: 'lime', lab: l.v + '=' + qh(val) }, ...(gotNeg != null ? [{ x: gotNeg, cls: 'pink', lab: l.v + '=' + pNgSafe(gotNeg) }] : [])]); check();
+      });
+      makeBranch(wNeg, 'neg' + n, l.v, { a, b, c: c.neg(), label: 'Caso − : expresión = ' + qh(c.neg()), steps: 0 }, val => {
+        gotNeg = val.n / val.d; aeDrawLine(E.svg, lo, hi, cN, [...(gotPos != null ? [{ x: gotPos, cls: 'lime', lab: l.v + '=' + pNgSafe(gotPos) }] : []), { x: gotNeg, cls: 'pink', lab: l.v + '=' + pNgSafe(gotNeg) }]); check();
+      });
+    }
+    renderLevels();
+  }
+  init(0);
+}
+function pNgSafe(n) { return n < 0 ? MIN + Math.abs(n) : String(n); }
+
+makeAbsEq($('#ae-root'), 'ae', AE_LEVELS);
+
+</script>
+<script>
+'use strict';
+/* ======================================================
+   MISIÓN 14: DESIGUALDADES DE VALOR ABSOLUTO
+   "La frontera con eco" — reutiliza el motor de compuestas (23-compuestas.js)
+   ====================================================== */
+function avToCompound(l) {
+  const lo = -l.c, hi = l.c;
+  if (l.rel === '<' || l.rel === '≤') return { v: l.v, a: l.a, b: l.b, lo, hi, relLo: l.rel, relHi: l.rel, type: 'and', tag: l.tag, disp: l.disp, origRel: l.rel, origC: l.c };
+  const relLo = l.rel === '>' ? '<' : '≤';
+  return { v: l.v, a: l.a, b: l.b, lo, hi, relLo, relHi: l.rel, type: 'or', tag: l.tag, disp: l.disp, origRel: l.rel, origC: l.c };
+}
+function showPredict(l) {
+  const root = $('#ad-predict'); if (!root) return;
+  const orig = `|${expr(l.a, l.b, l.v)}| ${l.origRel} ${qh(Q(l.origC))}`;
+  const compound = cpText({ a: l.a, b: l.b, lo: l.lo, hi: l.hi, relLo: l.relLo, relHi: l.relHi, type: l.type }, l.v);
+  root.innerHTML = `<div class="card">
+    <h3>Primero: ¿Y o O?</h3>
+    <p class="eqn" style="margin-top:6px">${orig}</p>
+    <p class="sub" style="margin-top:8px">Antes de resolver con operaciones, predice cómo se parte esta desigualdad.</p>
+    <div class="row" style="margin-top:10px"><button class="btn" type="button" data-g="and">Y · los dos a la vez</button><button class="btn" type="button" data-g="or">O · cualquiera de los dos</button></div>
+    <p class="msg" id="ad-pmsg" aria-live="polite" style="margin-top:8px"></p>
+    <p class="readout" id="ad-pcompound" style="display:none;margin-top:4px"></p>
+  </div>`;
+  const msg = $('#ad-pmsg', root);
+  $$('[data-g]', root).forEach(b => b.addEventListener('click', () => {
+    const ok = b.dataset.g === l.type;
+    msg.textContent = ok ? '¡Correcto!' : (l.type === 'and' ? 'No: < y ≤ siempre son Y (intersección, el pasillo entre las dos cercas).' : 'No: > y ≥ siempre son O (unión, dos salidas).');
+    msg.className = 'msg ' + (ok ? 'ok' : 'bad');
+    const pc = $('#ad-pcompound', root); pc.style.display = 'block'; pc.innerHTML = 'Forma equivalente: <b>' + compound + '</b>';
+  }));
+}
+
+const AD_LEVELS = [
+  { v: 'x', a: 1, b: 0, c: 5, rel: '<', tag: 'La base: < es Y', disp: [-9, 9] },
+  { v: 'y', a: 1, b: 2, c: 9, rel: '≤', tag: 'Un paso · ≤ es Y', disp: [-15, 11] },
+  { v: 'n', a: 3, b: 0, c: 12, rel: '<', tag: 'Un paso · coeficiente', disp: [-14, 14] },
+  { v: 'x', a: 1, b: -3, c: 6, rel: '>', tag: 'Un paso · > es O', disp: [-7, 13] },
+  { v: 'k', a: 1, b: 4, c: 7, rel: '≥', tag: 'Un paso · ≥ es O', disp: [-15, 7] },
+  { v: 'x', a: 2, b: 1, c: 9, rel: '≤', tag: 'Dos pasos · Y', disp: [-7, 6] },
+  { v: 'x', a: -2, b: 3, c: 11, rel: '>', tag: 'Dos pasos con negativo · O', disp: [-8, 10] },
+  { v: 'x', a: 3, b: 3, c: 9, rel: '<', tag: 'Dos pasos · Y (coeficiente)', disp: [-7, 5] }
+];
+makeCompound($('#ad-root'), 'ad', AD_LEVELS.map(avToCompound), { onLevel: showPredict });
+
+</script>
+<script>
+'use strict';
+/* ======================================================
    MOTOR DE VARIOS PASOS (letras en los dos lados, paréntesis)
    ====================================================== */
 const R_ = x => Array.isArray(x) ? Q(x[0], x[1]) : Q(x);
@@ -1851,6 +2371,262 @@ makeMulti($('#mp-root'), 'mp', [
   { v: 'x', tag: 'Desigualdad con letras en los dos lados · 5-3', orig: '3x + 2 ≤ 5x − 6', rel: '≤', pre: [], a1: 3, b1: 2, a2: 5, b2: -6 },
   { v: 'x', tag: 'Desigualdad con paréntesis · 5-3', orig: '4(x − 1) > 2x + 6', rel: '>', pre: [{ label: 'Distribuir el 4', html: '4x − 4 > 2x + 6', why: 'Elimina el paréntesis antes de juntar las letras.' }], a1: 4, b1: -4, a2: 2, b2: 6 }
 ]);
+
+</script>
+<script>
+'use strict';
+/* ======================================================
+   MISIÓN 15: SISTEMAS LINEALES POR ELIMINACIÓN
+   "Cancelar el ingrediente" — usa planeSVG de 30-motor-varios-plano.js
+   ====================================================== */
+function sysTerm(a, v) { return a === 1 ? v : a === -1 ? MIN + v : (a < 0 ? MIN + Math.abs(a) : String(a)) + v; }
+function sysEqText(A, B, C, highlight) {
+  const t1 = highlight === 'A' ? `<span class="cancel">0x</span>` : sysTerm(A, 'x');
+  const t2sign = B < 0 ? ` ${MIN} ` : ' + ';
+  const t2 = highlight === 'B' ? `<span class="cancel">0y</span>` : (Math.abs(B) === 1 ? 'y' : Math.abs(B) + 'y');
+  const cT = C < 0 ? MIN + Math.abs(C) : String(C);
+  return `${t1}${highlight === 'B' ? ' + ' : t2sign}${t2} = ${cT}`;
+}
+function sysPlane(l, x0, y0) {
+  const m1 = -l.A1 / l.B1, b1 = l.C1 / l.B1, m2 = -l.A2 / l.B2, b2 = l.C2 / l.B2;
+  return planeSVG({ lines: [{ m: m1, b: b1, cls: 'l1' }, { m: m2, b: b2, cls: 'l2' }], pts: [{ x: x0, y: y0, cls: 'pt', label: `(${x0}, ${y0})` }] });
+}
+
+const SE_LEVELS = [
+  { A1: 1, B1: 1, C1: 10, A2: 1, B2: -1, C2: 2, tag: 'Sumar cancela directo' },
+  { A1: 2, B1: 1, C1: 11, A2: 1, B2: -1, C2: 1, tag: 'Sumar cancela directo (otros coeficientes)' },
+  { A1: 1, B1: 2, C1: 12, A2: 1, B2: 5, C2: 27, tag: 'Restar cancela directo' },
+  { A1: 3, B1: 2, C1: 16, A2: 1, B2: 2, C2: 8, tag: 'Restar cancela el término con y' },
+  { A1: 2, B1: 3, C1: 13, A2: 1, B2: 1, C2: 5, tag: 'Un multiplicador' },
+  { A1: 2, B1: 3, C1: 16, A2: 3, B2: 4, C2: 22, tag: 'Dos multiplicadores' },
+  { A1: 4, B1: -3, C1: -1, A2: 2, B2: 3, C2: 13, tag: 'Con coeficientes negativos' }
+];
+
+function makeElim(root, key, raw) {
+  root.innerHTML = `
+    <div class="levels" role="group" aria-label="Niveles"></div>
+    <div class="eqcard"><div class="tag"></div><div class="eqn" id="${key}-e1"></div><div class="eqn" id="${key}-e2" style="margin-top:4px"></div></div>
+    <div class="row" style="margin-top:12px">
+      <label class="fld">Multiplicar ecuación 1 por<input type="text" id="${key}-k1" inputmode="text" value="1"></label>
+      <label class="fld">Multiplicar ecuación 2 por<input type="text" id="${key}-k2" inputmode="text" value="1"></label>
+      <button class="btn" type="button" id="${key}-mul" style="align-self:flex-end">Multiplicar filas</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn primary" type="button" id="${key}-add">Sumar las filas</button>
+      <button class="btn primary" type="button" id="${key}-sub">Restar las filas (1 − 2)</button>
+      <button class="btn" type="button" id="${key}-hint">Pista</button>
+      <button class="btn ghost" type="button" id="${key}-reset">Reiniciar nivel</button>
+    </div>
+    <p class="msg" id="${key}-msg" aria-live="polite" style="margin-top:10px"></p>
+    <div class="card" id="${key}-step2" hidden></div>
+    <div class="card" id="${key}-step3" hidden style="margin-top:12px"></div>
+    <div class="grid2" id="${key}-final" hidden style="margin-top:12px">
+      <div class="win" id="${key}-win"></div>
+      <div class="card"><h3>El plano</h3><svg class="pl" id="${key}-svg" viewBox="0 0 360 360" role="img" aria-label="Las dos rectas y su intersección"></svg></div>
+    </div>
+    <ol class="log" id="${key}-log" aria-label="Registro de pasos"></ol>`;
+  const E = {}; ['e1', 'e2', 'k1', 'k2', 'mul', 'add', 'sub', 'hint', 'reset', 'msg', 'step2', 'step3', 'final', 'win', 'svg', 'log'].forEach(k => E[k] = $(`#${key}-${k}`, root));
+  const levels = $('.levels', root), tagEl = $('.tag', root);
+  let idx = 0, w = null, orig = null, phase = 'combine', elim = null, x0 = 0, y0 = 0, solveVar1 = null, val1 = null;
+  const done = regSet(key);
+  const say = (t, c = '') => { E.msg.textContent = t; E.msg.className = 'msg ' + c; };
+  function renderLevels() {
+    levels.innerHTML = raw.map((l, i) => `<button class="lv${done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === idx}" aria-label="Nivel ${i + 1}">${i + 1}</button>`).join('');
+    $$('.lv', levels).forEach(b => b.addEventListener('click', () => init(+b.dataset.i)));
+  }
+  function init(i) {
+    idx = i; const l = raw[i];
+    orig = { A1: l.A1, B1: l.B1, C1: l.C1, A2: l.A2, B2: l.B2, C2: l.C2 };
+    w = { ...orig }; phase = 'combine'; elim = null; solveVar1 = null; val1 = null;
+    const det = l.A1 * l.B2 - l.A2 * l.B1;
+    x0 = Math.round((l.C1 * l.B2 - l.C2 * l.B1) / det); y0 = Math.round((l.A1 * l.C2 - l.A2 * l.C1) / det);
+    E.k1.value = '1'; E.k2.value = '1'; E.log.innerHTML = ''; E.step2.hidden = true; E.step3.hidden = true; E.final.hidden = true;
+    tagEl.textContent = `Nivel ${i + 1} de ${raw.length} · ${l.tag}`;
+    E.e1.innerHTML = 'Ecuación 1: ' + sysEqText(w.A1, w.B1, w.C1);
+    E.e2.innerHTML = 'Ecuación 2: ' + sysEqText(w.A2, w.B2, w.C2);
+    say('Multiplica una fila si lo necesitas, luego suma o resta para cancelar una letra.');
+    renderLevels();
+  }
+  E.mul.addEventListener('click', () => {
+    if (phase !== 'combine') return;
+    const k1 = parseInt(E.k1.value, 10), k2 = parseInt(E.k2.value, 10);
+    if (!k1 || !k2) { say('Escribe dos números enteros distintos de 0.', 'bad'); return; }
+    w.A1 *= k1; w.B1 *= k1; w.C1 *= k1; w.A2 *= k2; w.B2 *= k2; w.C2 *= k2;
+    E.e1.innerHTML = 'Ecuación 1: ' + sysEqText(w.A1, w.B1, w.C1);
+    E.e2.innerHTML = 'Ecuación 2: ' + sysEqText(w.A2, w.B2, w.C2);
+    const li = document.createElement('li'); li.innerHTML = `<span class="ot">Multiplicar ecuación 1 por ${k1} y ecuación 2 por ${k2}</span><span class="res">${sysEqText(w.A1, w.B1, w.C1)}  /  ${sysEqText(w.A2, w.B2, w.C2)}</span>`;
+    E.log.prepend(li); E.k1.value = '1'; E.k2.value = '1';
+    say('Filas escaladas. Ahora suma o resta para cancelar una letra.');
+  });
+  function combine(op) {
+    if (phase !== 'combine') return;
+    const sign = op === 'add' ? 1 : -1;
+    const nA = w.A1 + sign * w.A2, nB = w.B1 + sign * w.B2, nC = w.C1 + sign * w.C2;
+    if (nA !== 0 && nB !== 0) { say('Ningún término se cancela. Ajusta los multiplicadores y vuelve a intentar.', 'bad'); return; }
+    if (nA === 0 && nB === 0) { say('Se cancelaron las dos letras: revisa los multiplicadores, hay un paso de más.', 'bad'); return; }
+    elim = nA === 0 ? 'x' : 'y';
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="ot">${op === 'add' ? 'Sumar' : 'Restar'} las dos filas</span><span class="res">${sysEqText(nA, nB, nC, nA === 0 ? 'A' : 'B')}</span><span class="mirror">Se cancela la ${elim}</span>`;
+    E.log.prepend(li);
+    solveVar1 = elim === 'x' ? 'y' : 'x';
+    const coef = elim === 'x' ? nB : nA;
+    phase = 'solve1';
+    E.step2.hidden = false;
+    E.step2.innerHTML = `<h3>Resuelve la ecuación de una letra</h3><p class="eqn">${sysTerm(coef, solveVar1)} = ${nC}</p>
+      <div class="row" style="margin-top:10px"><label class="fld">${solveVar1} =<input type="text" id="${key}-v1" inputmode="text" placeholder="valor"></label><button class="btn primary" type="button" id="${key}-check1">Comprobar</button></div>
+      <p class="msg" id="${key}-m1" aria-live="polite" style="margin-top:8px"></p>`;
+    $(`#${key}-check1`, E.step2).addEventListener('click', () => {
+      const v = parseQ($(`#${key}-v1`, E.step2).value), expected = solveVar1 === 'x' ? x0 : y0, m = $(`#${key}-m1`, E.step2);
+      if (!v) { m.textContent = 'Escribe un número.'; m.className = 'msg bad'; return; }
+      if (v.n / v.d !== expected) { m.textContent = 'No coincide. Divide la constante entre el coeficiente.'; m.className = 'msg bad'; return; }
+      m.textContent = `Correcto: ${solveVar1} = ${expected}.`; m.className = 'msg ok';
+      val1 = expected; $$('input,button', E.step2).forEach(x => x.disabled = true); step3();
+    });
+    say('Bien, el término se canceló. Ahora resuelve la ecuación que quedó.', 'ok');
+  }
+  function step3() {
+    phase = 'solve2';
+    const solveVar2 = solveVar1 === 'x' ? 'y' : 'x';
+    E.step3.hidden = false;
+    E.step3.innerHTML = `<h3>Sustituye hacia atrás</h3><p>Usa la ecuación 1 original: <b>${sysEqText(orig.A1, orig.B1, orig.C1)}</b> con ${solveVar1} = ${val1}.</p>
+      <div class="row" style="margin-top:10px"><label class="fld">${solveVar2} =<input type="text" id="${key}-v2" inputmode="text" placeholder="valor"></label><button class="btn primary" type="button" id="${key}-check2">Comprobar</button></div>
+      <p class="msg" id="${key}-m2" aria-live="polite" style="margin-top:8px"></p>`;
+    $(`#${key}-check2`, E.step3).addEventListener('click', () => {
+      const v = parseQ($(`#${key}-v2`, E.step3).value), expected = solveVar2 === 'x' ? x0 : y0, m = $(`#${key}-m2`, E.step3);
+      if (!v) { m.textContent = 'Escribe un número.'; m.className = 'msg bad'; return; }
+      if (v.n / v.d !== expected) { m.textContent = 'No coincide. Sustituye con cuidado y despeja.'; m.className = 'msg bad'; return; }
+      m.textContent = `Correcto: ${solveVar2} = ${expected}.`; m.className = 'msg ok';
+      $$('input,button', E.step3).forEach(x => x.disabled = true); win();
+    });
+  }
+  function win() {
+    const first = !done.has(idx); done.add(idx); renderLevels();
+    if (first) addXP(12);
+    E.final.hidden = false;
+    E.svg.innerHTML = sysPlane(orig, x0, y0);
+    E.win.innerHTML = `<b class="big">Sistema resuelto</b><p>La solución es x = ${x0}, y = ${y0}. Las dos rectas se cruzan justo ahí.</p>` +
+      (idx < raw.length - 1 ? '<button class="btn primary" type="button" data-next style="margin-top:10px">Siguiente nivel</button>' : '<p style="margin-top:8px">Último nivel completado.</p>');
+    const nb = $('[data-next]', E.win); if (nb) nb.addEventListener('click', () => init(idx + 1));
+  }
+  E.add.addEventListener('click', () => combine('add'));
+  E.sub.addEventListener('click', () => combine('sub'));
+  E.reset.addEventListener('click', () => init(idx));
+  E.hint.addEventListener('click', () => {
+    if (phase === 'combine') say('Si al sumar o restar directo nada se cancela, multiplica una fila (o las dos) para que un coeficiente quede opuesto al de la otra fila.', 'info');
+    else if (phase === 'solve1') say('Divide la constante entre el coeficiente que quedó.', 'info');
+    else say('Sustituye el valor que ya tienes en la ecuación 1 original y despeja la otra letra.', 'info');
+  });
+  init(0);
+}
+makeElim($('#se-root'), 'se', SE_LEVELS);
+
+</script>
+<script>
+'use strict';
+/* ======================================================
+   MISIÓN 16: SISTEMAS LINEALES POR SUSTITUCIÓN
+   "La pieza que entra en la otra máquina" — reutiliza sysTerm/sysEqText/planeSVG
+   ====================================================== */
+function subExpr(m, b) { return sysTerm(m, 'x') + (b === 0 ? '' : (b < 0 ? ` ${MIN} ${Math.abs(b)}` : ` + ${b}`)); }
+
+const SS_LEVELS = [
+  { m: 2, b: -1, A: 1, B: 1, C: 11, tag: 'Sustitución directa' },
+  { m: 1, b: 3, A: 3, B: -1, C: 5, tag: 'Con resta en la otra ecuación' },
+  { m: -2, b: 9, A: 1, B: 1, C: 1, tag: 'Con pendiente negativa' },
+  { m: 3, b: -4, A: 2, B: 3, C: 10, tag: 'Distribuir un coeficiente' },
+  { m: 4, b: 1, A: -3, B: 2, C: 17, tag: 'Coeficiente negativo en la otra ecuación' },
+  { m: -1, b: 6, A: 5, B: -2, C: 16, tag: 'Dos pasos al combinar' },
+  { m: 2, b: 0, A: 3, B: -4, C: 15, tag: 'Sin constante (y = mx)' }
+];
+
+function makeSub(root, key, raw) {
+  root.innerHTML = `
+    <div class="levels" role="group" aria-label="Niveles"></div>
+    <div class="eqcard"><div class="tag"></div><p>Ecuación 1: <span class="plugchip" id="${key}-chip"></span></p><p style="margin-top:4px" id="${key}-e2"></p></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn primary" type="button" id="${key}-plug">Enchufar la ecuación 1 en la ecuación 2</button>
+      <button class="btn" type="button" id="${key}-hint">Pista</button>
+      <button class="btn ghost" type="button" id="${key}-reset">Reiniciar nivel</button>
+    </div>
+    <p class="msg" id="${key}-msg" aria-live="polite" style="margin-top:10px"></p>
+    <div class="card" id="${key}-step2" hidden></div>
+    <div class="card" id="${key}-step3" hidden style="margin-top:12px"></div>
+    <div class="grid2" id="${key}-final" hidden style="margin-top:12px">
+      <div class="win" id="${key}-win"></div>
+      <div class="card"><h3>El plano</h3><svg class="pl" id="${key}-svg" viewBox="0 0 360 360" role="img" aria-label="Las dos rectas y su intersección"></svg></div>
+    </div>
+    <ol class="log" id="${key}-log" aria-label="Registro de pasos"></ol>`;
+  const E = {}; ['chip', 'e2', 'plug', 'hint', 'reset', 'msg', 'step2', 'step3', 'final', 'win', 'svg', 'log'].forEach(k => E[k] = $(`#${key}-${k}`, root));
+  const levels = $('.levels', root), tagEl = $('.tag', root);
+  let idx = 0, l = null, x0 = 0, y0 = 0, plugged = false;
+  const done = regSet(key);
+  const say = (t, c = '') => { E.msg.textContent = t; E.msg.className = 'msg ' + c; };
+  function renderLevels() {
+    levels.innerHTML = raw.map((lv, i) => `<button class="lv${done.has(i) ? ' done' : ''}" data-i="${i}" aria-current="${i === idx}" aria-label="Nivel ${i + 1}">${i + 1}</button>`).join('');
+    $$('.lv', levels).forEach(b => b.addEventListener('click', () => init(+b.dataset.i)));
+  }
+  function init(i) {
+    idx = i; l = raw[i]; plugged = false;
+    x0 = (l.C - l.B * l.b) / (l.A + l.B * l.m); y0 = l.m * x0 + l.b;
+    E.log.innerHTML = ''; E.step2.hidden = true; E.step3.hidden = true; E.final.hidden = true; E.plug.disabled = false;
+    tagEl.textContent = `Nivel ${i + 1} de ${raw.length} · ${l.tag}`;
+    E.chip.textContent = `y = ${subExpr(l.m, l.b)}`;
+    E.e2.innerHTML = 'Ecuación 2: ' + sysEqText(l.A, l.B, l.C);
+    say('Toma la pieza "y" de la ecuación 1 y enchúfala en el lugar de la y en la ecuación 2.');
+    renderLevels();
+  }
+  E.plug.addEventListener('click', () => {
+    if (plugged) return; plugged = true; E.plug.disabled = true;
+    const K = l.A + l.B * l.m, L = l.B * l.b;
+    const raw1 = `${sysTerm(l.A, 'x')} ${l.B < 0 ? MIN : '+'} ${Math.abs(l.B) === 1 ? '' : Math.abs(l.B)}(${subExpr(l.m, l.b)}) = ${l.C}`;
+    const li1 = document.createElement('li'); li1.innerHTML = `<span class="ot">Enchufar y = ${subExpr(l.m, l.b)} en la ecuación 2</span><span class="res">${raw1}</span>`;
+    E.log.prepend(li1);
+    const li2 = document.createElement('li'); li2.innerHTML = `<span class="ot">Distribuir y combinar términos con x</span><span class="res">${sysTerm(K, 'x')}${L === 0 ? '' : (L < 0 ? ` ${MIN} ${Math.abs(L)}` : ` + ${L}`)} = ${l.C}</span>`;
+    E.log.prepend(li2);
+    E.step2.hidden = false;
+    E.step2.innerHTML = `<h3>Resuelve la ecuación de una letra</h3><p class="eqn">${sysTerm(K, 'x')}${L === 0 ? '' : (L < 0 ? ` ${MIN} ${Math.abs(L)}` : ` + ${L}`)} = ${l.C}</p>
+      <div class="row" style="margin-top:10px"><label class="fld">x =<input type="text" id="${key}-v1" inputmode="text" placeholder="valor"></label><button class="btn primary" type="button" id="${key}-check1">Comprobar</button></div>
+      <p class="msg" id="${key}-m1" aria-live="polite" style="margin-top:8px"></p>`;
+    $(`#${key}-check1`, E.step2).addEventListener('click', () => {
+      const v = parseQ($(`#${key}-v1`, E.step2).value), m = $(`#${key}-m1`, E.step2);
+      if (!v) { m.textContent = 'Escribe un número.'; m.className = 'msg bad'; return; }
+      if (v.n / v.d !== x0) { m.textContent = 'No coincide. Revisa el despeje.'; m.className = 'msg bad'; return; }
+      m.textContent = `Correcto: x = ${x0}.`; m.className = 'msg ok';
+      $$('input,button', E.step2).forEach(x => x.disabled = true); step3();
+    });
+    say('Ya tienes una sola letra. Resuélvela.', 'ok');
+  });
+  function step3() {
+    E.step3.hidden = false;
+    E.step3.innerHTML = `<h3>Sustituye hacia atrás</h3><p>Usa la ecuación 1: <b>y = ${subExpr(l.m, l.b)}</b> con x = ${x0}.</p>
+      <div class="row" style="margin-top:10px"><label class="fld">y =<input type="text" id="${key}-v2" inputmode="text" placeholder="valor"></label><button class="btn primary" type="button" id="${key}-check2">Comprobar</button></div>
+      <p class="msg" id="${key}-m2" aria-live="polite" style="margin-top:8px"></p>`;
+    $(`#${key}-check2`, E.step3).addEventListener('click', () => {
+      const v = parseQ($(`#${key}-v2`, E.step3).value), m = $(`#${key}-m2`, E.step3);
+      if (!v) { m.textContent = 'Escribe un número.'; m.className = 'msg bad'; return; }
+      if (v.n / v.d !== y0) { m.textContent = 'No coincide. Sustituye x con cuidado.'; m.className = 'msg bad'; return; }
+      m.textContent = `Correcto: y = ${y0}.`; m.className = 'msg ok';
+      $$('input,button', E.step3).forEach(x => x.disabled = true); win();
+    });
+  }
+  function win() {
+    const first = !done.has(idx); done.add(idx); renderLevels();
+    if (first) addXP(12);
+    E.final.hidden = false;
+    E.svg.innerHTML = planeSVG({ lines: [{ m: l.m, b: l.b, cls: 'l1' }, { m: -l.A / l.B, b: l.C / l.B, cls: 'l2' }], pts: [{ x: x0, y: y0, cls: 'pt', label: `(${x0}, ${y0})` }] });
+    E.win.innerHTML = `<b class="big">Sistema resuelto</b><p>La solución es x = ${x0}, y = ${y0}. Las dos rectas se cruzan justo ahí.</p>` +
+      (idx < raw.length - 1 ? '<button class="btn primary" type="button" data-next style="margin-top:10px">Siguiente nivel</button>' : '<p style="margin-top:8px">Último nivel completado.</p>');
+    const nb = $('[data-next]', E.win); if (nb) nb.addEventListener('click', () => init(idx + 1));
+  }
+  E.reset.addEventListener('click', () => init(idx));
+  E.hint.addEventListener('click', () => {
+    if (!plugged) say('En la ecuación 2, donde dice "y", escribe la expresión completa de la ecuación 1 entre paréntesis.', 'info');
+    else if (!E.step2.hidden && !$(`#${key}-v1`, E.step2).disabled) say('Despeja x: pasa la constante al otro lado y divide entre su coeficiente.', 'info');
+    else say('Sustituye x en y = ' + subExpr(l.m, l.b) + ' y calcula.', 'info');
+  });
+  init(0);
+}
+makeSub($('#ss-root'), 'ss', SS_LEVELS);
 
 </script>
 <script>
@@ -2261,6 +3037,12 @@ function ineqChoice(r, q, v, rel, x0, w, expl) {
   const opts = [`${v} ${rel} ${pNg(x0)}`, `${v} ${FLIP[rel]} ${pNg(x0)}`, `${v} ${TOG[rel]} ${pNg(x0)}`, `${v} ${rel} ${pNg(w === x0 ? x0 + 2 : w)}`];
   const e = exChoice(r, q, opts, expl); e.kind = 'ineq'; e.sol = { v, rel, x0 }; return e;
 }
+function cpChoice(r, q, v, type, loVal, loRel, hiVal, hiRel, expl) {
+  const build = (lo, lr, hi, hr) => type === 'and' ? `${pNg(lo)} ${lr} ${v} ${hr} ${pNg(hi)}` : `${v} ${lr} ${pNg(lo)} o ${v} ${hr} ${pNg(hi)}`;
+  const opts = [build(loVal, loRel, hiVal, hiRel), build(loVal, FLIP[loRel], hiVal, hiRel), build(hiVal, loRel, loVal, hiRel), build(loVal, loRel, hiVal, FLIP[hiRel])];
+  return exChoice(r, q, opts, expl);
+}
+const sysCoefText = (A, B) => `${pLin(A, 0, 'x')} ${B < 0 ? '−' : '+'} ${Math.abs(B) === 1 ? '' : Math.abs(B)}y`;
 
 /* ---------- generador con unicidad ---------- */
 function prBuild(r, plan) {
@@ -2637,12 +3419,146 @@ function bankRacionales(r) {
   return prBuild(r, [[8, simp], [6, d2f], [6, f2d], [8, addf], [8, prop]]);
 }
 
+/* ======================================================
+   12 · DESIGUALDADES COMPUESTAS
+   ====================================================== */
+function bankCompuestas(r) {
+  const andGen = (r, i) => {
+    const v = prPick(r, VARS), relLo = prPick(r, ['<', '≤']), relHi = prPick(r, ['<', '≤']);
+    const a = prInt(r, 1, 5) * (i % 4 === 3 ? -1 : 1), b = prInt(r, -9, 9);
+    const fLo = prInt(r, -7, 2), fHi = fLo + prInt(r, 3, 8);
+    const lo = a > 0 ? a * fLo + b : a * fHi + b, hi = a > 0 ? a * fHi + b : a * fLo + b;
+    const q = `Resuelve: <b>${pNg(lo)} ${relLo} ${pLin(a, b, v)} ${relHi} ${pNg(hi)}</b>`;
+    const steps = a < 0 ? `Resta ${pNg(b)} a las tres partes, luego divide entre ${pNg(a)} (negativo: las cercas cruzan y el signo se voltea).` : `Resta ${pNg(b)} a las tres partes, luego divide entre ${pNg(a)}.`;
+    return cpChoice(r, q, v, 'and', fLo, relLo, fHi, relHi, `${steps} Resultado: ${pNg(fLo)} ${relLo} ${v} ${relHi} ${pNg(fHi)}.`);
+  };
+  const orGen = (r, i) => {
+    const v = prPick(r, VARS), relLo = prPick(r, ['<', '≤']), relHi = prPick(r, ['>', '≥']);
+    const a = prInt(r, 1, 5), b = prInt(r, -9, 9);
+    const fLo = prInt(r, -8, -1), fHi = fLo + prInt(r, 3, 10);
+    const lo = a * fLo + b, hi = a * fHi + b;
+    const q = `Resuelve: <b>${pLin(a, b, v)} ${relLo} ${pNg(lo)}</b> &nbsp;o&nbsp; <b>${pLin(a, b, v)} ${relHi} ${pNg(hi)}</b>`;
+    return cpChoice(r, q, v, 'or', fLo, relLo, fHi, relHi, `Resuelve cada parte por separado restando ${pNg(b)} y dividiendo entre ${a}: ${v} ${relLo} ${pNg(fLo)} o ${v} ${relHi} ${pNg(fHi)}.`);
+  };
+  const isSolGen = (r, i) => {
+    const type = i % 2 === 0 ? 'and' : 'or', v = prPick(r, VARS);
+    const relLo = type === 'and' ? prPick(r, ['<', '≤']) : prPick(r, ['<', '≤']);
+    const relHi = type === 'and' ? prPick(r, ['<', '≤']) : prPick(r, ['>', '≥']);
+    const fLo = prInt(r, -6, 0), fHi = fLo + prInt(r, 3, 7);
+    const t = fLo + prPick(r, [-3, -1, 0, 1, 2, 3, 4, 5, 6]);
+    const holdLo = relLo === '<' ? fLo < t : fLo <= t, holdHi = relHi === '<' ? t < fHi : relHi === '≤' ? t <= fHi : relHi === '>' ? t > fHi : t >= fHi;
+    const truth = type === 'and' ? (holdLo && holdHi) : ((relLo === '<' ? t < fLo : t <= fLo) || holdHi);
+    const txt = type === 'and' ? `${pNg(fLo)} ${relLo} ${v} ${relHi} ${pNg(fHi)}` : `${v} ${relLo} ${pNg(fLo)} o ${v} ${relHi} ${pNg(fHi)}`;
+    return exChoice(r, `¿Es ${v} = ${pNg(t)} solución de <b>${txt}</b>?`, truth ? ['Sí es solución', 'No es solución'] : ['No es solución', 'Sí es solución'], `Sustituye ${v} = ${pNg(t)} en cada parte y revisa si se cumple. ${truth ? 'Sí cumple.' : 'No cumple.'}`, true);
+  };
+  return prBuild(r, [[12, andGen], [12, orGen], [12, isSolGen]]);
+}
+
+/* ======================================================
+   13 · ECUACIONES DE VALOR ABSOLUTO
+   ====================================================== */
+function bankAbsEcuaciones(r) {
+  const eqTwoSol = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 4) * (r() < .5 ? -1 : 1), k = prInt(r, -6, 6), m = prInt(r, 2, 9), b = -a * k, c = Math.abs(a) * m;
+    const solPos = (c - b) / a, solNeg = (-c - b) / a;
+    return exTwo(`Resuelve: <b>|${pLin(a, b, v)}| = ${c}</b>`, [`Caso + (= ${c})`, `Caso − (= ${pNg(-c)})`], [Q(solPos), Q(solNeg)], `Caso +: ${pLin(a, b, v)} = ${c} → ${v} = ${pNg(solPos)}. Caso −: ${pLin(a, b, v)} = ${pNg(-c)} → ${v} = ${pNg(solNeg)}.`);
+  };
+  const eqZero = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), k = prInt(r, -8, 8), b = -a * k;
+    return exNum(`Resuelve: <b>|${pLin(a, b, v)}| = 0</b>`, Q(k), `La distancia es 0 solo cuando la expresión misma es 0: ${pLin(a, b, v)} = 0 → ${v} = ${pNg(k)}.`);
+  };
+  const howMany = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), kind = i % 3;
+    const c = kind === 0 ? prInt(r, 1, 12) : kind === 1 ? 0 : -prInt(r, 1, 12), n = kind === 0 ? 2 : kind === 1 ? 1 : 0;
+    const opts = ['Ninguna solución', 'Una solución', 'Dos soluciones'];
+    const expl = kind === 0 ? 'El lado derecho es positivo: hay un caso + y un caso −, dos soluciones.' : kind === 1 ? 'El lado derecho es 0: los dos casos coinciden, una sola solución.' : 'El lado derecho es negativo: ninguna distancia puede ser negativa, no hay solución.';
+    return exChoice(r, `¿Cuántas soluciones reales tiene <b>|${pLin(a, b, v)}| = ${pNg(c)}</b>?`, [opts[n], ...opts.filter((_, idx) => idx !== n)], expl);
+  };
+  return prBuild(r, [[16, eqTwoSol], [8, eqZero], [12, howMany]]);
+}
+
+/* ======================================================
+   14 · DESIGUALDADES DE VALOR ABSOLUTO
+   ====================================================== */
+function bankAbsDesigualdades(r) {
+  const absAnd = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5), b = prInt(r, -9, 9), rel = prPick(r, ['<', '≤']);
+    const fHi = prInt(r, 2, 9), fLo = -fHi, c = a * fHi;
+    return cpChoice(r, `Resuelve: <b>|${pLin(a, b, v)}| ${rel} ${c}</b>`, v, 'and', fLo, rel, fHi, rel, `Se convierte en ${pNg(-c)} ${rel} ${pLin(a, b, v)} ${rel} ${c}. Resta ${pNg(b)} y divide entre ${a}: ${pNg(fLo)} ${rel} ${v} ${rel} ${pNg(fHi)}.`);
+  };
+  const absOr = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5), b = prInt(r, -9, 9), rel = prPick(r, ['>', '≥']);
+    const fHi = prInt(r, 2, 9), fLo = -fHi, c = a * fHi, relLo = rel === '>' ? '<' : '≤';
+    return cpChoice(r, `Resuelve: <b>|${pLin(a, b, v)}| ${rel} ${c}</b>`, v, 'or', fLo, relLo, fHi, rel, `Se convierte en ${pLin(a, b, v)} ${relLo} ${pNg(-c)} o ${pLin(a, b, v)} ${rel} ${c}. Resta ${pNg(b)} y divide entre ${a}: ${v} ${relLo} ${pNg(fLo)} o ${v} ${rel} ${pNg(fHi)}.`);
+  };
+  const predictYO = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), c = prInt(r, 1, 12), rel = prPick(r, ['<', '≤', '>', '≥']);
+    const isAnd = rel === '<' || rel === '≤';
+    return exChoice(r, `<b>|${pLin(a, b, v)}| ${rel} ${c}</b> se convierte en una compuesta... ¿Y o O?`, isAnd ? ['Y (intersección)', 'O (unión)'] : ['O (unión)', 'Y (intersección)'], `${rel === '<' || rel === '≤' ? '< y ≤' : '> y ≥'} siempre dan ${isAnd ? 'Y' : 'O'}.`, true);
+  };
+  const isSolGen = (r, i) => {
+    const v = prPick(r, VARS), a = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), c = prInt(r, 2, 12), rel = prPick(r, ['<', '≤', '>', '≥']), t = prInt(r, -9, 9);
+    const val = Math.abs(a * t + b), truth = rel === '<' ? val < c : rel === '≤' ? val <= c : rel === '>' ? val > c : val >= c;
+    return exChoice(r, `¿Es ${v} = ${pNg(t)} solución de <b>|${pLin(a, b, v)}| ${rel} ${c}</b>?`, truth ? ['Sí es solución', 'No es solución'] : ['No es solución', 'Sí es solución'], `Sustituye: |${pLin(a, b, '(' + pNg(t) + ')')}| = ${val}. ¿${val} ${rel} ${c}? ${truth ? 'Sí' : 'No'}.`, true);
+  };
+  return prBuild(r, [[10, absAnd], [10, absOr], [6, predictYO], [10, isSolGen]]);
+}
+
+/* ======================================================
+   15 · SISTEMAS LINEALES POR ELIMINACIÓN
+   ====================================================== */
+function sysSolveEx(r, i) {
+  let A1, B1, A2, B2, det;
+  do { A1 = prInt(r, 1, 5) * (r() < .5 ? -1 : 1); B1 = prInt(r, 1, 5) * (r() < .5 ? -1 : 1); A2 = prInt(r, 1, 5) * (r() < .5 ? -1 : 1); B2 = prInt(r, 1, 5) * (r() < .5 ? -1 : 1); det = A1 * B2 - A2 * B1; } while (det === 0);
+  const x0 = prInt(r, -6, 6), y0 = prInt(r, -6, 6), C1 = A1 * x0 + B1 * y0, C2 = A2 * x0 + B2 * y0;
+  return exTwo(`Resuelve el sistema:<br><b>${sysCoefText(A1, B1)} = ${pNg(C1)}</b><br><b>${sysCoefText(A2, B2)} = ${pNg(C2)}</b>`, ['x', 'y'], [Q(x0), Q(y0)], `La solución es x = ${pNg(x0)}, y = ${pNg(y0)}. Verifica sustituyendo en las dos ecuaciones.`);
+}
+function bankSistElim(r) {
+  const sysElimPick = (r, i) => {
+    const kind = i % 4, p = () => prInt(r, 2, 8) * (r() < .5 ? -1 : 1);
+    let A1 = p(), A2 = p(), B1 = p(), B2 = p();
+    if (kind === 0) A2 = -A1; else if (kind === 1) B2 = -B1; else if (kind === 2) A2 = A1; else B2 = B1;
+    const opts = ['Sumarlas cancela la x', 'Sumarlas cancela la y', 'Restarlas cancela la x', 'Restarlas cancela la y'], label = opts[kind];
+    const why = kind < 2 ? `Al sumar, los coeficientes de ${kind === 0 ? 'x' : 'y'} son opuestos y se cancelan.` : `Al restar, los coeficientes de ${kind === 2 ? 'x' : 'y'} son iguales y se cancelan.`;
+    return exChoice(r, `Sin multiplicar nada, ¿qué logras al combinar estas dos filas?<br><b>${sysCoefText(A1, B1)} = …</b><br><b>${sysCoefText(A2, B2)} = …</b>`, [label, ...opts.filter(o => o !== label)], why);
+  };
+  const sysScale = (r, i) => {
+    const A = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), B = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), C = prInt(r, -12, 12), k = prInt(r, 2, 4) * (r() < .5 ? -1 : 1);
+    return exTwo(`Multiplica toda la ecuación <b>${sysCoefText(A, B)} = ${pNg(C)}</b> por ${pNg(k)}. ¿En qué queda el coeficiente de x y el de y?`, ['coeficiente de x', 'coeficiente de y'], [Q(A * k), Q(B * k)], `Multiplica cada término: ${pNg(A * k)}x ${B * k < 0 ? '−' : '+'} ${Math.abs(B * k)}y = ${pNg(C * k)}.`);
+  };
+  return prBuild(r, [[16, sysSolveEx], [10, sysElimPick], [10, sysScale]]);
+}
+
+/* ======================================================
+   16 · SISTEMAS LINEALES POR SUSTITUCIÓN
+   ====================================================== */
+function bankSistSust(r) {
+  const subReady = (r, i) => {
+    const A1 = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), B1 = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), C1 = prInt(r, -10, 10);
+    const A2 = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), B2 = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), C2 = prInt(r, -10, 10);
+    return exChoice(r, `Para resolver por sustitución:<br><b>${sysCoefText(A1, B1)} = ${pNg(C1)}</b><br><b>${sysCoefText(A2, B2)} = ${pNg(C2)}</b><br>¿qué haces primero?`, ['Despejar una letra en una de las dos ecuaciones', 'Sumar las dos ecuaciones', 'Graficar las dos rectas', 'Multiplicar las ecuaciones entre sí'], 'La sustitución necesita primero una expresión tipo "letra = ..." para poder enchufarla en la otra ecuación.');
+  };
+  const subPlug = (r, i) => {
+    const m = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), A = prInt(r, 1, 6) * (r() < .5 ? -1 : 1), B = prInt(r, 1, 5) * (r() < .5 ? -1 : 1);
+    const K = A + B * m, L = B * b;
+    return exTwo(`Si y = ${pLin(m, b, 'x')} y lo sustituyes en <b>${sysCoefText(A, B)} = C</b>, ¿cuál queda el coeficiente de x y cuál la constante (antes de pasar la C)?`, ['coeficiente de x', 'constante'], [Q(K), Q(L)], `${pLin(A, 0, 'x')} ${B < 0 ? '−' : '+'} ${Math.abs(B)}(${pLin(m, b, 'x')}) se distribuye y agrupa en ${pLin(K, L, 'x')}: coeficiente ${pNg(K)}, constante ${pNg(L)}.`);
+  };
+  const subSolveFull = (r, i) => {
+    const m = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), b = prInt(r, -9, 9), A = prInt(r, 1, 5) * (r() < .5 ? -1 : 1), B = prInt(r, 1, 5) * (r() < .5 ? -1 : 1);
+    const x0 = prInt(r, -6, 6), y0 = m * x0 + b, C = A * x0 + B * y0;
+    return exTwo(`Resuelve por sustitución:<br><b>y = ${pLin(m, b, 'x')}</b><br><b>${sysCoefText(A, B)} = ${pNg(C)}</b>`, ['x', 'y'], [Q(x0), Q(y0)], `Sustituye y en la segunda ecuación y despeja x = ${pNg(x0)}; luego y = ${pNg(m)}(${pNg(x0)}) ${b < 0 ? '−' : '+'} ${Math.abs(b)} = ${pNg(y0)}.`);
+  };
+  return prBuild(r, [[16, sysSolveEx], [8, subReady], [6, subPlug], [6, subSolveFull]]);
+}
+
 /* ---------- registro ---------- */
 const BANKS = {
   desigualdades: bankDesigualdades(prRng(1101)), ecuaciones: bankEcuaciones(prRng(1202)), funciones: bankFunciones(prRng(1303)),
   varios: bankVarios(prRng(1404)), pendiente: bankPendiente(prRng(1505)), estandar: bankEstandar(prRng(1606)),
   rectas: bankRectas(prRng(1707)), orden: bankOrden(prRng(1808)), exponentes: bankExponentes(prRng(1909)),
-  conjuntos: bankConjuntos(prRng(2010)), racionales: bankRacionales(prRng(2111))
+  conjuntos: bankConjuntos(prRng(2010)), racionales: bankRacionales(prRng(2111)),
+  compuestas: bankCompuestas(prRng(2212)), abseq: bankAbsEcuaciones(prRng(2313)), absineq: bankAbsDesigualdades(prRng(2414)),
+  sistelim: bankSistElim(prRng(2515)), sistsust: bankSistSust(prRng(2616))
 };
 
 /* ======================================================
@@ -2660,6 +3576,23 @@ function bankRepaso1() {
   return out;
 }
 BANKS.repaso1 = bankRepaso1();
+
+/* ======================================================
+   EXAMEN 1 · mezcla de los temas 1 a 6 (set distinto a Repaso 1)
+   Misma dinámica que Repaso 1 (6 ejercicios de cada banco,
+   intercalados), pero con otra semilla para que las preguntas
+   no coincidan con las ya vistas en el repaso.
+   ====================================================== */
+function bankExamen1() {
+  const topics = ['desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar'];
+  const names = { desigualdades: '1 · Desigualdades', ecuaciones: '2 · Ecuaciones', funciones: '3 · Funciones', varios: '4 · Varios pasos', pendiente: '5 · Pendiente', estandar: '6 · Estándar' };
+  const r = prRng(3113), perTopic = 6;
+  const picked = topics.map(t => prShuf(r, BANKS[t]).slice(0, perTopic).map(ex => ({ ...ex, tema: names[t] })));
+  const out = [];
+  for (let i = 0; i < perTopic; i++) topics.forEach((t, k) => out.push(picked[k][i]));
+  return out;
+}
+BANKS.examen1 = bankExamen1();
 
 </script>
 <script>

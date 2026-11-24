@@ -77,7 +77,12 @@ const MENU = [
   { tab: 'orden', n: 8, t: 'Orden de operaciones', s: 'Libro 1.4', tot: 8, get: () => psz('or') },
   { tab: 'exponentes', n: 9, t: 'Exponentes y notación científica', s: 'Libro 1.5 y 1.6', tot: 6, get: () => psz('nc') },
   { tab: 'conjuntos', n: 10, t: 'Conjuntos', s: 'Libro 1.2', tot: 3, get: () => psz('cj') },
-  { tab: 'racionales', n: 11, t: 'Racionales y proporciones', s: 'Exámenes 8.º y 9.º', tot: 8, get: () => psz('rf') + psz('m-rp') }
+  { tab: 'racionales', n: 11, t: 'Racionales y proporciones', s: 'Exámenes 8.º y 9.º', tot: 8, get: () => psz('rf') + psz('m-rp') },
+  { tab: 'compuestas', n: 12, t: 'Desigualdades compuestas', s: 'Y / O en la recta numérica', tot: 8, get: () => psz('cp') },
+  { tab: 'abseq', n: 13, t: 'Ecuaciones de valor absoluto', s: 'Las dos puertas espejo', tot: 8, get: () => psz('ae') },
+  { tab: 'absineq', n: 14, t: 'Desigualdades de valor absoluto', s: 'La frontera con eco', tot: 8, get: () => psz('ad') },
+  { tab: 'sistelim', n: 15, t: 'Sistemas lineales: eliminación', s: 'Cancelar el ingrediente', tot: 7, get: () => psz('se') },
+  { tab: 'sistsust', n: 16, t: 'Sistemas lineales: sustitución', s: 'La pieza que entra en la otra máquina', tot: 7, get: () => psz('ss') }
 ];
 function renderMenu() {
   const grid = $('#menu-grid'); if (!grid) return;
@@ -92,7 +97,7 @@ function renderMenu() {
 }
 
 /* ---------- pestañas ---------- */
-const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'repaso1', 'examen1', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales'];
+const TABS = ['inicio', 'desigualdades', 'ecuaciones', 'funciones', 'varios', 'pendiente', 'estandar', 'repaso1', 'examen1', 'rectas', 'orden', 'exponentes', 'conjuntos', 'racionales', 'compuestas', 'abseq', 'absineq', 'sistelim', 'sistsust'];
 function showTab(id) {
   if (!TABS.includes(id)) id = 'inicio';
   if (id === 'inicio') renderMenu();

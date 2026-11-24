@@ -285,3 +285,14 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--lime)}
 .pr-opt.sel{border-color:var(--cyan);color:var(--cyan)}
 .pr-act{gap:8px;flex-wrap:wrap}
 .pr-msg{margin-top:10px;min-height:1.4em}
+
+/* misiones 12-14: segunda frontera en la recta numérica (compuestas, valor absoluto) */
+.nl .zone2{fill:var(--pink);opacity:.2}
+.nl .zr2{stroke:var(--pink);stroke-width:7;stroke-linecap:butt}
+.nl .ar2{stroke:var(--amber);stroke-width:7}
+
+/* misión 15: término cancelado al sumar las ecuaciones */
+.cancel{text-decoration:line-through;opacity:.45}
+
+/* misión 16: ficha que se enchufa en la otra ecuación */
+.plugchip{display:inline-block;font:700 16px var(--f-mono);padding:3px 10px;background:var(--panel2);border:3px solid var(--cyan);border-radius:4px;box-shadow:0 0 0 4px #52d9ff33}
